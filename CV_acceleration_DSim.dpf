@@ -1,0 +1,10 @@
+---
+# Note: The contents of this file are automatically generated.
+# Any changes made by hand may be overwritten.
+version: '0.2'
+work_dir: .
+design_root_dir: ./CV_acceleration/src
+simulations: []
+source_files: []
+library_search_paths:
+  - $STD_LIBS\ieee93
