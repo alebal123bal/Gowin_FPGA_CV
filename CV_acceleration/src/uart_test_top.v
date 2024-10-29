@@ -1,9 +1,10 @@
 `timescale 1ns / 1ps
 
 module top_alternative (
-    input clk,     // 27 MHz clock
-    input rst_n,   // Active low reset
-    output uart_tx // UART TX pin
+    input clk,      // 27 MHz clock
+    input rst_n,    // Active low reset
+    output uart_tx, // UART TX pin
+    output Voltage
 );
 
 // Parameters
@@ -110,5 +111,8 @@ always @(posedge clk or negedge rst_n) begin
         end
     end
 end
+
+// Combinatorial logic
+assign Voltage = !rst_n;
 
 endmodule
