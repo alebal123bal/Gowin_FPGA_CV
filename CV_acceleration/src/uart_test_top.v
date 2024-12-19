@@ -3,7 +3,7 @@
 module top_alternative (
     input clk,          // 27 MHz clock
     input rst_n,        // Active low reset
-    input sel_button,   // New input for source selection
+    input sel_button,   // Input for source selection
     output uart_tx,     // UART TX pin
     output Voltage
 );
@@ -14,11 +14,12 @@ parameter BAUD_RATE = 115200;   // 115200 bps
 parameter MESSAGE_LEN = 15;     // Length of "Hello World x\r\n"
 
 // Registers
-reg [131:0] message_buf;        // 15 characters * 8 bits = 120 bits (+ extra if needed)
+reg [131:0] message_buf;
 reg [3:0] char_index;
 reg [7:0] tx_data;
 reg tx_data_valid;
-reg [26:0] counter;            // Sufficient bits to count to ~27,000,000
+reg [26:0] counter_main;            // Sufficient bits to count to ~27,000,000
+reg [31:0] counter_rPLL;            // More than sufficient bits to count to ~54,000,000
 reg [7:0] letter;             // 8 bits to represent A-Z (0-25)
 reg sending;
 reg source_select;            // Register to hold the toggled state
@@ -28,6 +29,8 @@ reg source_select_prev;       // For edge detection
 wire tx_data_ready;
 wire [7:0] rom_data;         // Data from ROM
 wire [3:0] rom_addr;         // Address for ROM
+wire pll_clk;                // Wire for PLL output
+
 
 // Button debounce and toggle logic
 always @(posedge clk or negedge rst_n) begin
@@ -65,6 +68,12 @@ Gowin_pROM my_ROM(
     .ad(rom_addr)          // input [3:0] ad
 );
 
+// PLL instance
+Gowin_rPLL pll_inst (
+    .clkout(pll_clk),
+    .clkin(clk)
+);
+
 assign rom_addr = char_index;  // Use char_index as ROM address
 
 // Synchronous Initialization of the Message Buffer
@@ -73,19 +82,30 @@ always @(posedge clk or negedge rst_n) begin
         // Initialize static part of the message
         message_buf <= { "Hello World ", 8'h00, 8'h0D, 8'h0A }; // Reserve byte for 'x' at position 12
     end else begin
-        // No dynamic changes to the static message part
-        // Only the 'x' character is dynamic and handled in transmission logic
+
     end
 end
 
-// 1-second counter
+// 1-second counter @27MHz
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-        counter <= 0;
-    end else if (counter == (CLK_FREQ * 27'd1_000_000 - 1)) begin // 27 MHz * 1s
-        counter <= 0;
+        counter_main <= 0;
+    end else if (counter_main == (CLK_FREQ * 27'd1_000_000 - 1)) begin // 27 MHz * 1s
+        counter_main <= 0;
     end else begin
-        counter <= counter + 1;
+        counter_main <= counter_main + 1;
+    end
+end
+
+
+// 1-second counter @Custom frequency (used to check correct bhv of rPLL)
+always @(posedge pll_clk or negedge rst_n) begin
+    if (!rst_n) begin
+        counter_rPLL <= 0;
+    end else if (counter_rPLL == (CLK_FREQ * 54'd1_000_000 - 1)) begin
+        counter_rPLL <= 0;
+    end else begin
+        counter_rPLL <= counter_rPLL + 1;
     end
 end
 
@@ -93,7 +113,7 @@ end
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         letter <= 8'd0; // Start with 'A'
-    end else if (counter == (CLK_FREQ * 27'd1_000_000 - 1)) begin
+    end else if (counter_main == (CLK_FREQ * 27'd1_000_000 - 1)) begin
         if (letter == 25) // If 'Z', wrap around to 'A'
             letter <= 8'd0;
         else
@@ -109,7 +129,7 @@ always @(posedge clk or negedge rst_n) begin
         sending <= 1'b0;
         tx_data <= 8'd0;
     end else begin
-        if (counter == 0 && !sending) begin
+        if (counter_main == 0 && !sending) begin
             sending <= 1'b1;
             char_index <= 4'd0;
         end
