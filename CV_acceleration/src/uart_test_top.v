@@ -5,7 +5,8 @@ module top_alternative (
     input rst_n,        // Active low reset
     input sel_button,   // Input for source selection
     output uart_tx,     // UART TX pin
-    output Voltage
+    output Voltage,
+    output PLL_ok
 );
 
 // Parameters
@@ -24,9 +25,13 @@ reg [7:0] letter;             // 8 bits to represent A-Z (0-25)
 reg sending;
 reg source_select;            // Register to hold the toggled state
 reg source_select_prev;       // For edge detection
+reg freq_comp_ready;        // High once every second
 
 // Wires
 wire tx_data_ready;
+wire freq_match;
+wire freq_high;
+wire freq_low;
 wire [7:0] rom_data;         // Data from ROM
 wire [3:0] rom_addr;         // Address for ROM
 wire pll_clk;                // Wire for PLL output
@@ -74,6 +79,20 @@ Gowin_rPLL pll_inst (
     .clkin(clk)
 );
 
+// frequency_comparator instance
+frequency_comparator #(
+    .EXPECTED_FREQ(54_000_000),  // 54 MHz
+    .TOLERANCE_PERCENT(1)         // 1% tolerance
+) freq_comp (
+    .clk(clk),
+    .rst_n(rst_n),
+    .measured_freq(counter_rPLL),
+    .new_data_valid(freq_comp_ready),
+    .freq_match(freq_match),
+    .freq_too_high(freq_high),
+    .freq_too_low(freq_low)
+);
+
 assign rom_addr = char_index;  // Use char_index as ROM address
 
 // Synchronous Initialization of the Message Buffer
@@ -90,10 +109,13 @@ end
 always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         counter_main <= 0;
+        freq_comp_ready <= 0;
     end else if (counter_main == (CLK_FREQ * 27'd1_000_000 - 1)) begin // 27 MHz * 1s
         counter_main <= 0;
+        freq_comp_ready <= 1;
     end else begin
         counter_main <= counter_main + 1;
+        freq_comp_ready <= 0;
     end
 end
 
@@ -167,5 +189,6 @@ end
 
 // Combinatorial logic
 assign Voltage = !rst_n;
+assign PLL_ok = freq_low;
 
 endmodule
