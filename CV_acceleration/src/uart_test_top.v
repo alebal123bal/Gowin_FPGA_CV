@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module top_alternative (
+module top (
     input clk,          // 27 MHz clock
     input rst_n,        // Active low reset
     input sel_button,   // Input for source selection
