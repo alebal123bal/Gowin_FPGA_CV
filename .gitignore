@@ -7,3 +7,5 @@ carry_lookahead_adder
 *.log
 *.vcd
 *.db
+*.pdf
+clk_f_tester.py
