@@ -1,1 +1,2 @@
 ../src/HDMI/HDMI_8b_10b_encoding.v
+# Use this file optionally instead of manually adding them from the menu

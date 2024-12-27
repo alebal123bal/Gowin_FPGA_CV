@@ -1,3 +1,6 @@
+// This is the original module from https://doc.embedfire.com/fpga/altera/ep4ce10_pro/zh/latest/code/hdmi.html
+// It is used for cross check validation of "translated" module
+
 module encode
 (
 input wire sys_clk , //时钟信号
@@ -59,7 +62,7 @@ else
 data_in_reg <= data_in;
 
 //condition_1:条件1
-assign condition_1 = ((data_in_n1 > 4'd4) \|\| ((data_in_n1 == 4'd4)
+assign condition_1 = ((data_in_n1 > 4'd4) || ((data_in_n1 == 4'd4)
 && (data_in_reg[0] == 1'b1)));
 
 //q_m:第一阶段转换后的9bit数据
@@ -88,11 +91,11 @@ q_m_n0<=4'd8-(q_m[0]+q_m[1]+q_m[2]+q_m[3] + q_m[4] + q_m[5] + q_m[6] + q_m[7]);
 end
 
 //condition_2:条件2
-assign condition_2 = ((cnt == 5'd0) \|\| (q_m_n1 == q_m_n0));
+assign condition_2 = ((cnt == 5'd0) || (q_m_n1 == q_m_n0));
 
 //condition_3:条件3
 assign condition_3 = (((~cnt[4] == 1'b1) && (q_m_n1 > q_m_n0))
-\|\| ((cnt[4] == 1'b1) && (q_m_n0 > q_m_n1)));
+|| ((cnt[4] == 1'b1) && (q_m_n0 > q_m_n1)));
 
 //数据打拍,为了各数据同步
 always@(posedge sys_clk or negedge sys_rst_n)
