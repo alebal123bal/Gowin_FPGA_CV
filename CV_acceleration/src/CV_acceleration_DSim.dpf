@@ -7,6 +7,8 @@ design_root_dir: .
 simulations:
   - name: Encoding_sim
     options: '-top work.HDMI_8b_10b_encoding_tb -L work +acc+b -waves encoded_waves.vcd'
+  - name: DDR_sim
+    options: '-top work.tb_ddio_out -L work +acc+b -waves ddio_waves.vcd'
 source_files:
   - language: verilog
     path: HDMI\HDMI_8b_10b_encoding.v
@@ -14,4 +16,8 @@ source_files:
     path: HDMI/encode.v
   - language: verilog
     path: HDMI\HDMI_8b_10b_encoding_tb.v
+  - language: verilog
+    path: ./DDR/ddio_out.v
+  - language: verilog
+    path: ./DDR/tb_ddio_out.v
 library_search_paths: []
