@@ -29,12 +29,8 @@ reg freq_comp_ready;        // High once every second
 
 // Wires
 wire tx_data_ready;
-wire freq_match;
-wire freq_high;
-wire freq_low;
 wire [7:0] rom_data;         // Data from ROM
 wire [3:0] rom_addr;         // Address for ROM
-wire pll_clk;                // Wire for PLL output
 
 
 // Button debounce and toggle logic
@@ -73,25 +69,6 @@ Gowin_pROM my_ROM(
     .ad(rom_addr)          // input [3:0] ad
 );
 
-// PLL instance
-Gowin_rPLL pll_inst (
-    .clkout(pll_clk),
-    .clkin(clk)
-);
-
-// frequency_comparator instance
-frequency_comparator #(
-    .EXPECTED_FREQ(54_000_000),  // 54 MHz
-    .TOLERANCE_PERCENT(1)         // 1% tolerance
-) freq_comp (
-    .clk(clk),
-    .rst_n(rst_n),
-    .measured_freq(counter_rPLL),
-    .new_data_valid(freq_comp_ready),
-    .freq_match(freq_match),
-    .freq_too_high(freq_high),
-    .freq_too_low(freq_low)
-);
 
 assign rom_addr = char_index;  // Use char_index as ROM address
 
@@ -119,17 +96,6 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
-
-// 1-second counter @Custom frequency (used to check correct bhv of rPLL)
-always @(posedge pll_clk or negedge rst_n) begin
-    if (!rst_n) begin
-        counter_rPLL <= 0;
-    end else if (counter_rPLL == (CLK_FREQ * 54'd1_000_000 - 1)) begin
-        counter_rPLL <= 0;
-    end else begin
-        counter_rPLL <= counter_rPLL + 1;
-    end
-end
 
 // Letter incrementer
 always @(posedge clk or negedge rst_n) begin
@@ -189,6 +155,5 @@ end
 
 // Combinatorial logic
 assign Voltage = !rst_n;
-assign PLL_ok = freq_low;
 
 endmodule
