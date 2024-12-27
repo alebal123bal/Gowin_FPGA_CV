@@ -44,7 +44,7 @@ module HDMI_8b_10b_encoding_tb;
 
         // Apply test input
         data_in = 8'b01010101;  // Input sequence
-        #20;                    // Wait for one clock cycle
+        #100;                   // Wait for more clock cycles (output stabilizes after 2 of them)
         
         // Check output
         if (data_out == 10'b1001100110) begin
