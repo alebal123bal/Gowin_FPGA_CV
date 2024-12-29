@@ -26,4 +26,6 @@ source_files:
     path: ./PAR_TO_SER/par_to_ser.v
   - language: verilog
     path: ./PAR_TO_SER/par_to_ser_tb.v
+  - language: verilog
+    path: HDMI/HDMI_ctrl.v
 library_search_paths: []
