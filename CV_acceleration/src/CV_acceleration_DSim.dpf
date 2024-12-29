@@ -9,6 +9,8 @@ simulations:
     options: '-top work.HDMI_8b_10b_encoding_tb -L work +acc+b -waves encoded_waves.vcd'
   - name: DDR_sim
     options: '-top work.tb_ddio_out -L work +acc+b -waves ddio_waves.vcd'
+  - name: PAR_TO_SER
+    options: '-top work.tb_par_to_ser -L work +acc+b -waves par_to_ser_waves.vcd'
 source_files:
   - language: verilog
     path: HDMI\HDMI_8b_10b_encoding.v
@@ -20,4 +22,8 @@ source_files:
     path: ./DDR/ddio_out.v
   - language: verilog
     path: ./DDR/tb_ddio_out.v
+  - language: verilog
+    path: ./PAR_TO_SER/par_to_ser.v
+  - language: verilog
+    path: ./PAR_TO_SER/par_to_ser_tb.v
 library_search_paths: []
