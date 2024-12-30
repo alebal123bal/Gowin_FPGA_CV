@@ -2,10 +2,6 @@ module testpattern
 (
     input              I_pxl_clk   ,
     input              I_rst_n     ,
-    input      [2:0]   I_mode      ,
-    input      [7:0]   I_single_r  ,
-    input      [7:0]   I_single_g  ,
-    input      [7:0]   I_single_b  ,
     input      [11:0]  I_h_total   ,
     input      [11:0]  I_h_sync    ,
     input      [11:0]  I_h_bporch  ,

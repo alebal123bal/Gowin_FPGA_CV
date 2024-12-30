@@ -59,11 +59,8 @@ assign  O_led[3] = ~I_rst_n;
 testpattern testpattern_inst
 (
     .I_pxl_clk   (pix_clk            ),//pixel clock
-    .I_rst_n     (hdmi4_rst_n        ),//low active 
-    .I_mode      ({1'b0,cnt_vs[9:8]} ),//data select
-    .I_single_r  (8'd0               ),
-    .I_single_g  (8'd255             ),
-    .I_single_b  (8'd0               ),                  //800x600    //1024x768   //1280x720    
+    .I_rst_n     (hdmi4_rst_n        ),//low active
+                                                         // 800x600   // 1024x768  // 1280x720    
     .I_h_total   (12'd1650           ),//hor total time  // 12'd1056  // 12'd1344  // 12'd1650  
     .I_h_sync    (12'd40             ),//hor sync time   // 12'd128   // 12'd136   // 12'd40    
     .I_h_bporch  (12'd220            ),//hor back porch  // 12'd88    // 12'd160   // 12'd220   
