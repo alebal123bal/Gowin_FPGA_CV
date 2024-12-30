@@ -1,3 +1,5 @@
+// Working at 74.25MHz	--> 1280x720 @ 60FPS
+
 module testpattern
 (
     input              I_pxl_clk   ,
@@ -17,7 +19,8 @@ module testpattern
     output reg         O_vs        ,
     output reg [7:0]   O_data_r    ,
     output reg [7:0]   O_data_g    ,
-    output reg [7:0]   O_data_b    
+    output reg [7:0]   O_data_b    ,
+	output reg		   FPS_measure_DSO
 );
 
 reg  [11:0]   V_cnt;
@@ -79,11 +82,14 @@ always @(posedge I_pxl_clk or negedge I_rst_n) begin
         frame_count <= 5'd0;
         color_value <= 8'd0;
         direction <= 1'b0;
+		FPS_measure_DSO <= 1'b0;
     end else begin
         vs_prev <= O_vs;
         
         // Detect frame transition on VS falling edge
         if (vs_prev && !O_vs) begin
+			// New frame starts here
+			FPS_measure_DSO <= ~FPS_measure_DSO;
             if (frame_count == 5'd29) begin
                 frame_count <= 5'd0;
                 direction <= ~direction;

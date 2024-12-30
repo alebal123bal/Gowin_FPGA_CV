@@ -8,7 +8,8 @@ module top
     output            O_tmds_clk_p    ,
     output            O_tmds_clk_n    ,
     output     [2:0]  O_tmds_data_p   ,//{r,g,b}
-    output     [2:0]  O_tmds_data_n   
+    output     [2:0]  O_tmds_data_n   ,
+    output            PMOD_wire   
 );
 
 //==================================================
@@ -34,6 +35,11 @@ wire pll_lock;
 wire hdmi4_rst_n;
 
 wire pix_clk;
+
+// Debug wires to measure with oscilloscope
+// Of course the frequency is double of that measured, since half period ON corresponds to 1 frame
+// as well as 1 half period OFF   --> 2 frames per period
+wire debug_wire_0;
 
 //===================================================
 //LED test
@@ -76,7 +82,8 @@ testpattern testpattern_inst
     .O_vs        (tp0_vs_in          ),
     .O_data_r    (tp0_data_r         ),   
     .O_data_g    (tp0_data_g         ),
-    .O_data_b    (tp0_data_b         )
+    .O_data_b    (tp0_data_b         ),
+    .FPS_measure_DSO(debug_wire_0)
 );
 
 always@(posedge pix_clk)
@@ -128,6 +135,7 @@ DVI_TX_Top DVI_TX_Top_inst
     .O_tmds_data_n (O_tmds_data_n )
 );
 
-
+// Debug through PMOD connectors
+assign PMOD_wire = debug_wire_0;
 
 endmodule

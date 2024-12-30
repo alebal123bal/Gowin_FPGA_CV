@@ -4,6 +4,10 @@
 //IO_PORT "uart_rx" IO_TYPE=LVCMOS33;
 //IO_PORT "uart_tx" IO_TYPE=LVCMOS33;
 
+// Debug pins
+IO_LOC "PMOD_wire" L9;
+IO_PORT "PMOD_wire" IO_TYPE=LVCMOS33;
+
 // HDMI
 IO_LOC "O_tmds_clk_p" G16,H15;
 IO_PORT "O_tmds_clk_p" PULL_MODE=NONE DRIVE=3.5;
