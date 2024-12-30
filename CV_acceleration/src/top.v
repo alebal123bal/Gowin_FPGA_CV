@@ -9,7 +9,16 @@ module top
     output            O_tmds_clk_n    ,
     output     [2:0]  O_tmds_data_p   ,//{r,g,b}
     output     [2:0]  O_tmds_data_n   ,
-    output            PMOD_wire   
+    inout             cmos_scl,          //cmos i2c clock
+	inout             cmos_sda,          //cmos i2c data
+	input             cmos_vsync,        //cmos vsync
+	input             cmos_href,         //cmos hsync refrence,data valid
+	input             cmos_pclk,         //cmos pxiel clock
+    output            cmos_xclk,         //cmos externl clock 
+	input   [7:0]     cmos_db,           //cmos data
+	output            cmos_rst_n,        //cmos reset 
+	output            cmos_pwdn,         //cmos power down
+    output  [7:0]     PMOD_wire          //Frequency measurements with DSO
 );
 
 //==================================================
@@ -27,7 +36,7 @@ wire [ 7:0] tp0_data_b/*synthesis syn_keep=1*/;
 reg         vs_r;
 reg  [9:0]  cnt_vs;
 
-//------------------------------------
+//===================================================
 //HDMI4 TX
 wire serial_clk;
 wire pll_lock;
@@ -36,10 +45,18 @@ wire hdmi4_rst_n;
 
 wire pix_clk;
 
+
+//===================================================
 // Debug wires to measure with oscilloscope
-// Of course the frequency is double of that measured, since half period ON corresponds to 1 frame
+// Of course the frequency is double of that measured, 
+// since half period ON corresponds to 1 frame
 // as well as 1 half period OFF   --> 2 frames per period
-wire debug_wire_0;
+wire debug_wire_HMDI_clk;
+
+//===================================================
+// OV5640 camera
+wire cmos_clk;
+
 
 //===================================================
 //LED test
@@ -83,7 +100,7 @@ testpattern testpattern_inst
     .O_data_r    (tp0_data_r         ),   
     .O_data_g    (tp0_data_g         ),
     .O_data_b    (tp0_data_b         ),
-    .FPS_measure_DSO(debug_wire_0)
+    .FPS_measure_DSO(debug_wire_HMDI_clk)
 );
 
 always@(posedge pix_clk)
@@ -135,7 +152,35 @@ DVI_TX_Top DVI_TX_Top_inst
     .O_tmds_data_n (O_tmds_data_n )
 );
 
+//=========================================================================
+//PLL for OV5640 @ 24MHz
+cmos_pll cmos_pll_m0(
+	.clkin                     (I_clk                      		),
+	.clkout                    (cmos_clk 	              		)
+);
+
+// 24MHz = 24,000,000 cycles per second
+localparam HALF_PERIOD = 12_000_000;
+    
+reg [24:0] counter;        // 25 bits can count up to 33,554,432
+reg blink;
+
+    always @(posedge cmos_clk or negedge I_rst_n) begin
+        if (!I_rst_n) begin
+            counter <= 0;
+            blink <= 0;
+        end else begin
+            if (counter == HALF_PERIOD - 1) begin
+                counter <= 0;
+                blink <= ~blink;
+            end else begin
+                counter <= counter + 1;
+            end
+        end
+    end
+
 // Debug through PMOD connectors
-assign PMOD_wire = debug_wire_0;
+assign PMOD_wire[0] = debug_wire_HMDI_clk;    //HDMI @ 74.25MHz
+assign PMOD_wire[1] = blink;    //OV5640 @ 24MHz
 
 endmodule
