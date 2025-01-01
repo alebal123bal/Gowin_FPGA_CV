@@ -49,12 +49,11 @@ reg debug_reg_CMOS_clk;
 // OV5640 camera
 wire cmos_clk;
 reg [24:0] counter_CMOS_clk;        // 25 bits can count up to 33,554,432
+wire debug_PCLK;
+assign debug_PCLK = cmos_href;
 
 //=========================================================================
 // I2C master controller for OV5640 registers setup using I2C_MASTER_Top
-reg[2:0] waddr;
-reg[7:0] wdata;
-wire i2c_done;
 
 
 //===================================================
@@ -138,18 +137,19 @@ cmos_pll cmos_pll_m0(
 
 //=========================================================================
 //I2C master controller for OV5640 registers setup
-I2C_MASTER_Top i2c_master_inst (
-    .I_CLK(I_clk),             // Clock input
-    .I_RESETN(I_rst_n),        // Active-low reset
-    .I_TX_EN(tx_en),           // Enable write transaction
-    .I_WADDR(waddr),           // Write address (3 bits)
-    .I_WDATA(wdata),           // Write data (8 bits)
-    .I_RX_EN(1'b0),            // Receive enable (not used in this case)
-    .I_RADDR(3'b000),          // Read address (not used in this case)
-    .O_RDATA(),                // Output data (not used in this case)
-    .O_IIC_INT(i2c_done),      // Interrupt signal (done flag)
-    .SCL(cmos_scl),            // I2C clock line
-    .SDA(cmos_sda)             // I2C data line
+i2c_config i2c_config_m0(
+	.rst                        (~I_rst_n                   ),
+	.clk                        (I_clk                      ),
+	.clk_div_cnt                (16'd500                  ),
+	.i2c_addr_2byte             (1'b1                     ),
+	.lut_index                  (lut_index                ),
+	.lut_dev_addr               (lut_data[31:24]          ),
+	.lut_reg_addr               (lut_data[23:8]           ),
+	.lut_reg_data               (lut_data[7:0]            ),
+	.error                      (                         ),
+	.done                       (                         ),
+	.i2c_scl                    (cmos_scl                 ),
+	.i2c_sda                    (cmos_sda                 )
 );
 
 //=========================================================================
@@ -211,5 +211,6 @@ assign cmos_rst_n = I_rst_n;       // Connect reset
 // Debug through PMOD connectors
 assign PMOD_wire[0] = debug_wire_HMDI_clk;    //HDMI @ 74.25MHz
 assign PMOD_wire[1] = debug_reg_CMOS_clk;    //OV5640 @ 24MHz
+assign PMOD_wire[2] = debug_PCLK;    //OV5640 @ 24MHz
 
 endmodule
