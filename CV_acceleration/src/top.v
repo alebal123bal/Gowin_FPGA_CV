@@ -33,8 +33,6 @@ wire [ 7:0] tp0_data_r/*synthesis syn_keep=1*/;
 wire [ 7:0] tp0_data_g/*synthesis syn_keep=1*/;
 wire [ 7:0] tp0_data_b/*synthesis syn_keep=1*/;
 
-reg         vs_r;
-reg  [9:0]  cnt_vs;
 
 //===================================================
 //HDMI4 TX
@@ -78,7 +76,7 @@ assign  O_led[2] = ~I_rst_n;
 assign  O_led[3] = ~I_rst_n;
 
 //===========================================================================
-//testpattern
+//Timing and testpattern generator
 testpattern testpattern_inst
 (
     .I_pxl_clk   (pix_clk            ),//pixel clock
@@ -103,21 +101,9 @@ testpattern testpattern_inst
     .FPS_measure_DSO(debug_wire_HMDI_clk)
 );
 
-always@(posedge pix_clk)
-begin
-    vs_r<=tp0_vs_in;
-end
-
-always@(posedge pix_clk or negedge hdmi4_rst_n)
-begin
-    if(!hdmi4_rst_n)
-        cnt_vs<=0;
-    else if(vs_r && !tp0_vs_in) //vs24 falling edge
-        cnt_vs<=cnt_vs+1'b1;
-end 
 
 //==============================================================================
-//TMDS TX(HDMI4)
+//PLL for TMDS TX(HDMI4) @ 371.25MHz
 TMDS_rPLL u_tmds_rpll
 (.clkin     (I_clk     )     //input clk 
 ,.clkout    (serial_clk)     //output clk 
@@ -126,6 +112,8 @@ TMDS_rPLL u_tmds_rpll
 
 assign hdmi4_rst_n = I_rst_n & pll_lock;
 
+//==============================================================================
+//PLL for HDMI @ 74.25MHz
 CLKDIV u_clkdiv
 (.RESETN(hdmi4_rst_n)
 ,.HCLKIN(serial_clk) //clk  x5
@@ -135,6 +123,8 @@ CLKDIV u_clkdiv
 defparam u_clkdiv.DIV_MODE="5";
 defparam u_clkdiv.GSREN="false";
 
+//==============================================================================
+//Actual HDMI transmitter, receiving input from testpattern and interfacing with physical HDMI cable
 DVI_TX_Top DVI_TX_Top_inst
 (
     .I_rst_n       (hdmi4_rst_n   ),  //asynchronous reset, low active
@@ -146,7 +136,7 @@ DVI_TX_Top DVI_TX_Top_inst
     .I_rgb_r       (  tp0_data_r ),  //tp0_data_r
     .I_rgb_g       (  tp0_data_g  ),  
     .I_rgb_b       (  tp0_data_b  ),  
-    .O_tmds_clk_p  (O_tmds_clk_p  ),
+    .O_tmds_clk_p  (O_tmds_clk_p  ),  //Positive clock
     .O_tmds_clk_n  (O_tmds_clk_n  ),
     .O_tmds_data_p (O_tmds_data_p ),  //{r,g,b}
     .O_tmds_data_n (O_tmds_data_n )
@@ -165,19 +155,19 @@ localparam HALF_PERIOD = 12_000_000;
 reg [24:0] counter;        // 25 bits can count up to 33,554,432
 reg blink;
 
-    always @(posedge cmos_clk or negedge I_rst_n) begin
-        if (!I_rst_n) begin
+always @(posedge cmos_clk or negedge I_rst_n) begin
+    if (!I_rst_n) begin
+        counter <= 0;
+        blink <= 0;
+    end else begin
+        if (counter == HALF_PERIOD - 1) begin
             counter <= 0;
-            blink <= 0;
+            blink <= ~blink;
         end else begin
-            if (counter == HALF_PERIOD - 1) begin
-                counter <= 0;
-                blink <= ~blink;
-            end else begin
-                counter <= counter + 1;
-            end
+            counter <= counter + 1;
         end
     end
+end
 
 // Debug through PMOD connectors
 assign PMOD_wire[0] = debug_wire_HMDI_clk;    //HDMI @ 74.25MHz
