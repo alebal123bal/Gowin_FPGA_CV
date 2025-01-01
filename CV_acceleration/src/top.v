@@ -18,7 +18,7 @@ module top
 	input   [7:0]     cmos_db,           //cmos data
 	output            cmos_rst_n,        //cmos reset 
 	output            cmos_pwdn,         //cmos power down
-    output  [7:0]     PMOD_wire          //Frequency measurements with DSO
+    output  [7:0]     PMOD_wire          //Frequency measurements with DSO: they should all be converted to T = 1 second for correctness
 );
 
 //==================================================
@@ -45,35 +45,15 @@ wire pix_clk;
 
 
 //===================================================
-// Debug wires to measure with oscilloscope
-// Of course the frequency is double of that measured, 
-// since half period ON corresponds to 1 frame
-// as well as 1 half period OFF   --> 2 frames per period
+// Debug wires and regs to measure with oscilloscope
 wire debug_wire_HMDI_clk;
+reg debug_reg_CMOS_clk;
 
 //===================================================
 // OV5640 camera
 wire cmos_clk;
+reg [24:0] counter_CMOS_clk;        // 25 bits can count up to 33,554,432
 
-
-//===================================================
-//LED test
-always @(posedge I_clk or negedge I_rst_n) //I_clk
-begin
-    if(!I_rst_n)
-        run_cnt <= 32'd0;
-    else if(run_cnt >= 32'd27_000_000)
-        run_cnt <= 32'd0;
-    else
-        run_cnt <= run_cnt + 1'b1;
-end
-
-assign  running = (run_cnt < 32'd14_000_000) ? 1'b1 : 1'b0;
-
-assign  O_led[0] = running;
-assign  O_led[1] = running;
-assign  O_led[2] = ~I_rst_n;
-assign  O_led[3] = ~I_rst_n;
 
 //===========================================================================
 //Timing and testpattern generator
@@ -149,28 +129,48 @@ cmos_pll cmos_pll_m0(
 	.clkout                    (cmos_clk 	              		)
 );
 
+
+//===================================================
+//LED test
+always @(posedge I_clk or negedge I_rst_n) //I_clk
+begin
+    if(!I_rst_n)
+        run_cnt <= 32'd0;
+    else if(run_cnt >= 32'd27_000_000)
+        run_cnt <= 32'd0;
+    else
+        run_cnt <= run_cnt + 1'b1;
+end
+
+assign  running = (run_cnt < 32'd14_000_000) ? 1'b1 : 1'b0;
+
+assign  O_led[0] = running;
+assign  O_led[1] = running;
+assign  O_led[2] = ~I_rst_n;
+assign  O_led[3] = ~I_rst_n;
+
+//===================================================
+//CMOS PLL frequency test
+
 // 24MHz = 24,000,000 cycles per second
 localparam HALF_PERIOD = 12_000_000;
     
-reg [24:0] counter;        // 25 bits can count up to 33,554,432
-reg blink;
-
 always @(posedge cmos_clk or negedge I_rst_n) begin
     if (!I_rst_n) begin
-        counter <= 0;
-        blink <= 0;
+        counter_CMOS_clk <= 0;
+        debug_reg_CMOS_clk <= 0;
     end else begin
-        if (counter == HALF_PERIOD - 1) begin
-            counter <= 0;
-            blink <= ~blink;
+        if (counter_CMOS_clk == HALF_PERIOD - 1) begin
+            counter_CMOS_clk <= 0;
+            debug_reg_CMOS_clk <= ~debug_reg_CMOS_clk;
         end else begin
-            counter <= counter + 1;
+            counter_CMOS_clk <= counter_CMOS_clk + 1;
         end
     end
 end
 
 // Debug through PMOD connectors
 assign PMOD_wire[0] = debug_wire_HMDI_clk;    //HDMI @ 74.25MHz
-assign PMOD_wire[1] = blink;    //OV5640 @ 24MHz
+assign PMOD_wire[1] = debug_reg_CMOS_clk;    //OV5640 @ 24MHz
 
 endmodule

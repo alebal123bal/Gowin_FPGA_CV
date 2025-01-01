@@ -89,10 +89,10 @@ always @(posedge I_pxl_clk or negedge I_rst_n) begin
         // Detect frame transition on VS falling edge
         if (vs_prev && !O_vs) begin
 			// New frame starts here
-			FPS_measure_DSO <= ~FPS_measure_DSO;
             if (frame_count == 5'd29) begin
                 frame_count <= 5'd0;
                 direction <= ~direction;
+			    FPS_measure_DSO <= ~FPS_measure_DSO;    //30 frames high, 30 frames low: DSO will give T = 1 second --> 60fps
             end else begin
                 frame_count <= frame_count + 1'b1;
             end
