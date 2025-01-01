@@ -23,7 +23,6 @@ module top
 
 //==================================================
 reg  [31:0] run_cnt;
-wire        running;
 
 //--------------------------
 wire        tp0_vs_in  ;
@@ -38,11 +37,8 @@ wire [ 7:0] tp0_data_b/*synthesis syn_keep=1*/;
 //HDMI4 TX
 wire serial_clk;
 wire pll_lock;
-
 wire hdmi4_rst_n;
-
 wire pix_clk;
-
 
 //===================================================
 // Debug wires and regs to measure with oscilloscope
@@ -54,12 +50,17 @@ reg debug_reg_CMOS_clk;
 wire cmos_clk;
 reg [24:0] counter_CMOS_clk;        // 25 bits can count up to 33,554,432
 
+//=========================================================================
+// I2C master controller for OV5640 registers setup using I2C_MASTER_Top
+reg[2:0] waddr;
+reg[7:0] wdata;
+wire i2c_done;
+
+
 //===================================================
-// LUT for registers
+// LUT for OV5640 registers
 wire[9:0] lut_index;
 wire[31:0] lut_data;
-wire done_reg_config;
-wire err_reg_config;
 
 //===========================================================================
 //Timing and testpattern generator
@@ -91,9 +92,9 @@ testpattern testpattern_inst
 //==============================================================================
 //PLL for TMDS TX(HDMI4) @ 371.25MHz
 TMDS_rPLL u_tmds_rpll
-(.clkin     (I_clk     )     //input clk 
-,.clkout    (serial_clk)     //output clk 
-,.lock      (pll_lock  )     //output lock
+(.clkin     (I_clk     ),
+.clkout    (serial_clk),
+.lock      (pll_lock  )
 );
 
 assign hdmi4_rst_n = I_rst_n & pll_lock;
@@ -135,23 +136,22 @@ cmos_pll cmos_pll_m0(
 	.clkout                    (cmos_clk 	              		)
 );
 
-
 //=========================================================================
 //I2C master controller for OV5640 registers setup
-i2c_config i2c_config_m0(
-	.rst                        (~I_rst_n                   ),
-	.clk                        (I_clk                      ),
-	.clk_div_cnt                (16'd500                  ),
-	.i2c_addr_2byte             (1'b1                     ),
-	.lut_index                  (lut_index                ),
-	.lut_dev_addr               (lut_data[31:24]          ),
-	.lut_reg_addr               (lut_data[23:8]           ),
-	.lut_reg_data               (lut_data[7:0]            ),
-	.error                      (err_reg_config           ),
-	.done                       (done_reg_config          ),
-	.i2c_scl                    (cmos_scl                 ),
-	.i2c_sda                    (cmos_sda                 )
+I2C_MASTER_Top i2c_master_inst (
+    .I_CLK(I_clk),             // Clock input
+    .I_RESETN(I_rst_n),        // Active-low reset
+    .I_TX_EN(tx_en),           // Enable write transaction
+    .I_WADDR(waddr),           // Write address (3 bits)
+    .I_WDATA(wdata),           // Write data (8 bits)
+    .I_RX_EN(1'b0),            // Receive enable (not used in this case)
+    .I_RADDR(3'b000),          // Read address (not used in this case)
+    .O_RDATA(),                // Output data (not used in this case)
+    .O_IIC_INT(i2c_done),      // Interrupt signal (done flag)
+    .SCL(cmos_scl),            // I2C clock line
+    .SDA(cmos_sda)             // I2C data line
 );
+
 //=========================================================================
 //Configure look-up table
 lut_ov5640_rgb565_1280_720 lut_ov5640_rgb565_1280_720_m0(
@@ -172,12 +172,10 @@ begin
         run_cnt <= run_cnt + 1'b1;
 end
 
-assign  running = (run_cnt < 32'd14_000_000) ? 1'b1 : 1'b0;
-
-assign  O_led[0] = err_reg_config;
-assign  O_led[1] = done_reg_config;
-assign  O_led[2] = ~I_rst_n;
-assign  O_led[3] = ~I_rst_n;
+assign  O_led[0] = 1;
+assign  O_led[1] = 1;
+assign  O_led[2] = 1;
+assign  O_led[3] = I_rst_n;
 
 //===================================================
 //CMOS PLL frequency test
@@ -199,6 +197,17 @@ always @(posedge cmos_clk or negedge I_rst_n) begin
     end
 end
 
+//===================================================
+// State machine to iterate through the LUT
+
+
+//===================================================
+// Camera control signals
+assign cmos_xclk = cmos_clk;       // Connect camera clock
+assign cmos_pwdn = 1'b0;           // Power down inactive
+assign cmos_rst_n = I_rst_n;       // Connect reset
+
+//===================================================
 // Debug through PMOD connectors
 assign PMOD_wire[0] = debug_wire_HMDI_clk;    //HDMI @ 74.25MHz
 assign PMOD_wire[1] = debug_reg_CMOS_clk;    //OV5640 @ 24MHz
