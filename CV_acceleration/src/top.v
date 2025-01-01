@@ -54,6 +54,12 @@ reg debug_reg_CMOS_clk;
 wire cmos_clk;
 reg [24:0] counter_CMOS_clk;        // 25 bits can count up to 33,554,432
 
+//===================================================
+// LUT for registers
+wire[9:0] lut_index;
+wire[31:0] lut_data;
+wire done_reg_config;
+wire err_reg_config;
 
 //===========================================================================
 //Timing and testpattern generator
@@ -130,6 +136,30 @@ cmos_pll cmos_pll_m0(
 );
 
 
+//=========================================================================
+//I2C master controller for OV5640 registers setup
+i2c_config i2c_config_m0(
+	.rst                        (~I_rst_n                   ),
+	.clk                        (I_clk                      ),
+	.clk_div_cnt                (16'd500                  ),
+	.i2c_addr_2byte             (1'b1                     ),
+	.lut_index                  (lut_index                ),
+	.lut_dev_addr               (lut_data[31:24]          ),
+	.lut_reg_addr               (lut_data[23:8]           ),
+	.lut_reg_data               (lut_data[7:0]            ),
+	.error                      (err_reg_config           ),
+	.done                       (done_reg_config          ),
+	.i2c_scl                    (cmos_scl                 ),
+	.i2c_sda                    (cmos_sda                 )
+);
+//=========================================================================
+//Configure look-up table
+lut_ov5640_rgb565_1280_720 lut_ov5640_rgb565_1280_720_m0(
+	.lut_index                  (lut_index                ),
+	.lut_data                   (lut_data                 )
+);
+
+
 //===================================================
 //LED test
 always @(posedge I_clk or negedge I_rst_n) //I_clk
@@ -144,8 +174,8 @@ end
 
 assign  running = (run_cnt < 32'd14_000_000) ? 1'b1 : 1'b0;
 
-assign  O_led[0] = running;
-assign  O_led[1] = running;
+assign  O_led[0] = err_reg_config;
+assign  O_led[1] = done_reg_config;
 assign  O_led[2] = ~I_rst_n;
 assign  O_led[3] = ~I_rst_n;
 

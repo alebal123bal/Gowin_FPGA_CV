@@ -19,6 +19,8 @@ IO_LOC "O_tmds_data_p[1]" J15,K16;
 IO_PORT "O_tmds_data_p[1]" PULL_MODE=NONE DRIVE=3.5;
 IO_LOC "O_tmds_data_p[2]" K14,K15;
 IO_PORT "O_tmds_data_p[2]" PULL_MODE=NONE DRIVE=3.5;
+
+// LEDs
 IO_LOC "O_led[3]" N16;
 IO_PORT "O_led[3]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
 IO_LOC "O_led[2]" N14;
@@ -27,6 +29,8 @@ IO_LOC "O_led[1]" L14;
 IO_PORT "O_led[1]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
 IO_LOC "O_led[0]" L16;
 IO_PORT "O_led[0]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+
+// main
 IO_LOC "I_rst_n" C7;
 IO_PORT "I_rst_n" IO_TYPE=LVCMOS33 PULL_MODE=UP;
 IO_LOC "I_clk" H11;

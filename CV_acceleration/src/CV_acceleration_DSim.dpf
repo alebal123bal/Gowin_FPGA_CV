@@ -7,5 +7,10 @@ design_root_dir: .
 simulations:
   - name: example_sim
     options: '-top work.__tb_name__ -L work +acc+b -waves my_waves.vcd'
-source_files: []
+  - name: i2c_lut_sim
+    options: '-top work.tb_i2c_lut -L work +acc+b -waves i2c_lut_waves.vcd'
+source_files:
+  - language: verilog
+    path: i2c_lut_file_list.txt
+    file_list: relative-to-file
 library_search_paths: []
