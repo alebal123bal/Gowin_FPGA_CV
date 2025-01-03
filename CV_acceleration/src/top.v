@@ -11,11 +11,11 @@ module top
     output     [2:0]  O_tmds_data_n   ,
     inout             cmos_scl,          //cmos i2c clock
 	inout             cmos_sda,          //cmos i2c data
-	input             cmos_vsync,        //cmos vsync
-	input             cmos_href,         //cmos hsync refrence,data valid
-	input             cmos_pclk,         //cmos pxiel clock
+	input             cmos_vsync,        //cmos vsync coming from OV5640
+	input             cmos_href,         //cmos hsync refrence,data valid coming from OV5640
+	input             cmos_pclk,         //cmos pixel clock coming from OV5640
     output            cmos_xclk,         //cmos externl clock 
-	input   [7:0]     cmos_db,           //cmos data
+	input   [7:0]     cmos_db,           //cmos data coming from OV5640
 	output            cmos_rst_n,        //cmos reset 
 	output            cmos_pwdn,         //cmos power down
     output  [7:0]     PMOD_wire          //Frequency measurements with DSO: they should all be converted to T = 1 second for correctness
@@ -129,28 +129,12 @@ DVI_TX_Top DVI_TX_Top_inst
 );
 
 //=========================================================================
-//PLL for OV5640 @ 24MHz
-cmos_pll cmos_pll_m0(
-	.clkin                     (I_clk                      		),
-	.clkout                    (cmos_clk 	              		)
-);
+//PLL for OV5640 @ xxMHz
+
 
 //=========================================================================
-//I2C master controller for OV5640 registers setup
-i2c_config i2c_config_m0(
-	.rst                        (~I_rst_n                   ),
-	.clk                        (I_clk                      ),
-	.clk_div_cnt                (16'd500                  ),
-	.i2c_addr_2byte             (1'b1                     ),
-	.lut_index                  (lut_index                ),
-	.lut_dev_addr               (lut_data[31:24]          ),
-	.lut_reg_addr               (lut_data[23:8]           ),
-	.lut_reg_data               (lut_data[7:0]            ),
-	.error                      (                         ),
-	.done                       (                         ),
-	.i2c_scl                    (cmos_scl                 ),
-	.i2c_sda                    (cmos_sda                 )
-);
+//I2C controller for OV5640 registers setup
+
 
 //=========================================================================
 //Configure look-up table
