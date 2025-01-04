@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+
 module i2c_ctrl
 #(
 parameter DEVICE_ADDR = 7'b1010_000,    // I2C device address

@@ -1,0 +1,21 @@
+# MDC configurations
+*mdc_config.yml
+*mdc_ignore
+
+# Default file patterns to ignore when synchronizing files to the remote disk
+*.log
+
+# Waveform databases
+*.vcd
+*.mxd
+
+# DSim artifacts
+dsim_work
+dsim.env
+dvlcom.env
+dvhcom.env
+metrics_history.db
+metrics.db
+
+# Downloaded files from the remote disk
+_downloaded_*

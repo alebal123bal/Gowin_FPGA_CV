@@ -145,7 +145,7 @@ lut_ov5640_rgb565_1280_720 lut_ov5640_rgb565_1280_720_m0(
 
 
 //===================================================
-//LED test
+//Test main clock source @ 27MHz (untested atm)
 always @(posedge I_clk or negedge I_rst_n) //I_clk
 begin
     if(!I_rst_n)
@@ -156,6 +156,8 @@ begin
         run_cnt <= run_cnt + 1'b1;
 end
 
+//===================================================
+//LED test
 assign  O_led[0] = 1;
 assign  O_led[1] = 1;
 assign  O_led[2] = 1;
@@ -187,9 +189,9 @@ end
 
 //===================================================
 // Camera control signals
-assign cmos_xclk = cmos_clk;       // Connect camera clock
-assign cmos_pwdn = 1'b0;           // Power down inactive
-assign cmos_rst_n = I_rst_n;       // Connect reset
+assign cmos_xclk = cmos_clk;    // Connect external (from FPGA) to camera clock
+assign cmos_pwdn = 1'b0;        // Power down inactive
+assign cmos_rst_n = 1'b1;       // Reset inactive
 
 //===================================================
 // Debug through PMOD connectors
