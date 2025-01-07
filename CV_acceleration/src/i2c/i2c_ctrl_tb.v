@@ -29,8 +29,7 @@ module i2c_ctrl_tb;
     reg is_reading;
 
     // Bidirectional SDA with pull-up behavior
-    wire sda_out;
-    assign i2c_sda = (sda_slave === 1'b0 || sda_out === 1'b0) ? 1'b0 : 1'bz;
+    assign i2c_sda = sda_slave; // If it is High Z, then Master takes control
 
     // DUT instantiation
     i2c_ctrl #(
@@ -59,25 +58,11 @@ module i2c_ctrl_tb;
         forever #10 sys_clk = ~sys_clk;
     end
 
-    // Track state transitions for ACK timing
-    reg [3:0] prev_state;
-    always @(posedge i2c_clk) begin
-        prev_state <= dut.state;
-    end
-
     // Slave behavior with immediate ACK response
     always @(*) begin
         case (dut.state)
             dut.ACK_1, dut.ACK_2, dut.ACK_3, dut.ACK_4, dut.ACK_5: begin
                 sda_slave = 1'b0; // Immediate ACK
-            end
-            
-            dut.RD_DATA: begin
-                if (is_reading) begin
-                    sda_slave = (slave_memory[byte_addr] >> (7 - bit_count)) & 1'b1;
-                end else begin
-                    sda_slave = 1'bz;
-                end
             end
             
             default: begin
@@ -91,43 +76,14 @@ module i2c_ctrl_tb;
         if (!sys_rst_n) begin
             bit_count = 0;
             is_reading = 0;
-        end else if (dut.state == dut.SEND_D_ADDR && bit_count == 7) begin
-            is_reading = received_addr[0];
+        end else if (dut.state == dut.START_2) begin
+            is_reading = 1;
             bit_count = 0;
         end else if (dut.state == dut.RD_DATA) begin
             bit_count = (bit_count + 1) % 8;
         end
     end
-
-    // Debug counter (1 to 9)
-    reg [3:0] debug_counter;
-    reg counter_enable;
     
-    // Counter enable logic - starts at first negedge of i2c_scl
-    always @(negedge i2c_scl or negedge sys_rst_n) begin
-        if (!sys_rst_n)
-            counter_enable <= 1'b0;
-        else if (dut.state == dut.START_1)
-            counter_enable <= 1'b1;
-        else if (dut.state == dut.IDLE)
-            counter_enable <= 1'b0;
-    end
-
-    // Debug counter
-    always @(negedge i2c_scl or negedge sys_rst_n) begin
-        if (!sys_rst_n)
-            debug_counter <= 4'd1;
-        else if (counter_enable) begin
-            if (debug_counter == 4'd9 || debug_counter == 4'd0)
-                debug_counter <= 4'd1;
-            else
-                debug_counter <= debug_counter + 4'd1;
-        end
-        else
-            debug_counter <= 4'd1;
-    end
-
-
     // Initialize slave memory
     initial begin
         for (integer i = 0; i < 256; i = i + 1)
@@ -170,31 +126,69 @@ module i2c_ctrl_tb;
         // Delay between operations
         #2000;
 
-        // Read sequence
-        @(posedge sys_clk);
-        wr_en = 0;
-        rd_en = 1;
-        i2c_start = 1;
-        addr_num = 1'b1;
-        byte_addr = 16'hFFFF;
-
-        // Wait for completion
-        wait(i2c_end);
-        @(posedge sys_clk);
-        i2c_start = 0;
-        rd_en = 0;
-
-        // Add delay to observe results
-        #5000;
-
         $display("Test completed");
         $finish;
     end
 
     // Monitor block for debugging
-    initial begin
-        $monitor("Time=%0t state=%d scl=%b sda=%b sda_slave=%b end=%b data=%h",
-                 $time, dut.state, i2c_scl, i2c_sda, sda_slave, i2c_end, rd_data);
+    // initial begin
+    //     $monitor("Time=%0t state=%d scl=%b sda=%b sda_slave=%b end=%b data=%h",
+    //              $time, dut.state, i2c_scl, i2c_sda, sda_slave, i2c_end, rd_data);
+    // end
+
+    // Macros debugging
+    always @(posedge i2c_clk) begin
+        if(`CHECK_START(i2c_sda, i2c_scl)) begin
+            $display("Time = %0t: START condition detected", $time);
+        end    
     end
+
+    // Log complete transactions
+    reg [3:0] prev_state;
+    reg [7:0] current_byte;
+
+    initial begin
+        current_byte <= 8'h00;
+        prev_state <= 8'h0;
+    end
+
+    
+    always @(posedge i2c_scl) begin
+        // Only shift in bits when we're receiving valid data
+        current_byte <= {current_byte[6:0], i2c_sda};
+            
+        prev_state <= dut.state;
+    
+        // Detect when we're leaving a SEND state
+        case (prev_state)
+            dut.SEND_D_ADDR: begin
+                if (dut.state == dut.ACK_1) begin
+                    `DECODE_I2C_ADDR(current_byte);
+                    `DECODE_I2C_RW(current_byte);
+                end
+            end
+            dut.SEND_B_ADDR_H: begin
+                if (dut.state == dut.ACK_2)
+                    $display("Byte Address High: 0x%h", current_byte);
+            end
+            dut.SEND_B_ADDR_L: begin
+                if (dut.state == dut.ACK_3)
+                    $display("Byte Address Low: 0x%h", current_byte);
+            end
+            dut.WR_DATA: begin
+                if (dut.state == dut.ACK_4)
+                    $display("Write Data: 0x%h", current_byte);
+            end
+            dut.SEND_RD_ADDR: begin
+                if (dut.state == dut.ACK_5)
+                    $display("Read Address: 0x%h", current_byte);
+            end
+            dut.RD_DATA: begin
+                if (dut.state == dut.N_ACK)
+                    $display("Read Data: 0x%h", current_byte);
+            end
+        endcase    
+    end
+
 
 endmodule
