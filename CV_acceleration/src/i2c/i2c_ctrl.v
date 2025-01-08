@@ -2,8 +2,8 @@
 
 module i2c_ctrl
 #(
-parameter DEVICE_ADDR = 7'b1010_000,    // I2C device address
-parameter SYS_CLK_FREQ = 26'd50_000_000,// Input system clock frequency
+parameter DEVICE_ADDR = 7'b111_1000,    // I2C device address
+parameter SYS_CLK_FREQ = 26'd24_000_000,// Input system clock frequency
 parameter SCL_FREQ = 18'd250_000        // I2C device SCL clock frequency
 )
 (

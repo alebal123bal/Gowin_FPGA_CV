@@ -9,3 +9,4 @@ carry_lookahead_adder
 *.db
 *.pdf
 clk_f_tester.py
+*_ori.v

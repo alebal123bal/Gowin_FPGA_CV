@@ -7,8 +7,11 @@
     <FileList>
         <File path="src/dvi_tx/dvi_tx.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_rpll/TMDS_rPLL.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
         <File path="src/i2c/i2c_ctrl.v" type="file.verilog" enable="1"/>
-        <File path="src/lut_ov5640_rgb565_1280_720.v" type="file.verilog" enable="1"/>
+        <File path="src/ov5640/ov5640_cfg.v" type="file.verilog" enable="1"/>
+        <File path="src/ov5640/ov5640_data.v" type="file.verilog" enable="1"/>
+        <File path="src/ov5640/ov5640_top.v" type="file.verilog" enable="1"/>
         <File path="src/testpattern.v" type="file.verilog" enable="1"/>
         <File path="src/top.v" type="file.verilog" enable="1"/>
         <File path="src/top.cst" type="file.cst" enable="1"/>

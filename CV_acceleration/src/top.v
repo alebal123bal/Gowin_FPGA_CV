@@ -21,8 +21,6 @@ module top
     output  [7:0]     PMOD_wire          //Frequency measurements with DSO: they should all be converted to T = 1 second for correctness
 );
 
-//==================================================
-reg  [31:0] run_cnt;
 
 //--------------------------
 wire        tp0_vs_in  ;
@@ -47,19 +45,12 @@ reg debug_reg_CMOS_clk;
 
 //===================================================
 // OV5640 camera
-wire cmos_clk;
+wire cmos_clk_24;
+wire write_en;
 reg [24:0] counter_CMOS_clk;        // 25 bits can count up to 33,554,432
-wire debug_PCLK;
-assign debug_PCLK = cmos_href;
-
-//=========================================================================
-// I2C master controller for OV5640 registers setup using I2C_MASTER_Top
-
-
-//===================================================
-// LUT for OV5640 registers
-wire[9:0] lut_index;
-wire[31:0] lut_data;
+wire cfg_done;
+wire sys_init_done;
+assign sys_init_done = cfg_done;
 
 //===========================================================================
 //Timing and testpattern generator
@@ -129,32 +120,31 @@ DVI_TX_Top DVI_TX_Top_inst
 );
 
 //=========================================================================
-//PLL for OV5640 @ xxMHz
-
-
-//=========================================================================
-//I2C controller for OV5640 registers setup
-
-
-//=========================================================================
-//Configure look-up table
-lut_ov5640_rgb565_1280_720 lut_ov5640_rgb565_1280_720_m0(
-	.lut_index                  (lut_index                ),
-	.lut_data                   (lut_data                 )
+//PLL for OV5640 @ 50.1429MHz
+CMOS_rPLL CMOS_rPLL_inst(
+    .clkout(cmos_clk_24), //output clkout
+    .clkin(I_clk) //input clkin
 );
 
+//=========================================================================
+//OV5640 setup
+ov5640_top ov5640_top_inst
+(
+    .sys_clk(cmos_clk_24),              // System clock
+    .sys_rst_n(I_rst_n),            // Reset signal
+    .sys_init_done(sys_init_done),        // System initialization complete (SDRAM + Camera)
+    .ov5640_pclk(cmos_pclk),          // Camera pixel clock
+    .ov5640_href(cmos_href),          // Camera horizontal sync signal
+    .ov5640_vsync(cmos_vsync),         // Camera vertical sync signal
+    .ov5640_data(cmos_db),    // Camera image data
 
-//===================================================
-//Test main clock source @ 27MHz (untested atm)
-always @(posedge I_clk or negedge I_rst_n) //I_clk
-begin
-    if(!I_rst_n)
-        run_cnt <= 32'd0;
-    else if(run_cnt >= 32'd27_000_000)
-        run_cnt <= 32'd0;
-    else
-        run_cnt <= run_cnt + 1'b1;
-end
+    .cfg_done(cfg_done),            // Register configuration complete
+    .sccb_scl(cmos_scl),            // SCL signal
+    .sccb_sda(cmos_sda),            // SDA signal
+    .ov5640_wr_en(write_en),        // Image data valid enable signal
+    .ov5640_data_out() // Image data output
+);
+
 
 //===================================================
 //LED test
@@ -169,7 +159,7 @@ assign  O_led[3] = I_rst_n;
 // 24MHz = 24,000,000 cycles per second
 localparam HALF_PERIOD = 12_000_000;
     
-always @(posedge cmos_clk or negedge I_rst_n) begin
+always @(posedge cmos_clk_24 or negedge I_rst_n) begin
     if (!I_rst_n) begin
         counter_CMOS_clk <= 0;
         debug_reg_CMOS_clk <= 0;
@@ -184,19 +174,17 @@ always @(posedge cmos_clk or negedge I_rst_n) begin
 end
 
 //===================================================
-// State machine to iterate through the LUT
-
-
-//===================================================
 // Camera control signals
-assign cmos_xclk = cmos_clk;    // Connect external (from FPGA) to camera clock
+assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to camera clock
 assign cmos_pwdn = 1'b0;        // Power down inactive
-assign cmos_rst_n = 1'b1;       // Reset inactive
+assign cmos_rst_n = I_rst_n;       // Reset inactive
 
 //===================================================
 // Debug through PMOD connectors
 assign PMOD_wire[0] = debug_wire_HMDI_clk;    //HDMI @ 74.25MHz
-assign PMOD_wire[1] = debug_reg_CMOS_clk;    //OV5640 @ 24MHz
-assign PMOD_wire[2] = debug_PCLK;    //OV5640 @ 24MHz
+assign PMOD_wire[1] = debug_reg_CMOS_clk;    //OV5640 @ 50MHz
+
+assign PMOD_wire[2] = cmos_scl;    
+assign PMOD_wire[3] = cmos_href;    
 
 endmodule
