@@ -9,8 +9,15 @@ simulations:
     options: '-top work.__tb_name__ -L work +acc+b -waves my_waves.vcd'
   - name: i2c_sim
     options: '-top work.i2c_ctrl_tb -L work +acc+b -waves i2c/i2c_waves.vcd'
+  - name: ov5640_sim
+    options: '-top work.tb_ov5640_data -L work +acc+b -waves ov5640/ov5640_waves.vcd'
+  - name: ov5640_top_sim
+    options: '-top work.tb_ov5640_top -L work +acc+b -waves ov5640/ov5640_top_waves.vcd'
 source_files:
   - language: verilog
     path: i2c/i2c_filelist.txt
+    file_list: relative-to-file
+  - language: verilog
+    path: ov5640/ov5640_filelist.txt
     file_list: relative-to-file
 library_search_paths: []
