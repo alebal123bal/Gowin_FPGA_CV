@@ -9,6 +9,8 @@
         <File path="src/gowin_rpll/TMDS_rPLL.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
         <File path="src/i2c/i2c_ctrl.v" type="file.verilog" enable="1"/>
+        <File path="src/uart/uart_tx_V2.v" type="file.verilog" enable="1"/>
+        <File path="src/uart/print.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_cfg.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_data.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_top.v" type="file.verilog" enable="1"/>

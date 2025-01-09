@@ -18,6 +18,7 @@ module top
 	input   [7:0]     cmos_db,           //cmos data coming from OV5640
 	output            cmos_rst_n,        //cmos reset 
 	output            cmos_pwdn,         //cmos power down
+    output            uart_tx,
     output  [7:0]     PMOD_wire          //Frequency measurements with DSO: they should all be converted to T = 1 second for correctness
 );
 
@@ -145,6 +146,9 @@ ov5640_top ov5640_top_inst
     .ov5640_data_out() // Image data output
 );
 
+//===================================================
+// Print Control
+
 
 //===================================================
 //LED test
@@ -184,7 +188,6 @@ assign cmos_rst_n = I_rst_n;       // Reset inactive
 assign PMOD_wire[0] = debug_wire_HMDI_clk;    //HDMI @ 74.25MHz
 assign PMOD_wire[1] = debug_reg_CMOS_clk;    //OV5640 @ 50MHz
 
-assign PMOD_wire[2] = cmos_scl;    
-assign PMOD_wire[3] = cmos_href;    
+assign PMOD_wire[2] = cmos_scl;      
 
 endmodule
