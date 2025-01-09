@@ -61,7 +61,8 @@ assign cfg_data = (cfg_done == 1'b1) ? 24'b0 : cfg_data_reg[reg_num];
 
 // Register configuration data buffer
 // Format: {16-bit register address, 8-bit register value}
-assign cfg_data_reg[000] = {24'h310311};// system clock from pad, bit[1]
+// TODO: this should not be the first
+assign cfg_data_reg[000] = {24'h310311};// system clock from pad, bit[1]    
 assign cfg_data_reg[001] = {24'h300882};// software reset, bit[7]// delay 5ms
 assign cfg_data_reg[002] = {24'h300842};// software power down, bit[6]
 assign cfg_data_reg[003] = {24'h310303};// system clock from PLL, bit[1]
