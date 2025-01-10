@@ -14,6 +14,7 @@
         <File path="src/ov5640/ov5640_cfg.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_data.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_top.v" type="file.verilog" enable="1"/>
+        <File path="src/ov5640/power_on_delay.v" type="file.verilog" enable="1"/>
         <File path="src/testpattern.v" type="file.verilog" enable="1"/>
         <File path="src/top.v" type="file.verilog" enable="1"/>
         <File path="src/top.cst" type="file.cst" enable="1"/>
