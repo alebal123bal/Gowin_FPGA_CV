@@ -8,5 +8,7 @@ carry_lookahead_adder
 *.vcd
 *.db
 *.pdf
+*.sr
+*.pvs
 clk_f_tester.py
 *_ori.v
