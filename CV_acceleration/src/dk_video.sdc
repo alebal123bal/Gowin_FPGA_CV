@@ -4,7 +4,8 @@
 //GOWIN Version: 1.9.2.01 Beta
 //Created Time: 2019-11-29 11:12:06
 create_clock -name I_clk -period 37.04  [get_ports {I_clk}] -add
-//create_clock -name cmos_pclk -period 10 [get_ports {cmos_pclk}] -add
+//create_clock -name cmos_clk_24 -period 41.67 [get_nets {cmos_clk_24}] -add
+create_clock -name cmos_scl -period 4000 [get_nets {cmos_scl}] -add
 //create_clock -name cmos_vsync -period 1000 [get_ports {cmos_vsync}] -add
 
 //create_clock -name mem_clk -period 2.5 -waveform {0 1.25} [get_nets {memory_clk}]
