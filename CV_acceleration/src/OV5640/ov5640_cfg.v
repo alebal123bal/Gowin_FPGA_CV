@@ -13,7 +13,7 @@ module ov5640_cfg
 
 // Parameter definitions
 parameter REG_NUM = 10'd303;        // Total number of registers to configure
-parameter CNT_WAIT_MAX = 15'd20000; // Maximum wait count for register configuration
+parameter CNT_WAIT_MAX = 20'd30000; // Wait count before register configuration
 
 // Wire definitions
 wire [23:0] cfg_data_reg[REG_NUM-1:0]; // Register configuration data buffer

@@ -51,7 +51,7 @@ wire write_en;
 reg [24:0] counter_CMOS_clk;        // 25 bits can count up to 33,554,432
 wire cfg_done;
 wire sys_init_done;
-assign sys_init_done = cfg_done;
+assign sys_init_done = 1'b1;
 
 //===========================================================================
 //Timing and testpattern generator
@@ -121,7 +121,7 @@ DVI_TX_Top DVI_TX_Top_inst
 );
 
 //=========================================================================
-//PLL for OV5640 @ 50.1429MHz
+//PLL for OV5640 @ 24MHz
 CMOS_rPLL CMOS_rPLL_inst(
     .clkout(cmos_clk_24), //output clkout
     .clkin(I_clk) //input clkin
@@ -133,7 +133,7 @@ ov5640_top ov5640_top_inst
 (
     .sys_clk(cmos_clk_24),              // System clock
     .sys_rst_n(I_rst_n),            // Reset signal
-    .sys_init_done(sys_init_done),        // System initialization complete (SDRAM + Camera)
+    .sys_init_done(sys_init_done),        // Unused atm
     .ov5640_pclk(cmos_pclk),          // Camera pixel clock
     .ov5640_href(cmos_href),          // Camera horizontal sync signal
     .ov5640_vsync(cmos_vsync),         // Camera vertical sync signal
@@ -180,14 +180,27 @@ end
 //===================================================
 // Camera control signals
 assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to camera clock
-assign cmos_pwdn = 1'b0;        // Power down inactive
-assign cmos_rst_n = I_rst_n;       // Reset inactive
+
+// assign cmos_pwdn = 1'b0;        // Power down inactive
+// assign cmos_rst_n = 1'b1;       // Reset inactive
+
+// Instantiate Camera Control
+power_on_delay pod_inst (
+    .clk_27(I_clk),
+    .rst_n(I_rst_n),
+    .camera_pwnd(cmos_pwdn),
+    .camera_rstn(cmos_rst_n)
+);
 
 //===================================================
 // Debug through PMOD connectors
-assign PMOD_wire[0] = debug_wire_HMDI_clk;    //HDMI @ 74.25MHz
-assign PMOD_wire[1] = debug_reg_CMOS_clk;    //OV5640 @ 50MHz
+assign PMOD_wire[0] = I_rst_n;
 
-assign PMOD_wire[2] = cmos_scl;      
+assign PMOD_wire[1] = cmos_scl;
+assign PMOD_wire[2] = cmos_sda;      
+
+assign PMOD_wire[3] = cmos_pwdn;    
+assign PMOD_wire[4] = cmos_rst_n;
+
 
 endmodule

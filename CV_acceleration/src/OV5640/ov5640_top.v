@@ -19,10 +19,10 @@ module ov5640_top
 //// Parameters and Internal Signals ////
 
 // Parameter definitions
-parameter SLAVE_ADDR = 7'h78;         // OV5640 device address
+parameter SLAVE_ADDR = 7'h3C;         // OV5640 device address (it's actually 0x78, but with this i2c controller it's shifted)
 parameter BIT_CTRL = 1'b1;            // Address bit control (16-bit for OV5640)
 parameter CLK_FREQ = 26'd24_000_000;  // i2c_dri module drive clock frequency
-parameter I2C_FREQ = 18'd250_000;     // I2C SCL clock frequency
+parameter I2C_FREQ = 19'd250_000;     // I2C SCL clock frequency
 
 // Wire definitions
 wire cfg_end;
@@ -72,7 +72,7 @@ ov5640_cfg ov5640_cfg_inst
 // OV5640 Data Instance
 ov5640_data ov5640_data_inst
 (
-    .sys_rst_n      (sys_rst_n & sys_init_done), // Reset signal
+    .sys_rst_n      (sys_rst_n), // Reset signal
     .ov5640_pclk    (ov5640_pclk),   // Camera pixel clock
     .ov5640_href    (ov5640_href),   // Camera line sync signal
     .ov5640_vsync   (ov5640_vsync),  // Camera frame sync signal
