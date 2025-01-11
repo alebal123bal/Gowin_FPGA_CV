@@ -42,13 +42,11 @@ wire pix_clk;
 //===================================================
 // Debug wires and regs to measure with oscilloscope
 wire debug_wire_HMDI_clk;
-reg debug_reg_CMOS_clk;
 
 //===================================================
 // OV5640 camera
 wire cmos_clk_24;
 wire write_en;
-reg [24:0] counter_CMOS_clk;        // 25 bits can count up to 33,554,432
 wire cfg_done;
 wire sys_init_done;
 assign sys_init_done = 1'b1;
@@ -134,7 +132,7 @@ ov5640_top ov5640_top_inst
     .sys_clk(cmos_clk_24),              // System clock
     .sys_rst_n(I_rst_n),            // Reset signal
     .sys_init_done(sys_init_done),        // Unused atm
-    .ov5640_pclk(cmos_pclk),          // Camera pixel clock
+    .ov5640_pclk(cmos_pclk),          // Camera pixel clock @42MHz
     .ov5640_href(cmos_href),          // Camera horizontal sync signal
     .ov5640_vsync(cmos_vsync),         // Camera vertical sync signal
     .ov5640_data(cmos_db),    // Camera image data
@@ -158,12 +156,15 @@ assign  O_led[2] = 1;
 assign  O_led[3] = I_rst_n;
 
 //===================================================
-//CMOS PLL frequency test
+//Frequency test: convert to 1 second counters
 
 // 24MHz = 24,000,000 cycles per second
-localparam HALF_PERIOD = 12_000_000;
+localparam HALF_PERIOD = 21_000_000;
+
+reg [31:0] counter_CMOS_clk;        // 32 bits can count up to 2.14 Billion
+reg debug_reg_CMOS_clk;
     
-always @(posedge cmos_clk_24 or negedge I_rst_n) begin
+always @(posedge cmos_pclk or negedge I_rst_n) begin
     if (!I_rst_n) begin
         counter_CMOS_clk <= 0;
         debug_reg_CMOS_clk <= 0;
@@ -201,6 +202,10 @@ assign PMOD_wire[2] = cmos_sda;
 
 assign PMOD_wire[3] = cmos_pwdn;    
 assign PMOD_wire[4] = cmos_rst_n;
+
+assign PMOD_wire[5] = cmos_vsync;
+
+assign PMOD_wire[6] = debug_reg_CMOS_clk;
 
 
 endmodule
