@@ -37,7 +37,7 @@ wire [ 7:0] tp0_data_b/*synthesis syn_keep=1*/;
 wire serial_clk;
 wire pll_lock;
 wire hdmi4_rst_n;
-wire pix_clk;
+wire pix_clk;   // 74.25MHz
 
 //===================================================
 // Debug wires and regs to measure with oscilloscope
@@ -86,14 +86,14 @@ TMDS_rPLL u_tmds_rpll
 .lock      (pll_lock  )
 );
 
-assign hdmi4_rst_n = I_rst_n & pll_lock;
+assign hdmi4_rst_n = I_rst_n & pll_lock;    //Release reset only when PLL is working
 
 //==============================================================================
 //PLL for HDMI @ 74.25MHz
 CLKDIV u_clkdiv
 (.RESETN(hdmi4_rst_n)
-,.HCLKIN(serial_clk) //clk  x5
-,.CLKOUT(pix_clk)    //clk  x1
+,.HCLKIN(serial_clk) //clk  x5  (371.25MHz)
+,.CLKOUT(pix_clk)    //clk  x1  ( 74.25MHz)
 ,.CALIB (1'b1)
 );
 defparam u_clkdiv.DIV_MODE="5";
@@ -109,9 +109,9 @@ DVI_TX_Top DVI_TX_Top_inst
     .I_rgb_vs      (tp0_vs_in     ), 
     .I_rgb_hs      (tp0_hs_in     ),    
     .I_rgb_de      (tp0_de_in     ), 
-    .I_rgb_r       (  tp0_data_r ),  //tp0_data_r
-    .I_rgb_g       (  tp0_data_g  ),  
-    .I_rgb_b       (  tp0_data_b  ),  
+    .I_rgb_r       (tp0_data_r    ),
+    .I_rgb_g       (tp0_data_g    ),  
+    .I_rgb_b       (tp0_data_b    ),  
     .O_tmds_clk_p  (O_tmds_clk_p  ),  //Positive clock
     .O_tmds_clk_n  (O_tmds_clk_n  ),
     .O_tmds_data_p (O_tmds_data_p ),  //{r,g,b}
@@ -158,7 +158,6 @@ assign  O_led[3] = I_rst_n;
 //===================================================
 //Frequency test: convert to 1 second counters
 
-// 24MHz = 24,000,000 cycles per second
 localparam HALF_PERIOD = 21_000_000;
 
 reg [31:0] counter_CMOS_clk;        // 32 bits can count up to 2.14 Billion
@@ -181,9 +180,6 @@ end
 //===================================================
 // Camera control signals
 assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to camera clock
-
-// assign cmos_pwdn = 1'b0;        // Power down inactive
-// assign cmos_rst_n = 1'b1;       // Reset inactive
 
 // Instantiate Camera Control
 power_on_delay pod_inst (
