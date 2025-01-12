@@ -5,10 +5,14 @@ module top
     input             I_clk             ,   //27Mhz
     input             I_rst_n           ,
     output     [3:0]  O_led             , 
+    
+    // HDMI
     output            O_tmds_clk_p      ,
     output            O_tmds_clk_n      ,
     output     [2:0]  O_tmds_data_p     ,   //{r,g,b}
     output     [2:0]  O_tmds_data_n     ,
+    
+    // OV5640
     inout             cmos_scl          ,   //cmos i2c clock
 	inout             cmos_sda          ,   //cmos i2c data
 	input             cmos_vsync        ,   //cmos vsync coming from OV5640
@@ -18,34 +22,38 @@ module top
 	input   [7:0]     cmos_db           ,   //cmos data coming from OV5640
 	output            cmos_rst_n        ,   //cmos reset 
 	output            cmos_pwdn         ,   //cmos power down
+
+    // UART TX
     output            uart_tx           ,
+
+    // PMOD CONNECTORS
     output  [7:0]     PMOD_wire             //To logic analyzer
 );
 
 
 //===================================================
-//HDMI4 TX
+// HDMI4 TX
 wire        tp0_vs_in   ;   // Vertical sync
 wire        tp0_hs_in   ;   // Horizontal sync
 wire        tp0_de_in   ;   // Data enable
 wire [ 7:0] tp0_data_r  /*synthesis syn_keep=1*/;
 wire [ 7:0] tp0_data_g  /*synthesis syn_keep=1*/;
 wire [ 7:0] tp0_data_b  /*synthesis syn_keep=1*/;
-wire serial_clk         ;
-wire pll_lock           ;
-wire hdmi4_rst_n        ;
-wire pix_clk            ;   // 74.25MHz
+wire        serial_clk  ;   // 371.25MHz
+wire        pll_lock    ;
+wire        hdmi4_rst_n ;
+wire        pix_clk     ;   // 74.25MHz
 
 //===================================================
 // OV5640 camera
-wire cmos_clk_24;
-wire write_en;
-wire cfg_done;
-wire sys_init_done;
-assign sys_init_done = 1'b1;
+wire        cmos_clk_24;
+wire        write_en;
+wire        cfg_done;
+wire        sys_init_done;
+assign      sys_init_done = 1'b1;
 
 //===========================================================================
-//Timing generator
+// Timing generator
 timing_tx timing_tx_inst
 (
     .I_pxl_clk   (pix_clk            ),//pixel clock
@@ -127,7 +135,7 @@ CMOS_rPLL CMOS_rPLL_inst(
 );
 
 //=========================================================================
-//OV5640 setup
+// OV5640 setup
 ov5640_top ov5640_top_inst
 (
     .sys_clk        (cmos_clk_24    ),// System clock
@@ -147,20 +155,28 @@ ov5640_top ov5640_top_inst
 
 assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to camera clock
 
+// Instantiate OV5640 Control
+power_on_delay pod_inst 
+(
+    .clk_27     (I_clk      ),
+    .rst_n      (I_rst_n    ),
+    .camera_pwnd(cmos_pwdn  ),
+    .camera_rstn(cmos_rst_n )
+);
 
 //===================================================
 // Print Control
 
 
 //===================================================
-//LED test
+// LED test
 assign  O_led[0] = 1;
 assign  O_led[1] = 1;
 assign  O_led[2] = 1;
 assign  O_led[3] = I_rst_n;
 
 //===================================================
-//Frequency test: convert to 1 second counters
+// Frequency test: convert to 1 second counters
 
 localparam HALF_PERIOD = 21_000_000;
 
@@ -180,14 +196,6 @@ always @(posedge cmos_pclk or negedge I_rst_n) begin
         end
     end
 end
-
-// Instantiate Camera Control
-power_on_delay pod_inst (
-    .clk_27     (I_clk      ),
-    .rst_n      (I_rst_n    ),
-    .camera_pwnd(cmos_pwdn  ),
-    .camera_rstn(cmos_rst_n )
-);
 
 //===================================================
 // Debug through PMOD connectors
