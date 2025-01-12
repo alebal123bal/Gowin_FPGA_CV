@@ -5,21 +5,22 @@
     <Version>5</Version>
     <Device name="GW2A-18C" pn="GW2A-LV18PG256C8/I7">gw2a18c-011</Device>
     <FileList>
+        <File path="src/ddr3_memory_interface/DDR3MI.v" type="file.verilog" enable="1"/>
         <File path="src/dvi_tx/dvi_tx.v" type="file.verilog" enable="1"/>
         <File path="src/dvi_tx/timing_tx.v" type="file.verilog" enable="1"/>
         <File path="src/dvi_tx/red_green_fade.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_rpll/TMDS_rPLL.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
         <File path="src/i2c/i2c_ctrl.v" type="file.verilog" enable="1"/>
-        <File path="src/uart/uart_tx_V2.v" type="file.verilog" enable="1"/>
-        <File path="src/uart/print.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_cfg.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_data.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_top.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/power_on_delay.v" type="file.verilog" enable="1"/>
+        <File path="src/uart/uart_tx_V2.v" type="file.verilog" enable="1"/>
+        <File path="src/uart/print.v" type="file.verilog" enable="1"/>
+        <File path="src/dk_video.sdc" type="file.sdc" enable="1"/>
         <File path="src/testpattern.v" type="file.verilog" enable="1"/>
         <File path="src/top.v" type="file.verilog" enable="1"/>
         <File path="src/top.cst" type="file.cst" enable="1"/>
-        <File path="src/dk_video.sdc" type="file.sdc" enable="1"/>
     </FileList>
 </Project>
