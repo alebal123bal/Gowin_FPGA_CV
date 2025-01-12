@@ -2,29 +2,46 @@
 
 module top
 (
-    input             I_clk             ,   //27Mhz
-    input             I_rst_n           ,
-    output     [3:0]  O_led             , 
+    input               I_clk               ,   //27Mhz
+    input               I_rst_n             ,
+    output     [3:0]    O_led               , 
     
     // HDMI
-    output            O_tmds_clk_p      ,
-    output            O_tmds_clk_n      ,
-    output     [2:0]  O_tmds_data_p     ,   //{r,g,b}
-    output     [2:0]  O_tmds_data_n     ,
+    output              O_tmds_clk_p        ,
+    output              O_tmds_clk_n        ,
+    output     [2:0]    O_tmds_data_p       ,   //{r,g,b}
+    output     [2:0]    O_tmds_data_n       ,
     
     // OV5640
-    inout             cmos_scl          ,   //cmos i2c clock
-	inout             cmos_sda          ,   //cmos i2c data
-	input             cmos_vsync        ,   //cmos vsync coming from OV5640
-	input             cmos_href         ,   //cmos hsync refrence,data valid coming from OV5640
-	input             cmos_pclk         ,   //cmos pixel clock coming from OV5640
-    output            cmos_xclk         ,   //cmos externl clock 
-	input   [7:0]     cmos_db           ,   //cmos data coming from OV5640
-	output            cmos_rst_n        ,   //cmos reset 
-	output            cmos_pwdn         ,   //cmos power down
+    inout               cmos_scl            ,   //cmos i2c clock
+	inout               cmos_sda            ,   //cmos i2c data
+	input               cmos_vsync          ,   //cmos vsync coming from OV5640
+	input               cmos_href           ,   //cmos hsync refrence,data valid coming from OV5640
+	input               cmos_pclk           ,   //cmos pixel clock coming from OV5640
+    output              cmos_xclk           ,   //cmos externl clock 
+	input   [7:0]       cmos_db             ,   //cmos data coming from OV5640
+	output              cmos_rst_n          ,   //cmos reset 
+	output              cmos_pwdn           ,   //cmos power down
+
+    // DDR3
+	output [14-1:0]     ddr_addr            ,   //ROW_WIDTH=14
+	output [3-1:0]      ddr_bank            ,   //BANK_WIDTH=3
+	output              ddr_cs              ,
+	output              ddr_ras             ,
+	output              ddr_cas             ,
+	output              ddr_we              ,
+	output              ddr_ck              ,
+	output              ddr_ck_n            ,
+	output              ddr_cke             ,
+	output              ddr_odt             ,
+	output              ddr_reset_n         ,
+	output [2-1:0]      ddr_dm              ,   //DM_WIDTH=2
+	inout [16-1:0]      ddr_dq              ,   //DQ_WIDTH=16
+	inout [2-1:0]       ddr_dqs             ,   //DQS_WIDTH=2
+	inout [2-1:0]       ddr_dqs_n           ,   //DQS_WIDTH=2
 
     // UART TX
-    output            uart_tx           ,
+    output            uart_tx               ,
 
     // PMOD CONNECTORS
     output  [7:0]     PMOD_wire             //To logic analyzer
