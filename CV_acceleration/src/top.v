@@ -221,10 +221,65 @@ assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to OV5640 clo
 // Instantiate OV5640 Control
 power_on_delay pod_inst 
 (
-    .clk_27     (I_clk      ),
-    .rst_n      (I_rst_n    ),
-    .camera_pwnd(cmos_pwdn  ),
-    .camera_rstn(cmos_rst_n )
+    .clk_27         (I_clk      ),
+    .rst_n          (I_rst_n    ),
+    .camera_pwnd    (cmos_pwdn  ),
+    .camera_rstn    (cmos_rst_n )
+);
+
+//=========================================================================
+// DDR3 PLL (400MHz)
+mem_pll mem_pll_m0(
+	.clkin          (I_clk           ),
+	.clkout         (memory_clk      ),
+	.lock           (DDR_pll_lock    )
+);
+
+//=========================================================================
+// DDR3 interface
+DDR3MI DDR3_Memory_Interface_Top_inst
+(
+    .clk                (pix_clk            ),
+    .memory_clk         (memory_clk         ),
+    .pll_lock           (DDR_pll_lock       ),
+    .rst_n              (I_rst_n            ),
+    .app_burst_number   (app_burst_number   ),
+    .cmd_ready          (cmd_ready          ),
+    .cmd                (cmd                ),
+    .cmd_en             (cmd_en             ),
+    .addr               (addr               ),
+    .wr_data_rdy        (wr_data_rdy        ),
+    .wr_data            (wr_data            ),
+    .wr_data_en         (wr_data_en         ),
+    .wr_data_end        (wr_data_end        ),
+    .wr_data_mask       (wr_data_mask       ),
+    .rd_data            (rd_data            ),
+    .rd_data_valid      (rd_data_valid      ),
+    .rd_data_end        (rd_data_end        ),
+    .sr_req             (1'b0               ),
+    .ref_req            (1'b0               ),
+    .sr_ack             (                   ),
+    .ref_ack            (                   ),
+    .init_calib_complete(init_calib_complete),
+    .clk_out            (dma_clk            ),
+    .burst              (1'b1               ),
+    // mem interface
+    .ddr_rst            (                 ),
+    .O_ddr_addr         (ddr_addr         ),
+    .O_ddr_ba           (ddr_bank         ),
+    .O_ddr_cs_n         (ddr_cs         ),
+    .O_ddr_ras_n        (ddr_ras        ),
+    .O_ddr_cas_n        (ddr_cas        ),
+    .O_ddr_we_n         (ddr_we         ),
+    .O_ddr_clk          (ddr_ck          ),
+    .O_ddr_clk_n        (ddr_ck_n        ),
+    .O_ddr_cke          (ddr_cke          ),
+    .O_ddr_odt          (ddr_odt          ),
+    .O_ddr_reset_n      (ddr_reset_n      ),
+    .O_ddr_dqm          (ddr_dm           ),
+    .IO_ddr_dq          (ddr_dq           ),
+    .IO_ddr_dqs         (ddr_dqs          ),
+    .IO_ddr_dqs_n       (ddr_dqs_n        )
 );
 
 //===================================================
