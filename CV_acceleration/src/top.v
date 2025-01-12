@@ -296,12 +296,12 @@ assign  O_led[3] = I_rst_n;
 //===================================================
 // Frequency test: convert to 1 second counters
 
-localparam HALF_PERIOD = 21_000_000;
+localparam HALF_PERIOD = 199_000_000;
 
 reg [31:0] counter_CMOS_clk;        // 32 bits can count up to 2.14 Billion
 reg debug_reg_CMOS_clk;
     
-always @(posedge cmos_pclk or negedge I_rst_n) begin
+always @(posedge memory_clk or negedge I_rst_n) begin
     if (!I_rst_n) begin
         counter_CMOS_clk <= 0;
         debug_reg_CMOS_clk <= 0;
