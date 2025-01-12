@@ -2,31 +2,31 @@
 
 module top
 (
-    input             I_clk           , //27Mhz
-    input             I_rst_n         ,
-    output     [3:0]  O_led           , 
-    output            O_tmds_clk_p    ,
-    output            O_tmds_clk_n    ,
-    output     [2:0]  O_tmds_data_p   ,//{r,g,b}
-    output     [2:0]  O_tmds_data_n   ,
-    inout             cmos_scl,          //cmos i2c clock
-	inout             cmos_sda,          //cmos i2c data
-	input             cmos_vsync,        //cmos vsync coming from OV5640
-	input             cmos_href,         //cmos hsync refrence,data valid coming from OV5640
-	input             cmos_pclk,         //cmos pixel clock coming from OV5640
-    output            cmos_xclk,         //cmos externl clock 
-	input   [7:0]     cmos_db,           //cmos data coming from OV5640
-	output            cmos_rst_n,        //cmos reset 
-	output            cmos_pwdn,         //cmos power down
-    output            uart_tx,
-    output  [7:0]     PMOD_wire          //Frequency measurements with DSO: they should all be converted to T = 1 second for correctness
+    input             I_clk             ,   //27Mhz
+    input             I_rst_n           ,
+    output     [3:0]  O_led             , 
+    output            O_tmds_clk_p      ,
+    output            O_tmds_clk_n      ,
+    output     [2:0]  O_tmds_data_p     ,   //{r,g,b}
+    output     [2:0]  O_tmds_data_n     ,
+    inout             cmos_scl          ,   //cmos i2c clock
+	inout             cmos_sda          ,   //cmos i2c data
+	input             cmos_vsync        ,   //cmos vsync coming from OV5640
+	input             cmos_href         ,   //cmos hsync refrence,data valid coming from OV5640
+	input             cmos_pclk         ,   //cmos pixel clock coming from OV5640
+    output            cmos_xclk         ,   //cmos externl clock 
+	input   [7:0]     cmos_db           ,   //cmos data coming from OV5640
+	output            cmos_rst_n        ,   //cmos reset 
+	output            cmos_pwdn         ,   //cmos power down
+    output            uart_tx           ,
+    output  [7:0]     PMOD_wire             //To logic analyzer
 );
 
 
 //--------------------------
-wire        tp0_vs_in  ;
-wire        tp0_hs_in  ;
-wire        tp0_de_in ;
+wire        tp0_vs_in;  // Vertical sync
+wire        tp0_hs_in;  // Horizontal sync
+wire        tp0_de_in;  // Data enable
 wire [ 7:0] tp0_data_r/*synthesis syn_keep=1*/;
 wire [ 7:0] tp0_data_g/*synthesis syn_keep=1*/;
 wire [ 7:0] tp0_data_b/*synthesis syn_keep=1*/;
@@ -38,10 +38,6 @@ wire serial_clk;
 wire pll_lock;
 wire hdmi4_rst_n;
 wire pix_clk;   // 74.25MHz
-
-//===================================================
-// Debug wires and regs to measure with oscilloscope
-wire debug_wire_HMDI_clk;
 
 //===================================================
 // OV5640 camera
@@ -66,8 +62,8 @@ timing_tx timing_tx_inst
     .I_v_sync    (12'd5              ),//ver sync time   // 12'd4     // 12'd6     // 12'd5     
     .I_v_bporch  (12'd20             ),//ver back porch  // 12'd23    // 12'd29    // 12'd20    
     .I_v_res     (12'd720            ),//ver resolution  // 12'd600   // 12'd768   // 12'd720    
-    .I_hs_pol    (1'b1               ),//HS polarity , 0:negetive ploarity，1：positive polarity
-    .I_vs_pol    (1'b1               ),//VS polarity , 0:negetive ploarity，1：positive polarity
+    .I_hs_pol    (1'b1               ),//HS polarity , 0:negative polarity，1：positive polarity
+    .I_vs_pol    (1'b1               ),//VS polarity , 0:negative polarity，1：positive polarity
     .O_de        (tp0_de_in          ),   
     .O_hs        (tp0_hs_in          ),
     .O_vs        (tp0_vs_in          )
@@ -87,9 +83,10 @@ red_green_fade red_green_fade_inst(
 //==============================================================================
 //PLL for TMDS TX(HDMI4) @ 371.25MHz
 TMDS_rPLL u_tmds_rpll
-(.clkin     (I_clk     ),
-.clkout    (serial_clk), //clk  x5  (371.25MHz)
-.lock      (pll_lock  )
+(
+    .clkin     (I_clk     ),
+    .clkout    (serial_clk), //clk  x5  (371.25MHz)
+    .lock      (pll_lock  )
 );
 
 assign hdmi4_rst_n = I_rst_n & pll_lock;    //Release reset only when PLL is working
@@ -97,16 +94,17 @@ assign hdmi4_rst_n = I_rst_n & pll_lock;    //Release reset only when PLL is wor
 //==============================================================================
 //PLL for HDMI @ 74.25MHz
 CLKDIV u_clkdiv
-(.RESETN(hdmi4_rst_n)
-,.HCLKIN(serial_clk) //clk  x5  (371.25MHz)
-,.CLKOUT(pix_clk)    //clk  x1  ( 74.25MHz)
-,.CALIB (1'b1)
+(
+    .RESETN     (hdmi4_rst_n    ),
+    .HCLKIN     (serial_clk     ),  //clk  x5  (371.25MHz)
+    .CLKOUT     (pix_clk        ),  //clk  x1  ( 74.25MHz)
+    .CALIB      (1'b1           )
 );
 defparam u_clkdiv.DIV_MODE="5";
 defparam u_clkdiv.GSREN="false";
 
 //==============================================================================
-//Actual HDMI transmitter, receiving input from testpattern and interfacing with physical HDMI cable
+//Actual HDMI transmitter, receiving input from testpattern and interfacing with PHYSICAL HDMI cable
 DVI_TX_Top DVI_TX_Top_inst
 (
     .I_rst_n       (hdmi4_rst_n   ),  //asynchronous reset, low active
@@ -127,27 +125,27 @@ DVI_TX_Top DVI_TX_Top_inst
 //=========================================================================
 //PLL for OV5640 @ 24MHz
 CMOS_rPLL CMOS_rPLL_inst(
-    .clkout(cmos_clk_24), //output clkout
-    .clkin(I_clk) //input clkin
+    .clkout     (cmos_clk_24    ), //output clkout
+    .clkin      (I_clk          ) //input clkin
 );
 
 //=========================================================================
 //OV5640 setup
 ov5640_top ov5640_top_inst
 (
-    .sys_clk(cmos_clk_24),              // System clock
-    .sys_rst_n(I_rst_n),            // Reset signal
-    .sys_init_done(sys_init_done),        // Unused atm
-    .ov5640_pclk(cmos_pclk),          // Camera pixel clock @42MHz
-    .ov5640_href(cmos_href),          // Camera horizontal sync signal
-    .ov5640_vsync(cmos_vsync),         // Camera vertical sync signal
-    .ov5640_data(cmos_db),    // Camera image data
+    .sys_clk        (cmos_clk_24    ),// System clock
+    .sys_rst_n      (I_rst_n        ),// Reset signal
+    .sys_init_done  (sys_init_done  ),// Unused atm
+    .ov5640_pclk    (cmos_pclk      ),// Camera pixel clock @42MHz
+    .ov5640_href    (cmos_href      ),// Camera horizontal sync signal
+    .ov5640_vsync   (cmos_vsync     ),// Camera vertical sync signal
+    .ov5640_data    (cmos_db        ),// Camera image data
 
-    .cfg_done(cfg_done),            // Register configuration complete
-    .sccb_scl(cmos_scl),            // SCL signal
-    .sccb_sda(cmos_sda),            // SDA signal
-    .ov5640_wr_en(write_en),        // Image data valid enable signal
-    .ov5640_data_out() // Image data output
+    .cfg_done       (cfg_done       ),// Register configuration complete
+    .sccb_scl       (cmos_scl       ),// SCL signal
+    .sccb_sda       (cmos_sda       ),// SDA signal
+    .ov5640_wr_en   (write_en       ),// Image data valid enable signal
+    .ov5640_data_out(               ) // Image data output
 );
 
 //===================================================
@@ -189,10 +187,10 @@ assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to camera clo
 
 // Instantiate Camera Control
 power_on_delay pod_inst (
-    .clk_27(I_clk),
-    .rst_n(I_rst_n),
-    .camera_pwnd(cmos_pwdn),
-    .camera_rstn(cmos_rst_n)
+    .clk_27     (I_clk      ),
+    .rst_n      (I_rst_n    ),
+    .camera_pwnd(cmos_pwdn  ),
+    .camera_rstn(cmos_rst_n )
 );
 
 //===================================================
