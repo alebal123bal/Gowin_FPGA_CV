@@ -52,8 +52,8 @@ wire sys_init_done;
 assign sys_init_done = 1'b1;
 
 //===========================================================================
-//Timing and testpattern generator
-testpattern testpattern_inst
+//Timing generator
+timing_tx timing_tx_inst
 (
     .I_pxl_clk   (pix_clk            ),//pixel clock
     .I_rst_n     (hdmi4_rst_n        ),//low active
@@ -70,19 +70,25 @@ testpattern testpattern_inst
     .I_vs_pol    (1'b1               ),//VS polarity , 0:negetive ploarity，1：positive polarity
     .O_de        (tp0_de_in          ),   
     .O_hs        (tp0_hs_in          ),
-    .O_vs        (tp0_vs_in          ),
-    .O_data_r    (tp0_data_r         ),   
-    .O_data_g    (tp0_data_g         ),
-    .O_data_b    (tp0_data_b         ),
-    .FPS_measure_DSO(debug_wire_HMDI_clk)
+    .O_vs        (tp0_vs_in          )
 );
 
+//===========================================================================
+//Testpattern generator
+red_green_fade red_green_fade_inst(
+    .I_pxl_clk   (pix_clk            ),//pixel clock
+    .I_rst_n     (hdmi4_rst_n        ),//low active
+    .I_vs        (tp0_vs_in          ),
+    .O_data_r    (tp0_data_r         ),   
+    .O_data_g    (tp0_data_g         ),
+    .O_data_b    (tp0_data_b         )
+);
 
 //==============================================================================
 //PLL for TMDS TX(HDMI4) @ 371.25MHz
 TMDS_rPLL u_tmds_rpll
 (.clkin     (I_clk     ),
-.clkout    (serial_clk),
+.clkout    (serial_clk), //clk  x5  (371.25MHz)
 .lock      (pll_lock  )
 );
 
