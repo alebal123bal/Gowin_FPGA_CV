@@ -23,21 +23,18 @@ module top
 );
 
 
-//--------------------------
-wire        tp0_vs_in;  // Vertical sync
-wire        tp0_hs_in;  // Horizontal sync
-wire        tp0_de_in;  // Data enable
-wire [ 7:0] tp0_data_r/*synthesis syn_keep=1*/;
-wire [ 7:0] tp0_data_g/*synthesis syn_keep=1*/;
-wire [ 7:0] tp0_data_b/*synthesis syn_keep=1*/;
-
-
 //===================================================
 //HDMI4 TX
-wire serial_clk;
-wire pll_lock;
-wire hdmi4_rst_n;
-wire pix_clk;   // 74.25MHz
+wire        tp0_vs_in   ;   // Vertical sync
+wire        tp0_hs_in   ;   // Horizontal sync
+wire        tp0_de_in   ;   // Data enable
+wire [ 7:0] tp0_data_r  /*synthesis syn_keep=1*/;
+wire [ 7:0] tp0_data_g  /*synthesis syn_keep=1*/;
+wire [ 7:0] tp0_data_b  /*synthesis syn_keep=1*/;
+wire serial_clk         ;
+wire pll_lock           ;
+wire hdmi4_rst_n        ;
+wire pix_clk            ;   // 74.25MHz
 
 //===================================================
 // OV5640 camera
@@ -148,6 +145,9 @@ ov5640_top ov5640_top_inst
     .ov5640_data_out(               ) // Image data output
 );
 
+assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to camera clock
+
+
 //===================================================
 // Print Control
 
@@ -180,10 +180,6 @@ always @(posedge cmos_pclk or negedge I_rst_n) begin
         end
     end
 end
-
-//===================================================
-// Camera control signals
-assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to camera clock
 
 // Instantiate Camera Control
 power_on_delay pod_inst (
