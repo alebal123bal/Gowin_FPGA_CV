@@ -69,6 +69,50 @@ wire        cfg_done;
 wire        sys_init_done;
 assign      sys_init_done = 1'b1;
 
+//===================================================
+// DDR3 interface
+wire                   memory_clk         ;
+wire                   dma_clk         	  ;
+wire                   DDR_pll_lock       ;
+wire                   cmd_ready          ;
+wire[2:0]              cmd                ;
+wire                   cmd_en             ;
+wire[5:0]              app_burst_number   ;
+wire[ADDR_WIDTH-1:0]   addr               ;
+wire                   wr_data_rdy        ;
+wire                   wr_data_en         ;
+wire                   wr_data_end        ;
+wire[DATA_WIDTH-1:0]   wr_data            ;   
+wire[DATA_WIDTH/8-1:0] wr_data_mask       ;   
+wire                   rd_data_valid      ;  
+wire                   rd_data_end        ;//unused 
+wire[DATA_WIDTH-1:0]   rd_data            ;   
+wire                   init_calib_complete;
+
+//According to IP parameters to choose
+`define	    WR_VIDEO_WIDTH_16
+`define	DEF_WR_VIDEO_WIDTH 16
+
+`define	    RD_VIDEO_WIDTH_16
+`define	DEF_RD_VIDEO_WIDTH 16
+
+`define	USE_THREE_FRAME_BUFFER
+
+`define	DEF_ADDR_WIDTH 28 
+`define	DEF_SRAM_DATA_WIDTH 128
+
+//The memory is organized with byte-sized storage units, and has a total capacity of 2^27 * 16 bits,
+// which equals 2 Gigabits. An additional rank address bit has been added.
+// The full address is composed of {rank[0], bank[2:0], row[13:0], column[9:0]}.
+parameter ADDR_WIDTH          = `DEF_ADDR_WIDTH;
+
+//This relates to the generated DDR3 IP. The DDR3 is 2 Gigabits, x16 (meaning 16 data bits wide externally),
+// and uses a 1:4 clock ratio.
+// This results in a fixed internal data bus width of 128 bits.
+parameter DATA_WIDTH          = `DEF_SRAM_DATA_WIDTH;
+parameter WR_VIDEO_WIDTH      = `DEF_WR_VIDEO_WIDTH;  
+parameter RD_VIDEO_WIDTH      = `DEF_RD_VIDEO_WIDTH;  
+
 //===========================================================================
 // Timing generator
 timing_tx timing_tx_inst
