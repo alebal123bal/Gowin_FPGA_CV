@@ -76,7 +76,8 @@ timing_tx timing_tx_inst
 
 //===========================================================================
 //Testpattern generator
-red_green_fade red_green_fade_inst(
+red_green_fade red_green_fade_inst
+(
     .I_pxl_clk   (pix_clk            ),//pixel clock
     .I_rst_n     (hdmi4_rst_n        ),//low active
     .I_vs        (tp0_vs_in          ),
@@ -129,7 +130,8 @@ DVI_TX_Top DVI_TX_Top_inst
 
 //=========================================================================
 //PLL for OV5640 @ 24MHz
-CMOS_rPLL CMOS_rPLL_inst(
+CMOS_rPLL CMOS_rPLL_inst
+(
     .clkout     (cmos_clk_24    ), //output clkout
     .clkin      (I_clk          ) //input clkin
 );
@@ -150,10 +152,10 @@ ov5640_top ov5640_top_inst
     .sccb_scl       (cmos_scl       ),// SCL signal
     .sccb_sda       (cmos_sda       ),// SDA signal
     .ov5640_wr_en   (write_en       ),// Image data valid enable signal
-    .ov5640_data_out(               ) // Image data output
+    .ov5640_data_out(               ) // Image data output 16 bit
 );
 
-assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to camera clock
+assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to OV5640 clock
 
 // Instantiate OV5640 Control
 power_on_delay pod_inst 
