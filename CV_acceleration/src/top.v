@@ -264,22 +264,22 @@ DDR3MI DDR3_Memory_Interface_Top_inst
     .clk_out            (dma_clk            ),
     .burst              (1'b1               ),
     // mem interface
-    .ddr_rst            (                 ),
-    .O_ddr_addr         (ddr_addr         ),
-    .O_ddr_ba           (ddr_bank         ),
-    .O_ddr_cs_n         (ddr_cs         ),
-    .O_ddr_ras_n        (ddr_ras        ),
-    .O_ddr_cas_n        (ddr_cas        ),
-    .O_ddr_we_n         (ddr_we         ),
-    .O_ddr_clk          (ddr_ck          ),
-    .O_ddr_clk_n        (ddr_ck_n        ),
-    .O_ddr_cke          (ddr_cke          ),
-    .O_ddr_odt          (ddr_odt          ),
-    .O_ddr_reset_n      (ddr_reset_n      ),
-    .O_ddr_dqm          (ddr_dm           ),
-    .IO_ddr_dq          (ddr_dq           ),
-    .IO_ddr_dqs         (ddr_dqs          ),
-    .IO_ddr_dqs_n       (ddr_dqs_n        )
+    .ddr_rst            (                   ),
+    .O_ddr_addr         (ddr_addr           ),
+    .O_ddr_ba           (ddr_bank           ),
+    .O_ddr_cs_n         (ddr_cs             ),
+    .O_ddr_ras_n        (ddr_ras            ),
+    .O_ddr_cas_n        (ddr_cas            ),
+    .O_ddr_we_n         (ddr_we             ),
+    .O_ddr_clk          (ddr_ck             ),
+    .O_ddr_clk_n        (ddr_ck_n           ),
+    .O_ddr_cke          (ddr_cke            ),
+    .O_ddr_odt          (ddr_odt            ),
+    .O_ddr_reset_n      (ddr_reset_n        ),
+    .O_ddr_dqm          (ddr_dm             ),
+    .IO_ddr_dq          (ddr_dq             ),
+    .IO_ddr_dqs         (ddr_dqs            ),
+    .IO_ddr_dqs_n       (ddr_dqs_n          )
 );
 
 //===================================================
