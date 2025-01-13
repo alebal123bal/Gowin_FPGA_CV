@@ -295,13 +295,20 @@ assign  O_led[3] = I_rst_n;
 
 //===================================================
 // Frequency test: convert to 1 second counters
+wire scaled_down_DDR3_clk;
 
-localparam HALF_PERIOD = 199_000_000;
+Gowin_CLKDIV_DDR3 your_instance_name(
+    .clkout(scaled_down_DDR3_clk), //output clkout 400 DIV 5 = 80MHz
+    .hclkin(memory_clk), //input hclkin
+    .resetn(I_rst_n) //input resetn
+);
+
+localparam HALF_PERIOD = 40_000_000;
 
 reg [31:0] counter_clk;        // 32 bits can count up to 2.14 Billion
 reg debug_reg_1sec_clk;
     
-always @(posedge memory_clk or negedge I_rst_n) begin
+always @(posedge scaled_down_DDR3_clk or negedge I_rst_n) begin
     if (!I_rst_n) begin
         counter_clk <= 0;
         debug_reg_1sec_clk <= 0;
