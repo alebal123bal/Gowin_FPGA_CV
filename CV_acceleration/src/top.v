@@ -2,7 +2,7 @@
 
 module top
 (
-    input               I_clk               ,   //27Mhz
+    input               clk               ,   //27Mhz
     input               I_rst_n             ,
     output     [3:0]    O_led               , 
     
@@ -151,7 +151,7 @@ red_green_fade red_green_fade_inst
 //PLL for TMDS TX(HDMI4) @ 371.25MHz
 TMDS_rPLL u_tmds_rpll
 (
-    .clkin     (I_clk     ),
+    .clkin     (clk     ),
     .clkout    (serial_clk), //clk  x5  (371.25MHz)
     .lock      (pll_lock  )
 );
@@ -194,7 +194,7 @@ DVI_TX_Top DVI_TX_Top_inst
 CMOS_rPLL CMOS_rPLL_inst
 (
     .clkout     (cmos_clk_24    ), //output clkout
-    .clkin      (I_clk          ) //input clkin
+    .clkin      (clk          ) //input clkin
 );
 
 //=========================================================================
@@ -221,7 +221,7 @@ assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to OV5640 clo
 // Instantiate OV5640 Control
 power_on_delay pod_inst 
 (
-    .clk_27         (I_clk      ),
+    .clk_27         (clk      ),
     .rst_n          (I_rst_n    ),
     .camera_pwnd    (cmos_pwdn  ),
     .camera_rstn    (cmos_rst_n )
@@ -230,7 +230,7 @@ power_on_delay pod_inst
 //=========================================================================
 // DDR3 PLL (400MHz)
 mem_pll mem_pll_m0(
-	.clkin          (I_clk           ),
+	.clkin          (clk           ),
 	.clkout         (memory_clk      ),
 	.lock           (DDR_pll_lock    )
 );
@@ -298,19 +298,19 @@ assign  O_led[3] = I_rst_n;
 
 localparam HALF_PERIOD = 199_000_000;
 
-reg [31:0] counter_CMOS_clk;        // 32 bits can count up to 2.14 Billion
-reg debug_reg_CMOS_clk;
+reg [31:0] counter_clk;        // 32 bits can count up to 2.14 Billion
+reg debug_reg_1sec_clk;
     
 always @(posedge memory_clk or negedge I_rst_n) begin
     if (!I_rst_n) begin
-        counter_CMOS_clk <= 0;
-        debug_reg_CMOS_clk <= 0;
+        counter_clk <= 0;
+        debug_reg_1sec_clk <= 0;
     end else begin
-        if (counter_CMOS_clk == HALF_PERIOD - 1) begin
-            counter_CMOS_clk <= 0;
-            debug_reg_CMOS_clk <= ~debug_reg_CMOS_clk;
+        if (counter_clk >= HALF_PERIOD - 1) begin
+            counter_clk <= 0;
+            debug_reg_1sec_clk <= ~debug_reg_1sec_clk;
         end else begin
-            counter_CMOS_clk <= counter_CMOS_clk + 1;
+            counter_clk <= counter_clk + 1;
         end
     end
 end
@@ -327,7 +327,7 @@ assign PMOD_wire[4] = cmos_rst_n;
 
 assign PMOD_wire[5] = cmos_vsync;
 
-assign PMOD_wire[6] = debug_reg_CMOS_clk;
+assign PMOD_wire[6] = debug_reg_1sec_clk;
 
 
 endmodule
