@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gowin-synthesis-project>
+<Project>
+    <Version>beta</Version>
+    <Device id="GW2A-18C" package="PBGA256" speed="8" partNumber="GW2A-LV18PG256C8/I7"/>
+    <FileList>
+        <File path="C:/Gowin/Gowin_V1.9.9.03_Education_x64/IDE/ipcore/VFB/data/vfb_top.v" type="verilog"/>
+        <File path="C:/Gowin/Gowin_V1.9.9.03_Education_x64/IDE/ipcore/VFB/data/vfb_wrapper.v" type="verilog"/>
+    </FileList>
+    <OptionList>
+        <Option type="disable_insert_pad" value="1"/>
+        <Option type="include_path" value="C:/Gowin/Gowin_V1.9.9.03_Education_x64/IDE/ipcore/VFB/data"/>
+        <Option type="include_path" value="C:/Users/Alessandro/OneDrive/Desktop/Gowin/Gowin_FPGA_CV/CV_acceleration/src/video_frame_buffer/temp/VFB"/>
+        <Option type="output_file" value="video_frame_buffer.vg"/>
+        <Option type="output_template" value="video_frame_buffer_tmp.v"/>
+        <Option type="ram_balance" value="1"/>
+        <Option type="ram_rw_check" value="1"/>
+        <Option type="top_module" value="Video_Frame_Buffer_Top"/>
+        <Option type="verilog_language" value="sysv-2017"/>
+    </OptionList>
+</Project>
