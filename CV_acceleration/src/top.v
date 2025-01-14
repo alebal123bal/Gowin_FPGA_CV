@@ -59,7 +59,7 @@ wire [ 7:0] tp0_data_b  /*synthesis syn_keep=1*/;
 wire        serial_clk  ;   // 371.25MHz
 wire        pll_lock    ;
 wire        hdmi4_rst_n ;
-wire        pix_clk     ;   // 74.25MHz
+wire        HDMI_pix_clk;   // 74.25MHz
 
 //===================================================
 // OV5640 camera
@@ -68,7 +68,7 @@ wire        write_en;
 wire        cfg_done;
 wire        sys_init_done;
 wire [15:0] pixel_data_16;
-wire [15:0] demosaic_pixel_data_16;
+wire [15:0] debayer_pixel_data_16;
 
 //===================================================
 // DDR3 interface
@@ -114,11 +114,15 @@ parameter DATA_WIDTH          = `DEF_SRAM_DATA_WIDTH;
 parameter WR_VIDEO_WIDTH      = `DEF_WR_VIDEO_WIDTH;  
 parameter RD_VIDEO_WIDTH      = `DEF_RD_VIDEO_WIDTH;  
 
+// Data for video sink
+wire                      off0_syn_de  ;
+wire [RD_VIDEO_WIDTH-1:0] off0_syn_data;
+
 //===========================================================================
 // Timing generator
 timing_tx timing_tx_inst
 (
-    .I_pxl_clk   (pix_clk            ),//pixel clock
+    .I_pxl_clk   (HDMI_pix_clk       ),//pixel clock
     .I_rst_n     (hdmi4_rst_n        ),//low active
                                                          // 800x600   // 1024x768  // 1280x720    
     .I_h_total   (12'd1650           ),//hor total time  // 12'd1056  // 12'd1344  // 12'd1650  
@@ -140,7 +144,7 @@ timing_tx timing_tx_inst
 //Testpattern generator
 red_green_fade red_green_fade_inst
 (
-    .I_pxl_clk   (pix_clk            ),//pixel clock
+    .I_pxl_clk   (HDMI_pix_clk       ),//pixel clock
     .I_rst_n     (hdmi4_rst_n        ),//low active
     .I_vs        (tp0_vs_in          ),
     .O_data_r    (tp0_data_r         ),   
@@ -165,7 +169,7 @@ CLKDIV u_clkdiv
 (
     .RESETN     (hdmi4_rst_n    ),
     .HCLKIN     (serial_clk     ),  //clk  x5  (371.25MHz)
-    .CLKOUT     (pix_clk        ),  //clk  x1  ( 74.25MHz)
+    .CLKOUT     (HDMI_pix_clk   ),  //clk  x1  ( 74.25MHz)
     .CALIB      (1'b1           )
 );
 defparam u_clkdiv.DIV_MODE="5";
@@ -177,16 +181,19 @@ DVI_TX_Top DVI_TX_Top_inst
 (
     .I_rst_n       (hdmi4_rst_n   ),  //asynchronous reset, low active
     .I_serial_clk  (serial_clk    ),
-    .I_rgb_clk     (pix_clk       ),  //pixel clock
+    .I_rgb_clk     (HDMI_pix_clk  ),  //pixel clock
     .I_rgb_vs      (tp0_vs_in     ), 
     .I_rgb_hs      (tp0_hs_in     ),    
     .I_rgb_de      (tp0_de_in     ), 
-    .I_rgb_r       (tp0_data_r    ),
-    .I_rgb_g       (tp0_data_g    ),  
-    .I_rgb_b       (tp0_data_b    ),  
+    // .I_rgb_r       (tp0_data_r    ),
+    // .I_rgb_g       (tp0_data_g    ),  
+    // .I_rgb_b       (tp0_data_b    ),  
+    .I_rgb_r       (off0_syn_data[15:11]    ),  // 5 bits red
+    .I_rgb_g       (off0_syn_data[10:5]     ),  // 6 bits green
+    .I_rgb_b       (off0_syn_data[4:0]      ),  // 5 bits blue
     .O_tmds_clk_p  (O_tmds_clk_p  ),  //Positive clock
     .O_tmds_clk_n  (O_tmds_clk_n  ),
-    .O_tmds_data_p (O_tmds_data_p ),  //{r,g,b}
+    .O_tmds_data_p (O_tmds_data_p ),
     .O_tmds_data_n (O_tmds_data_n )
 );
 
@@ -219,7 +226,7 @@ ov5640_top ov5640_top_inst
 
 assign sys_init_done = 1'b1;    // Unused
 assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to OV5640 clock
-assign demosaic_pixel_data_16 {pixel_data_16[4:0],pixel_data_16[10:5],pixel_data_16[15:11]};   // Demosaic
+assign debayer_pixel_data_16 = {pixel_data_16[4:0],pixel_data_16[10:5],pixel_data_16[15:11]};   // Demosaic
 
 // Instantiate OV5640 Power and StartUp Control
 power_on_delay pod_inst 
@@ -229,6 +236,49 @@ power_on_delay pod_inst
     .camera_pwnd    (cmos_pwdn  ),
     .camera_rstn    (cmos_rst_n )
 );
+
+//=========================================================================
+// Video Frame Buffer
+Video_Frame_Buffer_Top Video_Frame_Buffer_Top_inst
+( 
+    .I_rst_n              (init_calib_complete  ), // rst_n
+    .I_dma_clk            (dma_clk              ), // Memory W/R clock signal
+`ifdef USE_THREE_FRAME_BUFFER 
+    .I_wr_halt            (1'd0                 ), //1:halt,  0:no halt
+    .I_rd_halt            (1'd0                 ), //1:halt,  0:no halt
+`endif
+    // video data input (from OV5640)             
+    .I_vin0_clk           (cmos_pclk            ), // Input video clock signal
+    .I_vin0_vs_n          (~cmos_vsync          ), // Input vs, only receive negative polarity
+    .I_vin0_de            (write_en             ), // Input data valid signal
+    .I_vin0_data          (debayer_pixel_data_16), // Input video data signal
+    .O_vin0_fifo_full     (                     ),
+
+    // video data output (to HDMI)            
+    .I_vout0_clk          (HDMI_pix_clk         ), // Output video clock signal
+    .I_vout0_vs_n         (~tp0_vs_in           ), // Output vs, only receive negative polarity 
+    .I_vout0_de           (tp0_de_in            ), // Output data read enable signal
+    .O_vout0_den          (off0_syn_de          ), // Output data valid signal, 2 clock cycles delayed than I_vout0_de signal
+    .O_vout0_data         (off0_syn_data        ), // Output video data signal
+    .O_vout0_fifo_empty   (                     ),
+
+    // DDR3 interface for write request
+    .I_cmd_ready          (cmd_ready            ),
+    .O_cmd                (cmd                  ), //0:write;  1:read
+    .O_cmd_en             (cmd_en               ),
+    .O_app_burst_number   (app_burst_number     ),
+    .O_addr               (addr                 ), //[ADDR_WIDTH-1:0]
+    .I_wr_data_rdy        (wr_data_rdy          ),
+    .O_wr_data_en         (wr_data_en           ), //
+    .O_wr_data_end        (wr_data_end          ), //
+    .O_wr_data            (wr_data              ), //[DATA_WIDTH-1:0]
+    .O_wr_data_mask       (wr_data_mask         ),
+    .I_rd_data_valid      (rd_data_valid        ),
+    .I_rd_data_end        (rd_data_end          ), //unused 
+    .I_rd_data            (rd_data              ), //[DATA_WIDTH-1:0]
+    .I_init_calib_complete(init_calib_complete  )
+); 
+
 
 //=========================================================================
 // DDR3 PLL (400MHz)
@@ -242,7 +292,7 @@ mem_pll mem_pll_m0(
 // DDR3 interface
 DDR3MI DDR3_Memory_Interface_Top_inst
 (
-    .clk                (pix_clk            ),
+    .clk                (HDMI_pix_clk       ),
     .memory_clk         (memory_clk         ),
     .pll_lock           (DDR_pll_lock       ),
     .rst_n              (I_rst_n            ),
