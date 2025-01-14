@@ -67,7 +67,8 @@ wire        cmos_clk_24;
 wire        write_en;
 wire        cfg_done;
 wire        sys_init_done;
-assign      sys_init_done = 1'b1;
+wire [15:0] pixel_data_16;
+wire [15:0] demosaic_pixel_data_16;
 
 //===================================================
 // DDR3 interface
@@ -213,12 +214,14 @@ ov5640_top ov5640_top_inst
     .sccb_scl       (cmos_scl       ),// SCL signal
     .sccb_sda       (cmos_sda       ),// SDA signal
     .ov5640_wr_en   (write_en       ),// Image data valid enable signal
-    .ov5640_data_out(               ) // Image data output 16 bit
+    .ov5640_data_out(pixel_data_16  ) // Image data output 16 bit (still shuffled)
 );
 
+assign sys_init_done = 1'b1;    // Unused
 assign cmos_xclk = cmos_clk_24;    // Connect external (from FPGA) to OV5640 clock
+assign demosaic_pixel_data_16 {pixel_data_16[4:0],pixel_data_16[10:5],pixel_data_16[15:11]};   // Demosaic
 
-// Instantiate OV5640 Control
+// Instantiate OV5640 Power and StartUp Control
 power_on_delay pod_inst 
 (
     .clk_27         (clk      ),
