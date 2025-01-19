@@ -188,14 +188,17 @@ DVI_TX_Top DVI_TX_Top_inst
     // .I_rgb_r       (tp0_data_r    ),
     // .I_rgb_g       (tp0_data_g    ),  
     // .I_rgb_b       (tp0_data_b    ),  
-    .I_rgb_r       ({off0_syn_data[15:11], 3'd0}    ),  // 5 bits red
-    .I_rgb_g       ({off0_syn_data[10:5], 2'd0}     ),  // 6 bits green
-    .I_rgb_b       ({off0_syn_data[4:0], 3'd0}      ),  // 5 bits blue
+    .I_rgb_r       ({lcd_r, 3'd0}    ),  // 5 bits red
+    .I_rgb_g       ({lcd_g, 2'd0}     ),  // 6 bits green
+    .I_rgb_b       ({lcd_b, 3'd0}      ),  // 5 bits blue
     .O_tmds_clk_p  (O_tmds_clk_p  ),  //Positive clock
     .O_tmds_clk_n  (O_tmds_clk_n  ),
     .O_tmds_data_p (O_tmds_data_p ),
     .O_tmds_data_n (O_tmds_data_n )
 );
+wire [4:0] lcd_r,lcd_b;
+wire [5:0] lcd_g;
+assign {lcd_r,lcd_g,lcd_b}    = off0_syn_de ? off0_syn_data[15:0] : 16'h0000;//{r,g,b}
 
 //=========================================================================
 //PLL for OV5640 @ 24MHz
@@ -212,7 +215,7 @@ ov5640_top ov5640_top_inst
     .sys_clk        (cmos_clk_24    ),// System clock
     .sys_rst_n      (I_rst_n        ),// Reset signal
     .sys_init_done  (sys_init_done  ),// Unused atm
-    .ov5640_pclk    (cmos_pclk      ),// Camera pixel clock @42MHz
+    .ov5640_pclk    (cmos_pclk      ),// Camera pixel clock @84MHz
     .ov5640_href    (cmos_href      ),// Camera horizontal sync signal
     .ov5640_vsync   (cmos_vsync     ),// Camera vertical sync signal
     .ov5640_data    (cmos_db        ),// Camera image data
