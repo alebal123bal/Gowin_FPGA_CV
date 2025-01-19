@@ -189,7 +189,7 @@ DVI_TX_Top DVI_TX_Top_inst
     // .I_rgb_g       (tp0_data_g    ),  
     // .I_rgb_b       (tp0_data_b    ),  
     .I_rgb_r       ({off0_syn_data[15:11], 3'd0}    ),  // 5 bits red
-    .I_rgb_g       ({off0_syn_data[10:5], 3'd0}     ),  // 6 bits green
+    .I_rgb_g       ({off0_syn_data[10:5], 2'd0}     ),  // 6 bits green
     .I_rgb_b       ({off0_syn_data[4:0], 3'd0}      ),  // 5 bits blue
     .O_tmds_clk_p  (O_tmds_clk_p  ),  //Positive clock
     .O_tmds_clk_n  (O_tmds_clk_n  ),
