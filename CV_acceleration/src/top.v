@@ -221,7 +221,7 @@ ov5640_top ov5640_top_inst
     .sccb_scl       (cmos_scl       ),// SCL signal
     .sccb_sda       (cmos_sda       ),// SDA signal
     .ov5640_wr_en   (write_en       ),// Image data valid enable signal
-    .ov5640_data_out(pixel_data_16  ) // Image data output 16 bit (still shuffled)
+    .ov5640_data_out(pixel_data_16  ) // Image data output 16 bit (still shuffled RGB565)
 );
 
 assign sys_init_done = 1'b1;    // Unused
