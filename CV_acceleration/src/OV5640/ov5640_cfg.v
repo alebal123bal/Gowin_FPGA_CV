@@ -61,7 +61,6 @@ assign cfg_data = (cfg_done == 1'b1) ? 24'b0 : cfg_data_reg[reg_num];
 
 // Register configuration data buffer
 // Format: {16-bit register address, 8-bit register value}
-// TODO: this should not be the first
 assign cfg_data_reg[000] = {24'h310311};// system clock from pad, bit[1]    
 assign cfg_data_reg[001] = {24'h300882};// software reset, bit[7]// delay 5ms
 assign cfg_data_reg[002] = {24'h300842};// software power down, bit[6]
@@ -328,10 +327,10 @@ assign cfg_data_reg[262] = {24'h38040a}; // HW (HE)
 assign cfg_data_reg[263] = {24'h38053f}; // HW (HE)
 assign cfg_data_reg[264] = {24'h380607}; // VH (VE)
 assign cfg_data_reg[265] = {24'h38079f}; // VH (VE)
-assign cfg_data_reg[266] = {24'h380805}; // DVPHO     (1280)->1024
-assign cfg_data_reg[267] = {24'h380900}; // DVPHO     (1280)->1024
-assign cfg_data_reg[268] = {24'h380a02}; // DVPVO     (720)->
-assign cfg_data_reg[269] = {24'h380bD0}; // DVPVO     (720)->
+assign cfg_data_reg[266] = {24'h380805}; // DVPHO     (1280)
+assign cfg_data_reg[267] = {24'h380900}; // DVPHO     (1280)
+assign cfg_data_reg[268] = {24'h380a02}; // DVPVO     (720)
+assign cfg_data_reg[269] = {24'h380bD0}; // DVPVO     (720)
 assign cfg_data_reg[270] = {24'h380c07}; // HTS
 assign cfg_data_reg[271] = {24'h380d68}; // HTS
 assign cfg_data_reg[272] = {24'h380e03}; // VTS
