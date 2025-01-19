@@ -281,35 +281,6 @@ assign cfg_data_reg[203] = 24'h530a30; // CIP sharpen TH threshold 2
 assign cfg_data_reg[204] = 24'h530b04; // CIP sharpen TH offset 1
 assign cfg_data_reg[205] = 24'h530c06; // CIP sharpen TH offset 2
 assign cfg_data_reg[206] = 24'h502500;
-assign cfg_data_reg[208] = 24'h303511; // PLL
-assign cfg_data_reg[209] = 24'h303669; // PLL
-assign cfg_data_reg[211] = 24'h382041; // Sensor flip off, ISP flip on
-assign cfg_data_reg[212] = 24'h382101; // Sensor mirror on, ISP mirror on, H binning on
-assign cfg_data_reg[213] = 24'h381431; // X INC
-assign cfg_data_reg[214] = 24'h381531; // Y INC
-assign cfg_data_reg[215] = 24'h380000; // HS: X address start high byte
-assign cfg_data_reg[216] = 24'h380100; // HS: X address start low byte
-assign cfg_data_reg[217] = 24'h380200; // VS: Y address start high byte
-assign cfg_data_reg[218] = 24'h380304; // VS: Y address start low byte
-assign cfg_data_reg[219] = 24'h38040a; // HW (HE)
-assign cfg_data_reg[220] = 24'h38053f; // HW (HE)
-assign cfg_data_reg[221] = 24'h380607; // VH (VE)
-assign cfg_data_reg[222] = 24'h38079b; // VH (VE)
-assign cfg_data_reg[223] = 24'h380805; // DVPHO
-assign cfg_data_reg[224] = 24'h380900; // DVPHO
-assign cfg_data_reg[225] = 24'h380a02; // DVPVO
-assign cfg_data_reg[226] = 24'h380bD0; // DVPVO
-assign cfg_data_reg[227] = 24'h380c07; // HTS
-assign cfg_data_reg[228] = 24'h380d68; // HTS
-assign cfg_data_reg[229] = 24'h380e03; // VTS
-assign cfg_data_reg[230] = 24'h380fd8; // VTS
-assign cfg_data_reg[231] = 24'h381306; // Timing Voffset
-assign cfg_data_reg[232] = 24'h361800;
-assign cfg_data_reg[233] = 24'h361229;
-assign cfg_data_reg[234] = 24'h370952;
-assign cfg_data_reg[235] = 24'h370c03;
-assign cfg_data_reg[236] = 24'h3a0217; // 60Hz max exposure, night mode 5fps
-assign cfg_data_reg[237] = 24'h3a0310; // 60Hz max exposure
 assign cfg_data_reg[238] = 24'h3a1417; // 50Hz max exposure, night mode 5fps
 assign cfg_data_reg[239] = 24'h3a1510; // 50Hz max exposure
 assign cfg_data_reg[240] = 24'h400402; // BLC 2 lines
@@ -354,7 +325,5 @@ assign cfg_data_reg[278] = 24'h3a0202; // 60Hz max exposure
 assign cfg_data_reg[279] = 24'h3a03e0; // 60Hz max exposure
 
 assign cfg_data_reg[207] = 24'h300802; // wake up from standby, bit[6]
-
-// The list stops at index 279 (REG_NUM-1).
 
 endmodule
