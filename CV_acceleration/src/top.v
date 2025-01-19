@@ -356,12 +356,12 @@ Gowin_CLKDIV_DDR3 your_instance_name(
     .resetn(I_rst_n) //input resetn
 );
 
-localparam HALF_PERIOD = 40_000_000;
+localparam HALF_PERIOD = 42_000_000;
 
 reg [31:0] counter_clk;        // 32 bits can count up to 2.14 Billion
 reg debug_reg_1sec_clk;
     
-always @(posedge scaled_down_DDR3_clk or negedge I_rst_n) begin
+always @(posedge cmos_pclk or negedge I_rst_n) begin
     if (!I_rst_n) begin
         counter_clk <= 0;
         debug_reg_1sec_clk <= 0;
@@ -385,9 +385,11 @@ assign PMOD_wire[2] = cmos_sda;
 assign PMOD_wire[3] = cmos_pwdn;    
 assign PMOD_wire[4] = cmos_rst_n;
 
-assign PMOD_wire[5] = cmos_vsync;
+assign PMOD_wire[5] = cmos_href;
+assign PMOD_wire[6] = tp0_hs_in;
 
-assign PMOD_wire[6] = debug_reg_1sec_clk;
+
+assign PMOD_wire[7] = debug_reg_1sec_clk;
 
 
 endmodule
