@@ -12,7 +12,7 @@ module ov5640_cfg
 //// Parameters and Internal Signals ////
 
 // Parameter definitions
-parameter REG_NUM = 10'd303;        // Total number of registers to configure
+parameter REG_NUM = 10'd304;        // Total number of registers to configure
 parameter CNT_WAIT_MAX = 20'd30000; // Wait count before register configuration
 
 // Wire definitions
@@ -365,5 +365,7 @@ assign cfg_data_reg[299] = {24'h301602}; //Strobe output enable
 assign cfg_data_reg[300] = {24'h3b070a}; //FREX strobe mode1
 assign cfg_data_reg[301] = {24'h3b0083}; //STROBE CTRL: strobe request ON, Strobe mode: LED3
 assign cfg_data_reg[302] = {24'h3b0000}; //STROBE CTRL: strobe request OFF
+
+assign cfg_data_reg[303] = {24'h474100}; //Test pattern enable/disable (bit[2]), at 10 bits
 
 endmodule
