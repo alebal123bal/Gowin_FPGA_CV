@@ -67,10 +67,8 @@ assign cfg_data_reg[002] = {24'h310303}; //Sys Clk From PLL
 assign cfg_data_reg[003] = {24'h3017ff}; //Data bits as outputs
 assign cfg_data_reg[004] = {24'h3018ff}; //Data bits as outputs
 assign cfg_data_reg[005] = {24'h350300}; //AEC/AGC on
-assign cfg_data_reg[006] = {24'h000000};
-assign cfg_data_reg[007] = {24'h000000};
-// assign cfg_data_reg[006] = {24'h350bc4}; //Gain Lower
-// assign cfg_data_reg[007] = {24'h350a03}; //Gain Upper
+assign cfg_data_reg[006] = {24'h350bc4}; //Gain Lower
+assign cfg_data_reg[007] = {24'h350a03}; //Gain Upper
 assign cfg_data_reg[008] = {24'h30341A}; //[7:4] Charge Pump (always 1), [3:0] BIT Div (0x8 = 2, 0xA = 2.5)
 assign cfg_data_reg[009] = {24'h303521}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
 assign cfg_data_reg[010] = {24'h303669}; //PLL Multiplier
@@ -122,21 +120,21 @@ assign cfg_data_reg[055] = {24'h380100}; //X START
 assign cfg_data_reg[056] = {24'h380200}; //Y START
 assign cfg_data_reg[057] = {24'h380300}; //Y START
 assign cfg_data_reg[058] = {24'h38040a}; //X END
-assign cfg_data_reg[059] = {24'h38053f}; //X END
+assign cfg_data_reg[059] = {24'h38053f}; //X END    // 2623
 assign cfg_data_reg[060] = {24'h380607}; //Y END
-assign cfg_data_reg[061] = {24'h38079f}; //Y END
+assign cfg_data_reg[061] = {24'h38079f}; //Y END    // 1951
 assign cfg_data_reg[062] = {24'h380805}; //DVPHO = 1280
 assign cfg_data_reg[063] = {24'h380900}; //DVPHO = 1280
 assign cfg_data_reg[064] = {24'h380a02}; //DVPVO = 720
 assign cfg_data_reg[065] = {24'h380bD0}; //DVPVO = 720
 assign cfg_data_reg[066] = {24'h380c07}; //HTS
-assign cfg_data_reg[067] = {24'h380d68}; //HTS
+assign cfg_data_reg[067] = {24'h380d68}; //HTS  // 1896
 assign cfg_data_reg[068] = {24'h380e03}; //VTS
-assign cfg_data_reg[069] = {24'h380fd8}; //VTS
+assign cfg_data_reg[069] = {24'h380fd8}; //VTS  // 984
 assign cfg_data_reg[070] = {24'h381000}; //ISP X OFFSET
-assign cfg_data_reg[071] = {24'h381110}; //ISP X OFFSET
-assign cfg_data_reg[072] = {24'h381200}; //ISP Y OFFSET
-assign cfg_data_reg[073] = {24'h381304}; //ISP Y OFFSET
+assign cfg_data_reg[071] = {24'h381110}; //ISP X OFFSET // 16
+assign cfg_data_reg[072] = {24'h381200}; //ISP Y OFFSET 
+assign cfg_data_reg[073] = {24'h381304}; //ISP Y OFFSET // 4
 assign cfg_data_reg[074] = {24'h361800}; //Not documented
 assign cfg_data_reg[075] = {24'h361229}; //Not documented
 assign cfg_data_reg[076] = {24'h370864}; //Not documented
@@ -163,8 +161,7 @@ assign cfg_data_reg[096] = {24'h3006c3}; //Clock Enables
 assign cfg_data_reg[097] = {24'h3007ff}; //Clock Enables
 assign cfg_data_reg[098] = {24'h300e58}; //Enable DVP, power down MIPI
 assign cfg_data_reg[099] = {24'h302e00}; //Not documented
-// assign cfg_data_reg[100] = {24'h474021}; //Active High PCLK and active high HREF
-assign cfg_data_reg[100] = {24'h000000}; //Active High PCLK and active high HREF
+assign cfg_data_reg[100] = {24'h474021}; //Active High PCLK and active high HREF
 assign cfg_data_reg[101] = {24'h460b37}; //VFIFO
 assign cfg_data_reg[102] = {24'h460c20}; //VIFO [2] Control PCLK with register 0x3824
 assign cfg_data_reg[103] = {24'h382401}; //DVP PCLK Divider (weird register)
