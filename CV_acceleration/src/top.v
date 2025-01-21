@@ -392,7 +392,7 @@ assign PMOD_wire[5] = cmos_href;
 assign PMOD_wire[6] = tp0_hs_in;
 
 
-assign PMOD_wire[7] = debug_reg_1sec_clk;
+assign PMOD_wire[7] = cmos_vsync;   // Once per image valid
 
 
 endmodule
