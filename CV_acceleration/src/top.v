@@ -120,6 +120,7 @@ wire [RD_VIDEO_WIDTH-1:0] off0_syn_data;
 
 //===========================================================================
 // Timing generator
+// My FULLHD (1920x1080) screen works both with timing 1024x768 and 1280x720 due to upscaling
 timing_tx timing_tx_inst
 (
     .I_pxl_clk   (HDMI_pix_clk       ),//pixel clock
