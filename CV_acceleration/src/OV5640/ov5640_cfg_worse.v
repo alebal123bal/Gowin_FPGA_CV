@@ -15,8 +15,8 @@ module ov5640_cfg_worse
 parameter REG_NUM = 10'd221;      // Total number of registers to configure
 parameter CNT_WAIT_MAX = 20'd30000; // Wait count before register configuration
 
-parameter X_END = 16'h0500;
-parameter Y_END = 16'h02d0;
+parameter X_END = 16'h0a3f;
+parameter Y_END = 16'h079b;
 parameter DVP_HO = 16'h0500;
 parameter DVP_VO = 16'h02d0;
 parameter HTS = 16'h0898;
