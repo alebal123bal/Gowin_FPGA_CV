@@ -12,8 +12,15 @@ module ov5640_cfg_worse
 //// Parameters and Internal Signals ////
 
 // Parameter definitions
-parameter REG_NUM = 10'd218;      // Total number of registers to configure
+parameter REG_NUM = 10'd221;      // Total number of registers to configure
 parameter CNT_WAIT_MAX = 20'd30000; // Wait count before register configuration
+
+parameter X_END = 16'h0500;
+parameter Y_END = 16'h02d0;
+parameter DVP_HO = 16'h0500;
+parameter DVP_VO = 16'h02d0;
+parameter HTS = 16'h0898;
+parameter VTS = 16'h05af;
 
 // Wire definitions
 wire [23:0] cfg_data_reg[REG_NUM-1:0]; // Register configuration data buffer
@@ -71,8 +78,8 @@ assign cfg_data_reg[006] = {24'h350bc4}; //Gain Lower
 assign cfg_data_reg[007] = {24'h350a03}; //Gain Upper
 assign cfg_data_reg[008] = {24'h30341A}; //[7:4] Charge Pump (always 1), [3:0] BIT Div (0x8 = 2, 0xA = 2.5)
 assign cfg_data_reg[009] = {24'h303511}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
-assign cfg_data_reg[010] = {24'h303669}; //PLL Multiplier
-assign cfg_data_reg[011] = {24'h303703}; //[7:4] PLL Root Bypass or Div2, [3:0] PLL Pre Div
+assign cfg_data_reg[010] = {24'h303678}; //PLL Multiplier x120
+assign cfg_data_reg[011] = {24'h303713}; //[7:4] PLL Root Bypass or Div2, [3:0] PLL Pre Div
 assign cfg_data_reg[012] = {24'h310801}; //[7:4] PCLK Div, [3:0] SCLK Div
 assign cfg_data_reg[013] = {24'h363036}; //Not Documented
 assign cfg_data_reg[014] = {24'h36310e}; //Not Documented
@@ -112,29 +119,29 @@ assign cfg_data_reg[047] = {24'h3c091c}; //50/60 Hz Light Fix
 assign cfg_data_reg[048] = {24'h3c0a9c}; //50/60 Hz Light Fix
 assign cfg_data_reg[049] = {24'h3c0b40}; //50/60 Hz Light Fix
 assign cfg_data_reg[050] = {24'h382047}; //ISP Control, Flip
-assign cfg_data_reg[051] = {24'h382101}; //ISP Control, Mirror, No binning
-assign cfg_data_reg[052] = {24'h381431}; //Sample Increments
-assign cfg_data_reg[053] = {24'h381531}; //Sample Increments
+assign cfg_data_reg[051] = {24'h382100}; //ISP Control, Mirror, Binning
+assign cfg_data_reg[052] = {24'h381400}; //Sample Increments
+assign cfg_data_reg[053] = {24'h381500}; //Sample Increments
 assign cfg_data_reg[054] = {24'h380000}; //X START
-assign cfg_data_reg[055] = {24'h380100}; //X START
+assign cfg_data_reg[055] = {24'h380100}; //X START  0
 assign cfg_data_reg[056] = {24'h380200}; //Y START
-assign cfg_data_reg[057] = {24'h380304}; //Y START
-assign cfg_data_reg[058] = {24'h38040a}; //X END
-assign cfg_data_reg[059] = {24'h38053f}; //X END    // 2623
-assign cfg_data_reg[060] = {24'h380607}; //Y END
-assign cfg_data_reg[061] = {24'h38079b}; //Y END    // 1947
-assign cfg_data_reg[062] = {24'h380805}; //DVPHO = 1280 + 4
-assign cfg_data_reg[063] = {24'h380904}; //DVPHO = 1280 + 4
-assign cfg_data_reg[064] = {24'h380a03}; //DVPVO = 960 + 4
-assign cfg_data_reg[065] = {24'h380bc4}; //DVPVO = 960 + 4
-assign cfg_data_reg[066] = {24'h380c07}; //HTS
-assign cfg_data_reg[067] = {24'h380d68}; //HTS  // 1896
-assign cfg_data_reg[068] = {24'h380e03}; //VTS
-assign cfg_data_reg[069] = {24'h380fd8}; //VTS  // 984
+assign cfg_data_reg[057] = {24'h380300}; //Y START  0
+assign cfg_data_reg[058] = {16'h3804, X_END[15:8] }; //X END
+assign cfg_data_reg[059] = {16'h3805, X_END[ 7:0] }; //X END    1280 (MAX 2623)
+assign cfg_data_reg[060] = {16'h3806, Y_END[15:8] }; //Y END
+assign cfg_data_reg[061] = {16'h3807, Y_END[ 7:0] }; //Y END    720 (MAX 1963)
+assign cfg_data_reg[062] = {16'h3808, DVP_HO[15:8]}; //DVPHO    
+assign cfg_data_reg[063] = {16'h3809, DVP_HO[ 7:0]}; //DVPHO    1280
+assign cfg_data_reg[064] = {16'h380a, DVP_VO[15:8]}; //DVPVO    
+assign cfg_data_reg[065] = {16'h380b, DVP_VO[ 7:0]}; //DVPVO    720
+assign cfg_data_reg[066] = {16'h380c, HTS[15:8]   }; //HTS
+assign cfg_data_reg[067] = {16'h380d, HTS[ 7:0]   }; //HTS      2200
+assign cfg_data_reg[068] = {16'h380e, VTS[15:8]   }; //VTS
+assign cfg_data_reg[069] = {16'h380f, VTS[ 7:0]   }; //VTS      1455
 assign cfg_data_reg[070] = {24'h381000}; //ISP X OFFSET
-assign cfg_data_reg[071] = {24'h381100}; //ISP X OFFSET // 0
+assign cfg_data_reg[071] = {24'h381100}; //ISP X OFFSET     0
 assign cfg_data_reg[072] = {24'h381200}; //ISP Y OFFSET 
-assign cfg_data_reg[073] = {24'h381300}; //ISP Y OFFSET // 0
+assign cfg_data_reg[073] = {24'h381300}; //ISP Y OFFSET     0
 assign cfg_data_reg[074] = {24'h361800}; //Not documented
 assign cfg_data_reg[075] = {24'h361229}; //Not documented
 assign cfg_data_reg[076] = {24'h370864}; //Not documented
@@ -278,6 +285,9 @@ assign cfg_data_reg[213] = {24'h3a1e26}; //AEC
 assign cfg_data_reg[214] = {24'h3a1160}; //AEC
 assign cfg_data_reg[215] = {24'h3a1f14}; //AEC
 assign cfg_data_reg[216] = {24'h474100}; //DVP Test Pattern Enable
-assign cfg_data_reg[217] = {24'h300802}; //Chip Power Up
+assign cfg_data_reg[217] = {24'h000000}; // JPEG mode 3
+assign cfg_data_reg[218] = {24'h000000}; // Quantization scale
+assign cfg_data_reg[219] = {24'h000000}; // Testpattern colorbar
+assign cfg_data_reg[220] = {24'h300802}; //Chip Power Up
 
 endmodule
