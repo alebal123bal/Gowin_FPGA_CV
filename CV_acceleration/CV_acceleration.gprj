@@ -16,7 +16,8 @@
         <File path="src/i2c/i2c_ctrl.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_cfg.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_cfg_worse.v" type="file.verilog" enable="1"/>
-        <File path="src/ov5640/ov5640_cfg_better.v" type="file.verilog" enable="1"/>
+        <!-- <File path="src/ov5640/ov5640_cfg_better.v" type="file.verilog" enable="1"/> -->
+        <File path="src/ov5640/ov5640_cfg_better_indexed.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_data.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_top.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/power_on_delay.v" type="file.verilog" enable="1"/>
