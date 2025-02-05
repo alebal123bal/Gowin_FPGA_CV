@@ -12,7 +12,7 @@ module ov5640_cfg_worse
 //// Parameters and Internal Signals ////
 
 // Parameter definitions
-parameter REG_NUM = 10'd221;      // Total number of registers to configure
+parameter REG_NUM = 10'd500;      // Total number of registers to configure
 parameter CNT_WAIT_MAX = 20'd30000; // Wait count before register configuration
 
 parameter X_END = 16'h0a3f;
@@ -77,9 +77,9 @@ assign cfg_data_reg[005] = {24'h350300}; //AEC/AGC on
 assign cfg_data_reg[006] = {24'h350bc4}; //Gain Lower
 assign cfg_data_reg[007] = {24'h350a03}; //Gain Upper
 assign cfg_data_reg[008] = {24'h30341A}; //[7:4] Charge Pump (always 1), [3:0] BIT Div (0x8 = 2, 0xA = 2.5)
-assign cfg_data_reg[009] = {24'h303511}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
-assign cfg_data_reg[010] = {24'h303678}; //PLL Multiplier x120
-assign cfg_data_reg[011] = {24'h303713}; //[7:4] PLL Root Bypass or Div2, [3:0] PLL Pre Div
+assign cfg_data_reg[009] = {24'h303521}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
+assign cfg_data_reg[010] = {24'h30368c}; //PLL Multiplier x140
+assign cfg_data_reg[011] = {24'h303703}; //[7:4] PLL Root Bypass or Div2, [3:0] PLL Pre Div
 assign cfg_data_reg[012] = {24'h310801}; //[7:4] PCLK Div, [3:0] SCLK Div
 assign cfg_data_reg[013] = {24'h363036}; //Not Documented
 assign cfg_data_reg[014] = {24'h36310e}; //Not Documented
@@ -119,9 +119,9 @@ assign cfg_data_reg[047] = {24'h3c091c}; //50/60 Hz Light Fix
 assign cfg_data_reg[048] = {24'h3c0a9c}; //50/60 Hz Light Fix
 assign cfg_data_reg[049] = {24'h3c0b40}; //50/60 Hz Light Fix
 assign cfg_data_reg[050] = {24'h382047}; //ISP Control, Flip
-assign cfg_data_reg[051] = {24'h382100}; //ISP Control, Mirror, Binning
-assign cfg_data_reg[052] = {24'h381400}; //Sample Increments
-assign cfg_data_reg[053] = {24'h381500}; //Sample Increments
+assign cfg_data_reg[051] = {24'h382101}; //ISP Control, Mirror, Binning
+assign cfg_data_reg[052] = {24'h381411}; //Sample Increments
+assign cfg_data_reg[053] = {24'h381511}; //Sample Increments
 assign cfg_data_reg[054] = {24'h380000}; //X START
 assign cfg_data_reg[055] = {24'h380100}; //X START  0
 assign cfg_data_reg[056] = {24'h380200}; //Y START
@@ -134,7 +134,7 @@ assign cfg_data_reg[062] = {16'h3808, DVP_HO[15:8]}; //DVPHO
 assign cfg_data_reg[063] = {16'h3809, DVP_HO[ 7:0]}; //DVPHO
 assign cfg_data_reg[064] = {16'h380a, DVP_VO[15:8]}; //DVPVO   
 assign cfg_data_reg[065] = {16'h380b, DVP_VO[ 7:0]}; //DVPVO
-assign cfg_data_reg[066] = {16'h380c, HTS[15:8]   }; //HTS
+assign cfg_data_reg[066] = {16'h380c, HTS[15:8]   }; //HTS (responsible for timing and FPS)
 assign cfg_data_reg[067] = {16'h380d, HTS[ 7:0]   }; //HTS
 assign cfg_data_reg[068] = {16'h380e, VTS[15:8]   }; //VTS
 assign cfg_data_reg[069] = {16'h380f, VTS[ 7:0]   }; //VTS
@@ -285,9 +285,11 @@ assign cfg_data_reg[213] = {24'h3a1e26}; //AEC
 assign cfg_data_reg[214] = {24'h3a1160}; //AEC
 assign cfg_data_reg[215] = {24'h3a1f14}; //AEC
 assign cfg_data_reg[216] = {24'h474100}; //DVP Test Pattern Enable
-assign cfg_data_reg[217] = {24'h000000}; // JPEG mode 3
-assign cfg_data_reg[218] = {24'h000000}; // Quantization scale
-assign cfg_data_reg[219] = {24'h000000}; // Testpattern colorbar
-assign cfg_data_reg[220] = {24'h300802}; //Chip Power Up
+// assign cfg_data_reg[220] = {24'h380c08}; //HTS (responsible for timing and FPS)
+// assign cfg_data_reg[221] = {24'h380d98}; //HTS
+// assign cfg_data_reg[222] = {24'h380e05}; //VTS
+// assign cfg_data_reg[223] = {24'h380faf}; //VTS
+assign cfg_data_reg[224] = {24'h301602}; //Strobe output enable
+assign cfg_data_reg[480] = {24'h300802}; //Chip Power Up
 
 endmodule
