@@ -224,29 +224,29 @@ assign cfg_data_reg[155] = {24'h530908}; //CIP Sharpen TH Thresh 1
 assign cfg_data_reg[156] = {24'h530a30}; //CIP Sharpen TH Thresh 2
 assign cfg_data_reg[157] = {24'h530b04}; //CIP Sharpen TH Offset 1 (Sharpen threshold manual setting when 0x5308[6]=1)
 assign cfg_data_reg[158] = {24'h530c06}; //CIP Sharpen TH Offset 2
-assign cfg_data_reg[159] = {24'h548001}; //Gamma
-assign cfg_data_reg[160] = {24'h548108}; //Gamma
-assign cfg_data_reg[161] = {24'h548214}; //Gamma
-assign cfg_data_reg[162] = {24'h548328}; //Gamma
-assign cfg_data_reg[163] = {24'h548451}; //Gamma
-assign cfg_data_reg[164] = {24'h548565}; //Gamma
-assign cfg_data_reg[165] = {24'h548671}; //Gamma
-assign cfg_data_reg[166] = {24'h54877d}; //Gamma
-assign cfg_data_reg[167] = {24'h548887}; //Gamma
-assign cfg_data_reg[168] = {24'h548991}; //Gamma
-assign cfg_data_reg[169] = {24'h548a9a}; //Gamma
-assign cfg_data_reg[170] = {24'h548baa}; //Gamma
-assign cfg_data_reg[171] = {24'h548cb8}; //Gamma
-assign cfg_data_reg[172] = {24'h548dcd}; //Gamma
-assign cfg_data_reg[173] = {24'h548edd}; //Gamma
-assign cfg_data_reg[174] = {24'h548fea}; //Gamma
-assign cfg_data_reg[175] = {24'h54901d}; //Gamma
-assign cfg_data_reg[176] = {24'h558002}; //Digital Effects
-assign cfg_data_reg[177] = {24'h558340}; //Digital Effects
-assign cfg_data_reg[178] = {24'h558410}; //Digital Effects
-assign cfg_data_reg[179] = {24'h558910}; //Digital Effects
-assign cfg_data_reg[180] = {24'h558a00}; //Digital Effects
-assign cfg_data_reg[181] = {24'h558bf8}; //Digital Effects
+assign cfg_data_reg[159] = {24'h548001}; //Gamma Bit[7:2]: Debug mode Bit[1]: YSLP15 manual enable Bit[0]: BIAS plus on
+assign cfg_data_reg[160] = {24'h548108}; //Gamma Bit[7:0]: Y yst 00
+assign cfg_data_reg[161] = {24'h548214}; //Gamma Bit[7:0]: Y yst 01
+assign cfg_data_reg[162] = {24'h548328}; //Gamma Bit[7:0]: Y yst 02
+assign cfg_data_reg[163] = {24'h548451}; //Gamma Bit[7:0]: Y yst 03
+assign cfg_data_reg[164] = {24'h548565}; //Gamma Bit[7:0]: Y yst 04
+assign cfg_data_reg[165] = {24'h548671}; //Gamma Bit[7:0]: Y yst 05
+assign cfg_data_reg[166] = {24'h54877d}; //Gamma Bit[7:0]: Y yst 06
+assign cfg_data_reg[167] = {24'h548887}; //Gamma Bit[7:0]: Y yst 07
+assign cfg_data_reg[168] = {24'h548991}; //Gamma Bit[7:0]: Y yst 08
+assign cfg_data_reg[169] = {24'h548a9a}; //Gamma Bit[7:0]: Y yst 09
+assign cfg_data_reg[170] = {24'h548baa}; //Gamma Bit[7:0]: Y yst 0A
+assign cfg_data_reg[171] = {24'h548cb8}; //Gamma Bit[7:0]: Y yst 0B
+assign cfg_data_reg[172] = {24'h548dcd}; //Gamma Bit[7:0]: Y yst 0C
+assign cfg_data_reg[173] = {24'h548edd}; //Gamma Bit[7:0]: Y yst 0D
+assign cfg_data_reg[174] = {24'h548fea}; //Gamma Bit[7:0]: Y yst 0E
+assign cfg_data_reg[175] = {24'h54901d}; //Gamma Bit[7:0]: Y yst 0F
+assign cfg_data_reg[176] = {24'h558002};
+assign cfg_data_reg[177] = {24'h558340};
+assign cfg_data_reg[178] = {24'h558410};
+assign cfg_data_reg[179] = {24'h558910};
+assign cfg_data_reg[180] = {24'h558a00};
+assign cfg_data_reg[181] = {24'h558bf8};
 assign cfg_data_reg[182] = {24'h580023}; //LENC
  
 assign cfg_data_reg[183] = {24'h580114};
@@ -389,7 +389,7 @@ assign cfg_data_reg[314] = {24'h583a26}; //LENC Bit[7:4]: Blue matrix 42 Bit[3:0
 assign cfg_data_reg[315] = {24'h583b28}; //LENC Bit[7:4]: Blue matrix 43 Bit[3:0]: Red matrix 43
 assign cfg_data_reg[316] = {24'h583c14}; //LENC Bit[7:4]: Blue matrix 44 Bit[3:0]: Red matrix 44
 assign cfg_data_reg[317] = {24'h583dee}; //LENC Bit[7:4]: LENC b offset Bit[3:0]: LENC r offset
-assign cfg_data_reg[318] = {24'h40051a};
+assign cfg_data_reg[318] = {24'h40051a}; //Bit[1]: BLC always update 0: Normal freeze 1: BLC always update; 
  
 assign cfg_data_reg[319] = {24'h538126}; //Bit[7:2]: Debug mode Bit[1]: CMX1 for Y Bit[0]: Debug mode
 assign cfg_data_reg[320] = {24'h538250}; //Bit[7:0]: CMX2 for Y
@@ -403,13 +403,13 @@ assign cfg_data_reg[327] = {24'h538909}; //Bit[7:0]: CMX9 for V
 assign cfg_data_reg[328] = {24'h538b98}; //Cmxsign Bit[7]: CMX8 sign Bit[6]: CMX7 sign Bit[5]: CMX6 sign Bit[4]: CMX5 sign Bit[3]: CMX4 sign Bit[2]: CMX3 sign Bit[1]: CMX2 sign Bit[0]: CMX1 sign
 assign cfg_data_reg[329] = {24'h538a01}; //Cmxsign Bit[7:1]: Debug mode Bit[0]: CMX9 sign
  
-assign cfg_data_reg[330] = {24'h558002}; //Digital Effects
-assign cfg_data_reg[331] = {24'h558801};
-assign cfg_data_reg[332] = {24'h558340}; //Digital Effects
-assign cfg_data_reg[333] = {24'h558410}; //Digital Effects
-assign cfg_data_reg[334] = {24'h55890f}; //Digital Effects
-assign cfg_data_reg[335] = {24'h558a00}; //Digital Effects
-assign cfg_data_reg[336] = {24'h558b3f}; //Digital Effects
+assign cfg_data_reg[330] = {24'h558002}; //Digital Effects Bit[7]: Fixed Y enable 0: Disable 1: Enable Bit[6]: Negative enable 0: Disable 1: Enable Bit[5]: Gray enable 0: Disable 1: Enable Bit[4]: Fixed V enable 0: Disable 1: Enable Bit[3]: Fixed U enable 0: Disable 1: Enable Bit[2]: Contrast enable 0: Disable 1: Enable Bit[1]: Saturation enable 0: Disable 1: Enable Bit[0]: Hue enable 0: Disable 1: Enable
+assign cfg_data_reg[331] = {24'h558801}; //Digital Effects Bit[7]: Debug mode Bit[5]: Sign5 for hue V, cos Bit[4]: Sign4 for hue U, cos Bit[3]: Sign3 Y bright sign for contrast 0: Keep Y bright sign 1: Negative Y bright sign Bit[2]: Sign2 Y offset sign for contrast when  0x5044[3]=1 0: Keep Y offset sign 1: Negative Y offset sign Bit[1]: Sign1 for hue V, sin Bit[0]: Sign0 for hue U, sin
+assign cfg_data_reg[332] = {24'h558340}; //Digital Effects Saturation U when 0x5580[1]=1 and 0x5588[6]=1, max value for UV adjust when 0x5580[1]=1 and 0x5588[6]=0 or fixed U when 0x5580[3]=1
+assign cfg_data_reg[333] = {24'h558410}; //Digital Effects Saturation V when 0x5580[1]=1 and 0x5588[6]=1, min value for UV adjust when 0x5580[1]=1 and 0x5588[6]=0 or Vreg when 0x5580[4]=1
+assign cfg_data_reg[334] = {24'h55890f}; //Digital Effects Bit[7:0]: UV adjust threshold 1 Valid when 0x5580[1]=1
+assign cfg_data_reg[335] = {24'h558a00}; //Digital Effects Bit[7:1]: Debug mode Bit[0]: UV adjust threshold 2[8] Valid when 0x5580[1]=1
+assign cfg_data_reg[336] = {24'h558b3f}; //Digital Effects Bit[7:0]: UV adjust threshold 2[7:0] Valid when 0x5580[1]=1
  
 assign cfg_data_reg[337] = {24'h530825}; //CIP CTRL Bit[7]: Debug mode Bit[6]: CIP edge MT manual enable Bit[4]: CIP DNS manual enable Bit[2:0]: CIP threshold for BR sharpen
 assign cfg_data_reg[338] = {24'h530408}; //CIP DNS Thresh1
