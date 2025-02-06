@@ -102,15 +102,15 @@ assign cfg_data_reg[36] = {24'h363603}; //Not documented
 assign cfg_data_reg[37] = {24'h363440}; //Not documented
 assign cfg_data_reg[38] = {24'h362201}; //Not documented
  
-assign cfg_data_reg[39] = {24'h3c0134}; //50/60 Hz Light Fix
-assign cfg_data_reg[40] = {24'h3c0428}; //50/60 Hz Light Fix
-assign cfg_data_reg[41] = {24'h3c0598}; //50/60 Hz Light Fix
-assign cfg_data_reg[42] = {24'h3c0600}; //50/60 Hz Light Fix
-assign cfg_data_reg[43] = {24'h3c0708}; //50/60 Hz Light Fix
-assign cfg_data_reg[44] = {24'h3c0800}; //50/60 Hz Light Fix
-assign cfg_data_reg[45] = {24'h3c091c}; //50/60 Hz Light Fix
-assign cfg_data_reg[46] = {24'h3c0a9c}; //50/60 Hz Light Fix
-assign cfg_data_reg[47] = {24'h3c0b40}; //50/60 Hz Light Fix
+assign cfg_data_reg[39] = {24'h3c0134};
+assign cfg_data_reg[40] = {24'h3c0428}; //50/60 Hz Light Fix Bit[7:0]: Threshold for low sum
+assign cfg_data_reg[41] = {24'h3c0598}; //50/60 Hz Light Fix Bit[7:0]: Threshold for high sum
+assign cfg_data_reg[42] = {24'h3c0600}; //50/60 Hz Light Fix Bit[7:0]: Lightmeter1 threshold[15:8]
+assign cfg_data_reg[43] = {24'h3c0708}; //50/60 Hz Light Fix Bit[7:0]: Lightmeter1 threshold[7:0]
+assign cfg_data_reg[44] = {24'h3c0800}; //50/60 Hz Light Fix Bit[7:0]: Lightmeter2 threshold[15:8]
+assign cfg_data_reg[45] = {24'h3c091c}; //50/60 Hz Light Fix Bit[7:0]: Lightmeter2 threshold[7:0]
+assign cfg_data_reg[46] = {24'h3c0a9c}; //50/60 Hz Light Fix Bit[7:0]: Sample number[15:8]
+assign cfg_data_reg[47] = {24'h3c0b40}; //50/60 Hz Light Fix Bit[7:0]: Sample number[7:0]
 assign cfg_data_reg[48] = {24'h382041}; //ISP Control, Flip
 assign cfg_data_reg[49] = {24'h382107}; //ISP Control, Mirror, Binning
 assign cfg_data_reg[50] = {24'h381431}; //Sample Increments
@@ -321,8 +321,8 @@ assign cfg_data_reg[250] = {24'h3a1f14}; //AEC Step Manual Mode, Fast Zone Low L
 assign cfg_data_reg[251] = {24'h300802}; //Release Reset
 assign cfg_data_reg[252] = {24'h303521}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
  
-assign cfg_data_reg[253] = {24'h3c01b4}; //50/60 Hz Light Fix
-assign cfg_data_reg[254] = {24'h3c0004};
+assign cfg_data_reg[253] = {24'h3c01b4}; //Bit[7]: Band manual enable Bit[6]: Band begin reset enable Bit[5]: Sum auto mode enable Bit[4]: Band counter enable Bit[3:0]: Band counter Counter threshold for band change
+assign cfg_data_reg[254] = {24'h3c0004}; //Bit[2]: Band value manual setting 0: 60 Hz light 1: 50 Hz light
  
 assign cfg_data_reg[255] = {24'h3a197c};
  
