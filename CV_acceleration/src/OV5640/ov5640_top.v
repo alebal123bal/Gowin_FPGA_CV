@@ -58,7 +58,7 @@ i2c_ctrl_inst
 );
 
 // OV7725 Configuration Instance
-ov5640_cfg ov5640_cfg_inst
+ov5640_cfg_better_indexed ov5640_cfg_inst
 (
     .sys_clk        (cfg_clk),       // System clock from i2c module
     .sys_rst_n      (sys_rst_n),     // System reset, active low
