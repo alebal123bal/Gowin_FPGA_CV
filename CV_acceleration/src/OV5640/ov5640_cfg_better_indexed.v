@@ -212,17 +212,17 @@ assign cfg_data_reg[143] = {24'h53886c};
 assign cfg_data_reg[144] = {24'h538910};
 assign cfg_data_reg[145] = {24'h538a01};
 assign cfg_data_reg[146] = {24'h538b98};
-assign cfg_data_reg[147] = {24'h530008};
+assign cfg_data_reg[147] = {24'h530008}; //Color Interpolation Sharpen MT Threshold 1
 assign cfg_data_reg[148] = {24'h530130}; //CIP Sharpen MT Thresh2
-assign cfg_data_reg[149] = {24'h530210}; //CIP Sharpen MT Offset1
+assign cfg_data_reg[149] = {24'h530210}; //CIP Sharpen MT Offset1 (Y edge mt manual setting when 0x5308[6]=1)
 assign cfg_data_reg[150] = {24'h530300}; //CIP Sharpen MT Offset2
 assign cfg_data_reg[151] = {24'h530408}; //CIP DNS Thresh1
 assign cfg_data_reg[152] = {24'h530530}; //CIP DNS Thresh2
-assign cfg_data_reg[153] = {24'h530608}; //CIP DNS Offset1
+assign cfg_data_reg[153] = {24'h530608}; //CIP DNS Offset1 (DNS threshold manual setting when 0x5308[4]=1)
 assign cfg_data_reg[154] = {24'h530716}; //CIP DNS Offset2
 assign cfg_data_reg[155] = {24'h530908}; //CIP Sharpen TH Thresh 1
 assign cfg_data_reg[156] = {24'h530a30}; //CIP Sharpen TH Thresh 2
-assign cfg_data_reg[157] = {24'h530b04}; //CIP Sharpen TH Offset 1
+assign cfg_data_reg[157] = {24'h530b04}; //CIP Sharpen TH Offset 1 (Sharpen threshold manual setting when 0x5308[6]=1)
 assign cfg_data_reg[158] = {24'h530c06}; //CIP Sharpen TH Offset 2
 assign cfg_data_reg[159] = {24'h548001}; //Gamma
 assign cfg_data_reg[160] = {24'h548108}; //Gamma
@@ -324,7 +324,7 @@ assign cfg_data_reg[252] = {24'h303521}; //System Clocking[7:4] Sys Div, [3:0] M
 assign cfg_data_reg[253] = {24'h3c01b4}; //50/60 Hz Light Fix
 assign cfg_data_reg[254] = {24'h3c0004};
  
-assign cfg_data_reg[255] = {24'h3a197c}; //AEC These sure make the screen dark!
+assign cfg_data_reg[255] = {24'h3a197c};
  
 assign cfg_data_reg[256] = {24'h58002c}; //LENC
 assign cfg_data_reg[257] = {24'h580117}; //LENC
@@ -411,7 +411,7 @@ assign cfg_data_reg[334] = {24'h55890f}; //Digital Effects
 assign cfg_data_reg[335] = {24'h558a00}; //Digital Effects
 assign cfg_data_reg[336] = {24'h558b3f}; //Digital Effects
  
-assign cfg_data_reg[337] = {24'h530825}; //CIP CTRL
+assign cfg_data_reg[337] = {24'h530825}; //CIP CTRL Bit[7]: Debug mode Bit[6]: CIP edge MT manual enable Bit[4]: CIP DNS manual enable Bit[2:0]: CIP threshold for BR sharpen
 assign cfg_data_reg[338] = {24'h530408}; //CIP DNS Thresh1
 assign cfg_data_reg[339] = {24'h530530}; //CIP DNS Thresh2
 assign cfg_data_reg[340] = {24'h530610}; //CIP DNS Offset1
