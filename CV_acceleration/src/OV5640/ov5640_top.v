@@ -57,7 +57,7 @@ i2c_ctrl_inst
     .i2c_sda        (sccb_sda)       // Output serial data signal to i2c device
 );
 
-// OV7725 Configuration Instance
+// OV5640 Configuration Instance
 ov5640_cfg_better_indexed ov5640_cfg_inst
 (
     .sys_clk        (cfg_clk),       // System clock from i2c module
