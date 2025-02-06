@@ -247,7 +247,7 @@ assign cfg_data_reg[178] = {24'h558410};
 assign cfg_data_reg[179] = {24'h558910};
 assign cfg_data_reg[180] = {24'h558a00};
 assign cfg_data_reg[181] = {24'h558bf8};
-assign cfg_data_reg[182] = {24'h580023}; //LENC
+assign cfg_data_reg[182] = {24'h580023};
  
 assign cfg_data_reg[183] = {24'h580114};
 assign cfg_data_reg[184] = {24'h58020f};
