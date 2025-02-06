@@ -151,16 +151,16 @@ assign cfg_data_reg[84] = {24'h3a0d04}; //AEC 60Hz Max Bands in One Frame Bit[7:
 assign cfg_data_reg[85] = {24'h3a1403}; //AEC 50Hz Maximum Exposure Output Limit Bit[7:4]: Debug mode Bit[3:0]: Max exposure[15:8]
 assign cfg_data_reg[86] = {24'h3a15d8}; //AEC 50Hz Maximum Exposure Output Limit Bit[7:0]: Max exposure[7:0]
  
-assign cfg_data_reg[87] = {24'h400102}; //BLC
-assign cfg_data_reg[88] = {24'h400402}; //BLC
-assign cfg_data_reg[89] = {24'h300000}; //Functional Enables
-assign cfg_data_reg[90] = {24'h30021c}; //Functional Enables
-assign cfg_data_reg[91] = {24'h3004ff}; //Clock Enables
-assign cfg_data_reg[92] = {24'h3006c3}; //Clock Enables
+assign cfg_data_reg[87] = {24'h400102}; //BLC Bit[7:6]: Debug mode Bit[5:0]: BLC start line
+assign cfg_data_reg[88] = {24'h400402}; //BLC Bit[7:0]: BLC line number Specify the line number BLC process
+assign cfg_data_reg[89] = {24'h300000}; //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset BIST Bit[6]: Reset MCU program memory Bit[5]: Reset MCU  Bit[4]: Reset OTP Bit[3]: Reset STB  Bit[2]: Reset d5060 Bit[1]: Reset timing control Bit[0]: Reset array control
+assign cfg_data_reg[90] = {24'h30021c}; //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset VFIFO Bit[5]: Reset format  Bit[4]: Reset JFIFO  Bit[3]: Reset SFIFO  Bit[2]: Reset JPG  Bit[1]: Reset format MUX Bit[0]: Reset average
+assign cfg_data_reg[91] = {24'h3004ff}; //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable BIST clock Bit[6]: Enable MCU program memory  clock Bit[5]: Enable MCU clock Bit[4]: Enable OTP clock Bit[3]: Enable STROBE clock Bit[2]: Enable D5060 clock Bit[1]: Enable timing control clock Bit[0]: Enable array control clock
+assign cfg_data_reg[92] = {24'h3006c3}; //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable PSRAM clock Bit[6]: Enable FMT clock Bit[5]: Enable JPEG 2x clock Bit[3]: Enable JPEG clock Bit[1]: Enable format MUX clock Bit[0]: Enable average clock
 assign cfg_data_reg[93] = {24'h300e58}; //Enable DVP, power down MIPI
 assign cfg_data_reg[94] = {24'h302e00}; //Not documented
-assign cfg_data_reg[95] = {24'h430060}; //Format Control (select RAW RG GB = 0x03)
-assign cfg_data_reg[96] = {24'h501f01}; //Format Mux Control (0x05 = ISP RAW CIP)
+assign cfg_data_reg[95] = {24'h430060}; //Format Control
+assign cfg_data_reg[96] = {24'h501f01}; //Format MUX Control Bit[7:4]: Debug mode Bit[3]: Fmt vfirst Bit[2:0]: Format select 000: ISP YUV422 001: ISP RGB 010: ISP dither 011: ISP RAW (DPC) 100: SNR RAW 101: ISP RAW (CIP)
 assign cfg_data_reg[97] = {24'h471303}; //Bit[7:3]: Debug mode Bit[2:0]: JPEG mode select 001: JPEG mode 1 010: JPEG mode 2 011: JPEG mode 3 100: JPEG mode 4 101: JPEG mode 5 110: JPEG mode 6
 assign cfg_data_reg[98] = {24'h440704}; //Bit[7]: Enable read QTA auto increment Bit[5:0]: QS Quantization scale
 assign cfg_data_reg[99] = {24'h440e00}; //Not documented
