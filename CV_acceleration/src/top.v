@@ -56,7 +56,7 @@ wire        HDMI_de_in   ;   // Data enable
 wire [ 7:0] HDMI_data_r  /*synthesis syn_keep=1*/;
 wire [ 7:0] HDMI_data_g  /*synthesis syn_keep=1*/;
 wire [ 7:0] HDMI_data_b  /*synthesis syn_keep=1*/;
-wire        serial_clk  ;   // 371.25MHz
+wire        HDMI_TMDS_clk  ;   // 371.25MHz
 wire        pll_lock    ;
 wire        HDMI_rst_n ;
 wire        HDMI_pix_clk;   // 74.25MHz
@@ -158,7 +158,7 @@ red_green_fade red_green_fade_inst
 TMDS_rPLL u_tmds_rpll
 (
     .clkin     (clk     ),
-    .clkout    (serial_clk), //clk  x5  (371.25MHz)
+    .clkout    (HDMI_TMDS_clk), //clk  x5  (371.25MHz)
     .lock      (pll_lock  )
 );
 
@@ -169,7 +169,7 @@ assign HDMI_rst_n = I_rst_n & pll_lock;    //Release reset only when PLL is work
 CLKDIV u_clkdiv
 (
     .RESETN     (HDMI_rst_n    ),
-    .HCLKIN     (serial_clk     ),  //clk  x5  (371.25MHz)
+    .HCLKIN     (HDMI_TMDS_clk     ),  //clk  x5  (371.25MHz)
     .CLKOUT     (HDMI_pix_clk   ),  //clk  x1  ( 74.25MHz)
     .CALIB      (1'b1           )
 );
@@ -181,7 +181,7 @@ defparam u_clkdiv.GSREN="false";
 DVI_TX_Top DVI_TX_Top_inst
 (
     .I_rst_n       (HDMI_rst_n   ),  //asynchronous reset, low active
-    .I_serial_clk  (serial_clk    ),
+    .I_serial_clk  (HDMI_TMDS_clk    ),
     .I_rgb_clk     (HDMI_pix_clk  ),  //pixel clock
     .I_rgb_vs      (HDMI_vs_in     ), 
     .I_rgb_hs      (HDMI_hs_in     ),    
