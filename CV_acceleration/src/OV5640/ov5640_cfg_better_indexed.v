@@ -450,5 +450,6 @@ assign cfg_data_reg[371] = {24'h519de7}; //Debug Mode
 assign cfg_data_reg[372] = {24'h519e38}; //Bit[7:4]: Debug mode Bit[3]: Local limit select Bit[2]: Simple stable select Bit[1:0]: Debug mode
 
 assign cfg_data_reg[373] = {24'h501e40}; // Bit[6]: Scale ratio manual enable
+assign cfg_data_reg[374] = {24'h474100}; // Bit[2]: Test pattern enable Bit[1]: Test pattern select 0: Output test pattern 0 1: Output test pattern 1 Bit[0]: Test pattern 8-bit/10-bit 0: 10-bit test pattern 1: 8-bit test patter
 
 endmodule
