@@ -50,15 +50,15 @@ module top
 
 //===================================================
 // HDMI4 TX
-wire        tp0_vs_in   ;   // Vertical sync
-wire        tp0_hs_in   ;   // Horizontal sync
-wire        tp0_de_in   ;   // Data enable
-wire [ 7:0] tp0_data_r  /*synthesis syn_keep=1*/;
-wire [ 7:0] tp0_data_g  /*synthesis syn_keep=1*/;
-wire [ 7:0] tp0_data_b  /*synthesis syn_keep=1*/;
+wire        HDMI_vs_in   ;   // Vertical sync
+wire        HDMI_hs_in   ;   // Horizontal sync
+wire        HDMI_de_in   ;   // Data enable
+wire [ 7:0] HDMI_data_r  /*synthesis syn_keep=1*/;
+wire [ 7:0] HDMI_data_g  /*synthesis syn_keep=1*/;
+wire [ 7:0] HDMI_data_b  /*synthesis syn_keep=1*/;
 wire        serial_clk  ;   // 371.25MHz
 wire        pll_lock    ;
-wire        hdmi4_rst_n ;
+wire        HDMI_rst_n ;
 wire        HDMI_pix_clk;   // 74.25MHz
 
 //===================================================
@@ -124,7 +124,7 @@ wire [RD_VIDEO_WIDTH-1:0] off0_syn_data;
 timing_tx timing_tx_inst
 (
     .I_pxl_clk   (HDMI_pix_clk       ),//pixel clock
-    .I_rst_n     (hdmi4_rst_n        ),//low active
+    .I_rst_n     (HDMI_rst_n        ),//low active
                                                          // 800x600   // 1024x768  // 1280x720    
     .I_h_total   (12'd1650           ),//hor total time  // 12'd1056  // 12'd1344  // 12'd1650  
     .I_h_sync    (12'd40             ),//hor sync time   // 12'd128   // 12'd136   // 12'd40    
@@ -136,9 +136,9 @@ timing_tx timing_tx_inst
     .I_v_res     (12'd720            ),//ver resolution  // 12'd600   // 12'd768   // 12'd720    
     .I_hs_pol    (1'b1               ),//HS polarity , 0:negative polarity，1：positive polarity
     .I_vs_pol    (1'b1               ),//VS polarity , 0:negative polarity，1：positive polarity
-    .O_de        (tp0_de_in          ),   
-    .O_hs        (tp0_hs_in          ),
-    .O_vs        (tp0_vs_in          )
+    .O_de        (HDMI_de_in          ),   
+    .O_hs        (HDMI_hs_in          ),
+    .O_vs        (HDMI_vs_in          )
 );
 
 //===========================================================================
@@ -146,11 +146,11 @@ timing_tx timing_tx_inst
 red_green_fade red_green_fade_inst
 (
     .I_pxl_clk   (HDMI_pix_clk       ),//pixel clock
-    .I_rst_n     (hdmi4_rst_n        ),//low active
-    .I_vs        (tp0_vs_in          ),
-    .O_data_r    (tp0_data_r         ),   
-    .O_data_g    (tp0_data_g         ),
-    .O_data_b    (tp0_data_b         )
+    .I_rst_n     (HDMI_rst_n        ),//low active
+    .I_vs        (HDMI_vs_in          ),
+    .O_data_r    (HDMI_data_r         ),   
+    .O_data_g    (HDMI_data_g         ),
+    .O_data_b    (HDMI_data_b         )
 );
 
 //==============================================================================
@@ -162,13 +162,13 @@ TMDS_rPLL u_tmds_rpll
     .lock      (pll_lock  )
 );
 
-assign hdmi4_rst_n = I_rst_n & pll_lock;    //Release reset only when PLL is working
+assign HDMI_rst_n = I_rst_n & pll_lock;    //Release reset only when PLL is working
 
 //==============================================================================
 //PLL for HDMI @ 74.25MHz
 CLKDIV u_clkdiv
 (
-    .RESETN     (hdmi4_rst_n    ),
+    .RESETN     (HDMI_rst_n    ),
     .HCLKIN     (serial_clk     ),  //clk  x5  (371.25MHz)
     .CLKOUT     (HDMI_pix_clk   ),  //clk  x1  ( 74.25MHz)
     .CALIB      (1'b1           )
@@ -180,15 +180,15 @@ defparam u_clkdiv.GSREN="false";
 //Actual HDMI transmitter, receiving input from testpattern and interfacing with PHYSICAL HDMI cable
 DVI_TX_Top DVI_TX_Top_inst
 (
-    .I_rst_n       (hdmi4_rst_n   ),  //asynchronous reset, low active
+    .I_rst_n       (HDMI_rst_n   ),  //asynchronous reset, low active
     .I_serial_clk  (serial_clk    ),
     .I_rgb_clk     (HDMI_pix_clk  ),  //pixel clock
-    .I_rgb_vs      (tp0_vs_in     ), 
-    .I_rgb_hs      (tp0_hs_in     ),    
-    .I_rgb_de      (tp0_de_in     ), 
-    // .I_rgb_r       (tp0_data_r    ),
-    // .I_rgb_g       (tp0_data_g    ),  
-    // .I_rgb_b       (tp0_data_b    ),  
+    .I_rgb_vs      (HDMI_vs_in     ), 
+    .I_rgb_hs      (HDMI_hs_in     ),    
+    .I_rgb_de      (HDMI_de_in     ), 
+    // .I_rgb_r       (HDMI_data_r    ),
+    // .I_rgb_g       (HDMI_data_g    ),  
+    // .I_rgb_b       (HDMI_data_b    ),  
     .I_rgb_r       ({lcd_r, 3'd0}    ),  // 5 bits red
     .I_rgb_g       ({lcd_g, 2'd0}     ),  // 6 bits green
     .I_rgb_b       ({lcd_b, 3'd0}      ),  // 5 bits blue
@@ -260,8 +260,8 @@ Video_Frame_Buffer_Top Video_Frame_Buffer_Top_inst
 
     // video data output (to HDMI)            
     .I_vout0_clk          (HDMI_pix_clk         ), // Output video clock signal
-    .I_vout0_vs_n         (~tp0_vs_in           ), // Output vs, only receive negative polarity 
-    .I_vout0_de           (tp0_de_in            ), // Output data read enable signal
+    .I_vout0_vs_n         (~HDMI_vs_in           ), // Output vs, only receive negative polarity 
+    .I_vout0_de           (HDMI_de_in            ), // Output data read enable signal
     .O_vout0_den          (off0_syn_de          ), // Output data valid signal, 2 clock cycles delayed than I_vout0_de signal
     .O_vout0_data         (off0_syn_data        ), // Output video data signal
     .O_vout0_fifo_empty   (                     ),
