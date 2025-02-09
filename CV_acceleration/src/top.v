@@ -216,7 +216,7 @@ ov5640_top ov5640_top_inst
     .sys_clk        (cmos_clk_24    ),// System clock
     .sys_rst_n      (I_rst_n        ),// Reset signal
     .sys_init_done  (sys_init_done  ),// Unused atm
-    .ov5640_pclk    (cmos_pclk      ),// Camera pixel clock @84MHz
+    .ov5640_pclk    (cmos_pclk      ),// Camera pixel clock
     .ov5640_href    (cmos_href      ),// Camera horizontal sync signal
     .ov5640_vsync   (cmos_vsync     ),// Camera vertical sync signal
     .ov5640_data    (cmos_db        ),// Camera image data
