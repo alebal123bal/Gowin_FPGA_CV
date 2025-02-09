@@ -449,6 +449,6 @@ assign cfg_data_reg[370] = {24'h519c04}; //Debug Mode
 assign cfg_data_reg[371] = {24'h519de7}; //Debug Mode
 assign cfg_data_reg[372] = {24'h519e38}; //Bit[7:4]: Debug mode Bit[3]: Local limit select Bit[2]: Simple stable select Bit[1:0]: Debug mode
 
-assign cfg_data_reg[373] = {24'h501e80}; // Bit[6]: Scale ratio manual enable
+assign cfg_data_reg[373] = {24'h501e40}; // Bit[6]: Scale ratio manual enable
 
 endmodule
