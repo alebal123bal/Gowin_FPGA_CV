@@ -69,7 +69,7 @@ assign cfg_data_reg[3] = {24'h310303}; //Sys Clk From PLL
 assign cfg_data_reg[4] = {24'h3017ff}; //Data bits as outputs
 assign cfg_data_reg[5] = {24'h3018ff}; //Data bits as outputs
 assign cfg_data_reg[6] = {24'h30341a}; //[7:4] Charge Pump (always 1), [3:0] BIT Div (0x8 = 2, 0xA = 2.5)
-assign cfg_data_reg[7] = {24'h303511}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
+assign cfg_data_reg[7] = {24'h303521}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
 assign cfg_data_reg[8] = {24'h3036B8}; //PLL Multiplier
 assign cfg_data_reg[9] = {24'h303712}; //[7:4] PLL Root Bypass or Div2, [3:0] PLL Pre Div
 assign cfg_data_reg[10] = {24'h310801}; //[7:4] PCLK Div, [3:0] SCLK Div
