@@ -95,7 +95,7 @@ assign cfg_data_reg[29] = {24'h362052}; //Not documented
 assign cfg_data_reg[30] = {24'h371b20}; //Not documented
 assign cfg_data_reg[31] = {24'h471c50}; //Not documented
 assign cfg_data_reg[32] = {24'h3a1360}; //AEC Bit[7]: Debug mode Bit[6]: Pre-gain enable Bit[5:0]: Pre-gain value 0x40 = 1x
-assign cfg_data_reg[33] = {24'h3a1800}; //AEC Gain Output Top Limit Bit[7:2]: Debug mode Bit[1:0]: AEC gain ceiling[9:8] Real gain format
+assign cfg_data_reg[33] = {24'h3a1802}; //AEC Gain Output Top Limit Bit[7:2]: Debug mode Bit[1:0]: AEC gain ceiling[9:8] Real gain format
 assign cfg_data_reg[34] = {24'h3a19ff}; //AEC Gain Output Top Limit Bit[7:0]: AEC gain ceiling[7:0] Real gain format
 assign cfg_data_reg[35] = {24'h363513}; //Not documented
 assign cfg_data_reg[36] = {24'h363603}; //Not documented
@@ -436,7 +436,7 @@ assign cfg_data_reg[357] = {24'h518f56}; //Advanced AWB Control Registers
 assign cfg_data_reg[358] = {24'h519046}; //Advanced AWB Control Registers
 assign cfg_data_reg[359] = {24'h5191f0}; //AWB top limit
 assign cfg_data_reg[360] = {24'h51920f}; //AWB bottomm limit
-assign cfg_data_reg[361] = {24'h519370}; //Bit[7:0]: Red limit
+assign cfg_data_reg[361] = {24'h5193f0}; //Bit[7:0]: Red limit
 assign cfg_data_reg[362] = {24'h5194f0}; //Bit[7:0]: Green limit
 assign cfg_data_reg[363] = {24'h5195f0}; //Bit[7:0]: Blue limit
 assign cfg_data_reg[364] = {24'h519603}; //Bit[7:6]: Debug mode Bit[5]: AWB freeze Bit[4]: Debug mode Bit[3:2]: AWB simple selection 00: AWB simple from after AWB gain 01: AWB simple from after RAW GMA 10: AWB simple from after RAW GMA 11: AWB simple from after AWB gain Bit[1]: Fast enable Bit[0]: AWB bias stat
