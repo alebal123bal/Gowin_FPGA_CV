@@ -129,11 +129,11 @@ timing_tx timing_tx_inst
     .I_h_total   (12'd1650           ),//hor total time  // 12'd1056  // 12'd1344  // 12'd1650  
     .I_h_sync    (12'd40             ),//hor sync time   // 12'd128   // 12'd136   // 12'd40    
     .I_h_bporch  (12'd220            ),//hor back porch  // 12'd88    // 12'd160   // 12'd220   
-    .I_h_res     (12'd1280           ),//hor resolution  // 12'd800   // 12'd1024  // 12'd1280  
+    .I_h_res     (12'd640           ),//hor resolution  // 12'd800   // 12'd1024  // 12'd1280  
     .I_v_total   (12'd750            ),//ver total time  // 12'd628   // 12'd806   // 12'd750    
     .I_v_sync    (12'd5              ),//ver sync time   // 12'd4     // 12'd6     // 12'd5     
     .I_v_bporch  (12'd20             ),//ver back porch  // 12'd23    // 12'd29    // 12'd20    
-    .I_v_res     (12'd720            ),//ver resolution  // 12'd600   // 12'd768   // 12'd720    
+    .I_v_res     (12'd480            ),//ver resolution  // 12'd600   // 12'd768   // 12'd720    
     .I_hs_pol    (1'b1               ),//HS polarity , 0:negative polarity，1：positive polarity
     .I_vs_pol    (1'b1               ),//VS polarity , 0:negative polarity，1：positive polarity
     .O_de        (HDMI_de_in          ),   
