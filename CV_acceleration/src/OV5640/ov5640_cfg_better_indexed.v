@@ -319,7 +319,7 @@ assign cfg_data_reg[248] = {24'h3a1e26}; //AEC Stable Range Low Limit (go out) B
 assign cfg_data_reg[249] = {24'h3a1160}; //AEC Step Manual Mode, Fast Zone High Limit Bit[7:0]: vpt_high
 assign cfg_data_reg[250] = {24'h3a1f14}; //AEC Step Manual Mode, Fast Zone Low Limit Bit[7:0]: vpt_low
 assign cfg_data_reg[251] = {24'h300802}; //Release Reset
-assign cfg_data_reg[252] = {24'h303521}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
+// assign cfg_data_reg[252] = {24'h303521}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
  
 assign cfg_data_reg[253] = {24'h3c01b4}; //Bit[7]: Band manual enable Bit[6]: Band begin reset enable Bit[5]: Sum auto mode enable Bit[4]: Band counter enable Bit[3:0]: Band counter Counter threshold for band change
 assign cfg_data_reg[254] = {24'h3c0004}; //Bit[2]: Band value manual setting 0: 60 Hz light 1: 50 Hz light
