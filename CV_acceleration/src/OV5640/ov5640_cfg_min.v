@@ -64,27 +64,27 @@ assign cfg_data = (cfg_done == 1'b1) ? 24'b0 : cfg_data_reg[reg_num];
 
 // System init
 assign cfg_data_reg[0] = {24'h310311}; //Sys Clk From Pad
-assign cfg_data_reg[1] = {24'h300842}; //Software Power down
-assign cfg_data_reg[2] = {24'h300802}; //Software Power up
+// assign cfg_data_reg[1] = {24'h300842}; //Software Power down
+// assign cfg_data_reg[2] = {24'h300802}; //Software Power up
 assign cfg_data_reg[3] = {24'h300882}; //Software Reset
 assign cfg_data_reg[4] = {24'h300802}; //Release Reset
 assign cfg_data_reg[5] = {24'h310303}; //Sys Clk From PLL
 
 // PLL setup
 assign cfg_data_reg[6] = {24'h30341A}; //[7:4] Charge Pump (always 0x1), [3:0] BIT Div (0x8 = 2, 0xA = 2.5)
-assign cfg_data_reg[7] = {24'h303511}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
-assign cfg_data_reg[8] = {24'h30365E}; //PLL Multiplier
+assign cfg_data_reg[7] = {24'h303521}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
+assign cfg_data_reg[8] = {24'h3036B8}; //PLL Multiplier
 assign cfg_data_reg[9] = {24'h303712}; //[7:4] PLL Root Bypass or Div2, [3:0] PLL Pre Div
-assign cfg_data_reg[10] = {24'h310800}; //[7:4] PCLK Div, [3:0] SCLK Div
+assign cfg_data_reg[10] = {24'h310801}; //[7:4] PCLK Div, [3:0] SCLK Div
 
 // Clock control
 assign cfg_data_reg[11] = {24'h300000}; //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset BIST Bit[6]: Reset MCU program memory Bit[5]: Reset MCU  Bit[4]: Reset OTP Bit[3]: Reset STB  Bit[2]: Reset d5060 Bit[1]: Reset timing control Bit[0]: Reset array control
 assign cfg_data_reg[12] = {24'h300100}; //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset AWB registers Bit[6]: Reset AFC Bit[5]: Reset ISP Bit[4]: Reset FC Bit[3]: Reset S2P Bit[2]: Reset BLC Bit[1]: Reset AEC registers Bit[0]: Reset AEC
-assign cfg_data_reg[13] = {24'h300200}; //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset VFIFO Bit[5]: Reset format  Bit[4]: Reset JFIFO  Bit[3]: Reset SFIFO  Bit[2]: Reset JPG  Bit[1]: Reset format MUX Bit[0]: Reset average
+assign cfg_data_reg[13] = {24'h30021C}; //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset VFIFO Bit[5]: Reset format  Bit[4]: Reset JFIFO  Bit[3]: Reset SFIFO  Bit[2]: Reset JPG  Bit[1]: Reset format MUX Bit[0]: Reset average
 assign cfg_data_reg[14] = {24'h300300}; //Reset for Individual Block (0: enable block; 1: reset block) Bit[7:6]: Debug mode Bit[5]: Reset digital gain compensation Bit[4]: Reset SYNC FIFO Bit[3]: Reset PSRAM Bit[2]: Reset ISP FC Bit[1]: Reset MIPI  Bit[0]: Reset DVP
 assign cfg_data_reg[15] = {24'h3004ff}; //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable BIST clock Bit[6]: Enable MCU program memory  clock Bit[5]: Enable MCU clock Bit[4]: Enable OTP clock Bit[3]: Enable STROBE clock Bit[2]: Enable D5060 clock Bit[1]: Enable timing control clock Bit[0]: Enable array control clock
 assign cfg_data_reg[16] = {24'h3005ff}; //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable AWB register clock Bit[6]: Enable AFC clock Bit[5]: Enable ISP clock Bit[4]: Enable FC clock Bit[3]: Enable S2P clock Bit[2]: Enable BLC clock Bit[1]: Enable AEC register clock Bit[0]: Enable AEC clock
-assign cfg_data_reg[17] = {24'h3006ff}; //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable PSRAM clock Bit[6]: Enable FMT clock Bit[5]: Enable JPEG 2x clock Bit[3]: Enable JPEG clock Bit[1]: Enable format MUX clock Bit[0]: Enable average clock
+assign cfg_data_reg[17] = {24'h3006C3}; //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable PSRAM clock Bit[6]: Enable FMT clock Bit[5]: Enable JPEG 2x clock Bit[3]: Enable JPEG clock Bit[1]: Enable format MUX clock Bit[0]: Enable average clock
 assign cfg_data_reg[18] = {24'h3007ff}; //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable digital gain  compensation clock it[6]: Enable SYNC FIFO clock  Bit[5]: Enable ISPFC SCLK clock Bit[4]: Enable MIPI PCLK clock Bit[3]: Enable MIPI clock Bit[2]: Enable DVP PCLK clock Bit[1]: Enable VFIFO PCLK clock Bit[0]: Enable VFIFO SCLK clock
 
 // I/O control
@@ -120,8 +120,8 @@ assign cfg_data_reg[45] = {24'h382041}; //ISP Control, Flip
 assign cfg_data_reg[46] = {24'h382107}; //ISP Control, Mirror, Binning
 
 // ISP control
-assign cfg_data_reg[47] = {24'h500006}; //ISP Control [7] LENC, [5] GMA, [2] BPC, [1] WPC, [0] CIE
-assign cfg_data_reg[48] = {24'h500120}; //ISP Control [7] SDE, [5] Scale, [2] UV, [1] CME, [0] AWB
+assign cfg_data_reg[47] = {24'h500021}; //ISP Control [7] LENC, [5] GMA, [2] BPC, [1] WPC, [0] CIE
+assign cfg_data_reg[48] = {24'h500122}; //ISP Control [7] SDE, [5] Scale, [2] UV, [1] CME, [0] AWB
 assign cfg_data_reg[49] = {24'h50030C}; //Bit[7:3]: Debug mode Bit[2]: Bin enable 0: Disable 1: Enable Bit[1]: Draw window for AFC enable 0: Disable 1: Enable Bit[0]: Solarize enable 0: Disable 1: Enable
 assign cfg_data_reg[50] = {24'h500500}; //Bit[7]: Debug mode Bit[6]: AWB bias manual enable 0: Disable 1: Enable Bit[5]: AWB bias ON enable 0: Disable 1: Enable Bit[4]: AWB bias plus enable 0: Disable 1: Enable Bit[3]: Debug mode Bit[2]: LENC bias ON enable 0: Disable 1: Enable Bit[1]: GMA bias ON enable 0: Disable 1: Enable Bit[0]: LENC bias manual enable 0: Disable 1: Enable
 assign cfg_data_reg[51] = {24'h501D00}; //Bit[7]: Debug mode Bit[6]: SDE AVG manual enable Bit[5]: AWB YUV2CBCR enable Bit[4]: Average size manual enable Bit[3:0]: Debug mode 
@@ -167,5 +167,7 @@ assign cfg_data_reg[85] = {24'h502500}; //Not documented
 // Motor VCM control
 assign cfg_data_reg[86] = {24'h360008}; //VCM Debug mode
 assign cfg_data_reg[87] = {24'h360133}; //VCM Debug mode
+
+// TODO: add others
 
 endmodule
