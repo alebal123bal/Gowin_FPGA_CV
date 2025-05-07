@@ -2,7 +2,6 @@ CV_acceleration/impl
 CV_acceleration/src/dsim_work
 carry_lookahead_adder
 *.mdc
-.vscode
 *.env
 *.log
 *.vcd
