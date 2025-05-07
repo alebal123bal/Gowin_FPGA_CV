@@ -3,7 +3,7 @@
     "verilog.linting.iverilog.arguments": "-Wall -y \"./src/ddr3_memory_interface\" -y \"./src/dvi_tx\" -y \"./src/gowin_clkdiv\" -y \"./src/gowin_rpll\" -y \"./src/i2c\" -y \"./src/OV5640\" -y \"./src/uart\" -y \"./src/video_frame_buffer\"",
     "verilog.linting.iverilog.runAtFileLocation": false,
 
-    "verilog.formatting.verilogHDL.formatter": "verilog-format",
-    "verilog.formatting.verilogFormat.path": "C:/verilog-format/bin/verilog-format.exe",
-    "verilog.formatting.iStyleVerilogFormatter.style": "ANSI",
+    // "verilog.formatting.verilogHDL.formatter": "verilog-format",
+    // "verilog.formatting.verilogFormat.path": "C:/verilog-format/bin/verilog-format.exe",
+    // "verilog.formatting.iStyleVerilogFormatter.style": "ANSI",
 }
