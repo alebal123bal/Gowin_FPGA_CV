@@ -1,0 +1,9 @@
+{
+    "verilog.linting.linter": "iverilog",
+    "verilog.linting.iverilog.arguments": "-Wall -y ./src/ddr3_memory_interface -y ./src/dvi_tx -y ./src/gowin_clkdiv -y ./src/gowin_rpll -y ./src/i2c -y ./src/OV5640 -y ./src/uart -y ./src/video_frame_buffer",
+    "verilog.linting.iverilog.runAtFileLocation": false,
+  
+    "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
+    "verilog.formatting.veribleVerilogFormatter.path": "C:/verible-verilog-format/verible-verilog-format.exe",
+    "verilog.formatting.veribleVerilogFormatter.arguments": "--inplace --indentation_spaces=2"
+  }
