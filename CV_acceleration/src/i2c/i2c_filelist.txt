@@ -1,3 +1,0 @@
-i2c_ctrl.v
-i2c_MACROS.sv
-i2c_ctrl_tb.v
