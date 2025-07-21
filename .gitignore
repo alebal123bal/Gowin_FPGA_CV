@@ -1,6 +1,5 @@
 CV_acceleration/impl
 CV_acceleration/src/dsim_work
-carry_lookahead_adder
 *.mdc
 *.env
 *.log
@@ -9,5 +8,3 @@ carry_lookahead_adder
 *.pdf
 *.sr
 *.pvs
-clk_f_tester.py
-*_ori.v
