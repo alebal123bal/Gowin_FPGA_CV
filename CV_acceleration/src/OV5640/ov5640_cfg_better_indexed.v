@@ -1,11 +1,11 @@
 module ov5640_cfg_better_indexed (
-    input wire sys_clk,    // System clock from IIC module
+    input wire sys_clk,  // System clock from IIC module
     input wire sys_rst_n,  // System reset, active low
-    input wire cfg_end,    // Single register configuration complete
+    input wire cfg_end,  // Single register configuration complete
 
-    output reg         cfg_start,  // Single register configuration trigger signal
-    output wire [23:0] cfg_data,   // ID, REG_ADDR, REG_VAL
-    output reg         cfg_done    // Register configuration complete
+    output reg cfg_start,  // Single register configuration trigger signal
+    output wire [23:0] cfg_data,  // ID, REG_ADDR, REG_VAL
+    output reg cfg_done  // Register configuration complete
 );
 
   //// Parameters and Internal Signals ////
@@ -57,12 +57,8 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[3] = {24'h310303};  //Sys Clk From PLL
   assign cfg_data_reg[4] = {24'h3017ff};  //Data bits as outputs
   assign cfg_data_reg[5] = {24'h3018ff};  //Data bits as outputs
-  assign cfg_data_reg[6] = {
-    24'h30341a
-  };  //[7:4] Charge Pump (always 1), [3:0] BIT Div (0x8 = 2, 0xA = 2.5)
-  assign cfg_data_reg[7] = {
-    24'h303521
-  };  //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
+  assign cfg_data_reg[6] = {24'h30341a};  //[7:4] Charge Pump (always 1), [3:0] BIT Div (0x8 = 2, 0xA = 2.5)
+  assign cfg_data_reg[7] = {24'h303521};  //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
   assign cfg_data_reg[8] = {24'h3036A0};  //PLL Multiplier
   assign cfg_data_reg[9] = {24'h303712};  //[7:4] PLL Root Bypass or Div2, [3:0] PLL Pre Div
   assign cfg_data_reg[10] = {24'h310801};  //[7:4] PCLK Div, [3:0] SCLK Div
@@ -87,15 +83,9 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[29] = {24'h362052};  //Not documented
   assign cfg_data_reg[30] = {24'h371b20};  //Not documented
   assign cfg_data_reg[31] = {24'h471c50};  //Not documented
-  assign cfg_data_reg[32] = {
-    24'h3a1360
-  };  //AEC Bit[7]: Debug mode Bit[6]: Pre-gain enable Bit[5:0]: Pre-gain value 0x40 = 1x
-  assign cfg_data_reg[33] = {
-    24'h3a1802
-  };  //AEC Gain Output Top Limit Bit[7:2]: Debug mode Bit[1:0]: AEC gain ceiling[9:8] Real gain format
-  assign cfg_data_reg[34] = {
-    24'h3a19ff
-  };  //AEC Gain Output Top Limit Bit[7:0]: AEC gain ceiling[7:0] Real gain format
+  assign cfg_data_reg[32] = {24'h3a1360};  //AEC Bit[7]: Debug mode Bit[6]: Pre-gain enable Bit[5:0]: Pre-gain value 0x40 = 1x
+  assign cfg_data_reg[33] = {24'h3a1802};  //AEC Gain Output Top Limit Bit[7:2]: Debug mode Bit[1:0]: AEC gain ceiling[9:8] Real gain format
+  assign cfg_data_reg[34] = {24'h3a19ff};  //AEC Gain Output Top Limit Bit[7:0]: AEC gain ceiling[7:0] Real gain format
   assign cfg_data_reg[35] = {24'h363513};  //Not documented
   assign cfg_data_reg[36] = {24'h363603};  //Not documented
   assign cfg_data_reg[37] = {24'h363440};  //Not documented
@@ -104,13 +94,9 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[39] = {24'h3c0134};
   assign cfg_data_reg[40] = {24'h3c0428};  //50/60 Hz Light Fix Bit[7:0]: Threshold for low sum
   assign cfg_data_reg[41] = {24'h3c0598};  //50/60 Hz Light Fix Bit[7:0]: Threshold for high sum
-  assign cfg_data_reg[42] = {
-    24'h3c0600
-  };  //50/60 Hz Light Fix Bit[7:0]: Lightmeter1 threshold[15:8]
+  assign cfg_data_reg[42] = {24'h3c0600};  //50/60 Hz Light Fix Bit[7:0]: Lightmeter1 threshold[15:8]
   assign cfg_data_reg[43] = {24'h3c0708};  //50/60 Hz Light Fix Bit[7:0]: Lightmeter1 threshold[7:0]
-  assign cfg_data_reg[44] = {
-    24'h3c0800
-  };  //50/60 Hz Light Fix Bit[7:0]: Lightmeter2 threshold[15:8]
+  assign cfg_data_reg[44] = {24'h3c0800};  //50/60 Hz Light Fix Bit[7:0]: Lightmeter2 threshold[15:8]
   assign cfg_data_reg[45] = {24'h3c091c};  //50/60 Hz Light Fix Bit[7:0]: Lightmeter2 threshold[7:0]
   assign cfg_data_reg[46] = {24'h3c0a9c};  //50/60 Hz Light Fix Bit[7:0]: Sample number[15:8]
   assign cfg_data_reg[47] = {24'h3c0b40};  //50/60 Hz Light Fix Bit[7:0]: Sample number[7:0]
@@ -143,71 +129,35 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[74] = {24'h370864};  //Not documented
   assign cfg_data_reg[75] = {24'h370952};  //Not documented
   assign cfg_data_reg[76] = {24'h370c03};  //Not documented
-  assign cfg_data_reg[77] = {
-    24'h3a0203
-  };  //AEC 60Hz Maximum Exposure Output Limit Bit[7:0]: Maximum exposure[15:8]
-  assign cfg_data_reg[78] = {
-    24'h3a03d8
-  };  //AEC 60Hz Maximum Exposure Output Limit Bit[7:0]: Maximum exposure[7:0]
-  assign cfg_data_reg[79] = {
-    24'h3a0802
-  };  //AEC 50Hz Band Width Bit[7:2]: Debug mode Bit[1:0]: B50 step[9:8]
+  assign cfg_data_reg[77] = {24'h3a0203};  //AEC 60Hz Maximum Exposure Output Limit Bit[7:0]: Maximum exposure[15:8]
+  assign cfg_data_reg[78] = {24'h3a03d8};  //AEC 60Hz Maximum Exposure Output Limit Bit[7:0]: Maximum exposure[7:0]
+  assign cfg_data_reg[79] = {24'h3a0802};  //AEC 50Hz Band Width Bit[7:2]: Debug mode Bit[1:0]: B50 step[9:8]
   assign cfg_data_reg[80] = {24'h3a0940};  //AEC 50Hz Band Width Bit[7:0]: B50 step[7:0]
-  assign cfg_data_reg[81] = {
-    24'h3a0a01
-  };  //AEC 60Hz Band Width Bit[7:2]: Debug mode Bit[1:0]: B60 step[13:8]
+  assign cfg_data_reg[81] = {24'h3a0a01};  //AEC 60Hz Band Width Bit[7:2]: Debug mode Bit[1:0]: B60 step[13:8]
   assign cfg_data_reg[82] = {24'h3a0bf6};  //AEC 60Hz Band Width Bit[7:0]: B60 step[7:0]
-  assign cfg_data_reg[83] = {
-    24'h3a0e03
-  };  //AEC 50Hz Max Bands in One Frame Bit[7:6]: Debug mode Bit[5:0]: B50 max
-  assign cfg_data_reg[84] = {
-    24'h3a0d04
-  };  //AEC 60Hz Max Bands in One Frame Bit[7:6]: Debug mode Bit[5:0]: B60 max
-  assign cfg_data_reg[85] = {
-    24'h3a1403
-  };  //AEC 50Hz Maximum Exposure Output Limit Bit[7:4]: Debug mode Bit[3:0]: Max exposure[15:8]
-  assign cfg_data_reg[86] = {
-    24'h3a15d8
-  };  //AEC 50Hz Maximum Exposure Output Limit Bit[7:0]: Max exposure[7:0]
+  assign cfg_data_reg[83] = {24'h3a0e03};  //AEC 50Hz Max Bands in One Frame Bit[7:6]: Debug mode Bit[5:0]: B50 max
+  assign cfg_data_reg[84] = {24'h3a0d04};  //AEC 60Hz Max Bands in One Frame Bit[7:6]: Debug mode Bit[5:0]: B60 max
+  assign cfg_data_reg[85] = {24'h3a1403};  //AEC 50Hz Maximum Exposure Output Limit Bit[7:4]: Debug mode Bit[3:0]: Max exposure[15:8]
+  assign cfg_data_reg[86] = {24'h3a15d8};  //AEC 50Hz Maximum Exposure Output Limit Bit[7:0]: Max exposure[7:0]
 
   assign cfg_data_reg[87] = {24'h400102};  //BLC Bit[7:6]: Debug mode Bit[5:0]: BLC start line
-  assign cfg_data_reg[88] = {
-    24'h400402
-  };  //BLC Bit[7:0]: BLC line number Specify the line number BLC process
-  assign cfg_data_reg[89] = {
-    24'h300000
-  };  //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset BIST Bit[6]: Reset MCU program memory Bit[5]: Reset MCU  Bit[4]: Reset OTP Bit[3]: Reset STB  Bit[2]: Reset d5060 Bit[1]: Reset timing control Bit[0]: Reset array control
-  assign cfg_data_reg[90] = {
-    24'h30021c
-  };  //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset VFIFO Bit[5]: Reset format  Bit[4]: Reset JFIFO  Bit[3]: Reset SFIFO  Bit[2]: Reset JPG  Bit[1]: Reset format MUX Bit[0]: Reset average
-  assign cfg_data_reg[91] = {
-    24'h3004ff
-  };  //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable BIST clock Bit[6]: Enable MCU program memory  clock Bit[5]: Enable MCU clock Bit[4]: Enable OTP clock Bit[3]: Enable STROBE clock Bit[2]: Enable D5060 clock Bit[1]: Enable timing control clock Bit[0]: Enable array control clock
-  assign cfg_data_reg[92] = {
-    24'h3006c3
-  };  //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable PSRAM clock Bit[6]: Enable FMT clock Bit[5]: Enable JPEG 2x clock Bit[3]: Enable JPEG clock Bit[1]: Enable format MUX clock Bit[0]: Enable average clock
+  assign cfg_data_reg[88] = {24'h400402};  //BLC Bit[7:0]: BLC line number Specify the line number BLC process
+  assign cfg_data_reg[89] = {24'h300000};  //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset BIST Bit[6]: Reset MCU program memory Bit[5]: Reset MCU  Bit[4]: Reset OTP Bit[3]: Reset STB  Bit[2]: Reset d5060 Bit[1]: Reset timing control Bit[0]: Reset array control
+  assign cfg_data_reg[90] = {24'h30021c};  //Reset for Individual Block (0: enable block; 1: reset block) Bit[7]: Reset VFIFO Bit[5]: Reset format  Bit[4]: Reset JFIFO  Bit[3]: Reset SFIFO  Bit[2]: Reset JPG  Bit[1]: Reset format MUX Bit[0]: Reset average
+  assign cfg_data_reg[91] = {24'h3004ff};  //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable BIST clock Bit[6]: Enable MCU program memory  clock Bit[5]: Enable MCU clock Bit[4]: Enable OTP clock Bit[3]: Enable STROBE clock Bit[2]: Enable D5060 clock Bit[1]: Enable timing control clock Bit[0]: Enable array control clock
+  assign cfg_data_reg[92] = {24'h3006c3};  //Clock Enable Control (0: disable clock; 1: enable clock) Bit[7]: Enable PSRAM clock Bit[6]: Enable FMT clock Bit[5]: Enable JPEG 2x clock Bit[3]: Enable JPEG clock Bit[1]: Enable format MUX clock Bit[0]: Enable average clock
   assign cfg_data_reg[93] = {24'h300e58};  //Enable DVP, power down MIPI
   assign cfg_data_reg[94] = {24'h302e00};  //Not documented
   assign cfg_data_reg[95] = {24'h430060};  //Format Control
-  assign cfg_data_reg[96] = {
-    24'h501f01
-  };  //Format MUX Control Bit[7:4]: Debug mode Bit[3]: Fmt vfirst Bit[2:0]: Format select 000: ISP YUV422 001: ISP RGB 010: ISP dither 011: ISP RAW (DPC) 100: SNR RAW 101: ISP RAW (CIP)
-  assign cfg_data_reg[97] = {
-    24'h471303
-  };  //Bit[7:3]: Debug mode Bit[2:0]: JPEG mode select 001: JPEG mode 1 010: JPEG mode 2 011: JPEG mode 3 100: JPEG mode 4 101: JPEG mode 5 110: JPEG mode 6
-  assign cfg_data_reg[98] = {
-    24'h440704
-  };  //Bit[7]: Enable read QTA auto increment Bit[5:0]: QS Quantization scale
+  assign cfg_data_reg[96] = {24'h501f01};  //Format MUX Control Bit[7:4]: Debug mode Bit[3]: Fmt vfirst Bit[2:0]: Format select 000: ISP YUV422 001: ISP RGB 010: ISP dither 011: ISP RAW (DPC) 100: SNR RAW 101: ISP RAW (CIP)
+  assign cfg_data_reg[97] = {24'h471303};  //Bit[7:3]: Debug mode Bit[2:0]: JPEG mode select 001: JPEG mode 1 010: JPEG mode 2 011: JPEG mode 3 100: JPEG mode 4 101: JPEG mode 5 110: JPEG mode 6
+  assign cfg_data_reg[98] = {24'h440704};  //Bit[7]: Enable read QTA auto increment Bit[5:0]: QS Quantization scale
   assign cfg_data_reg[99] = {24'h440e00};  //Not documented
   assign cfg_data_reg[100] = {24'h460b35};  //VFIFO
   assign cfg_data_reg[101] = {24'h460c22};  //VIFO [2] Control PCLK with register 0x3824
   assign cfg_data_reg[102] = {24'h382402};  //DVP PCLK Divider (weird register)
-  assign cfg_data_reg[103] = {
-    24'h500021
-  };  //ISP Control [7] LENC, [5] GMA, [2] BLC, [1] WPC, [0] CIE
-  assign cfg_data_reg[104] = {
-    24'h500123
-  };  //ISP Control [7] SDE, [5] Scale, [2] UV, [1] CME, [0] AWB
+  assign cfg_data_reg[103] = {24'h500021};  //ISP Control [7] LENC, [5] GMA, [2] BLC, [1] WPC, [0] CIE
+  assign cfg_data_reg[104] = {24'h500123};  //ISP Control [7] SDE, [5] Scale, [2] UV, [1] CME, [0] AWB
   assign cfg_data_reg[105] = {24'h5180ff};
   assign cfg_data_reg[106] = {24'h5181f2};
   assign cfg_data_reg[107] = {24'h518200};
@@ -253,25 +203,17 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[146] = {24'h538b98};
   assign cfg_data_reg[147] = {24'h530008};  //Color Interpolation Sharpen MT Threshold 1
   assign cfg_data_reg[148] = {24'h530130};  //CIP Sharpen MT Thresh2
-  assign cfg_data_reg[149] = {
-    24'h530210
-  };  //CIP Sharpen MT Offset1 (Y edge mt manual setting when 0x5308[6]=1)
+  assign cfg_data_reg[149] = {24'h530210};  //CIP Sharpen MT Offset1 (Y edge mt manual setting when 0x5308[6]=1)
   assign cfg_data_reg[150] = {24'h530300};  //CIP Sharpen MT Offset2
   assign cfg_data_reg[151] = {24'h530408};  //CIP DNS Thresh1
   assign cfg_data_reg[152] = {24'h530530};  //CIP DNS Thresh2
-  assign cfg_data_reg[153] = {
-    24'h530608
-  };  //CIP DNS Offset1 (DNS threshold manual setting when 0x5308[4]=1)
+  assign cfg_data_reg[153] = {24'h530608};  //CIP DNS Offset1 (DNS threshold manual setting when 0x5308[4]=1)
   assign cfg_data_reg[154] = {24'h530716};  //CIP DNS Offset2
   assign cfg_data_reg[155] = {24'h530908};  //CIP Sharpen TH Thresh 1
   assign cfg_data_reg[156] = {24'h530a30};  //CIP Sharpen TH Thresh 2
-  assign cfg_data_reg[157] = {
-    24'h530b04
-  };  //CIP Sharpen TH Offset 1 (Sharpen threshold manual setting when 0x5308[6]=1)
+  assign cfg_data_reg[157] = {24'h530b04};  //CIP Sharpen TH Offset 1 (Sharpen threshold manual setting when 0x5308[6]=1)
   assign cfg_data_reg[158] = {24'h530c06};  //CIP Sharpen TH Offset 2
-  assign cfg_data_reg[159] = {
-    24'h548001
-  };  //Gamma Bit[7:2]: Debug mode Bit[1]: YSLP15 manual enable Bit[0]: BIAS plus on
+  assign cfg_data_reg[159] = {24'h548001};  //Gamma Bit[7:2]: Debug mode Bit[1]: YSLP15 manual enable Bit[0]: BIAS plus on
   assign cfg_data_reg[160] = {24'h548108};  //Gamma Bit[7:0]: Y yst 00
   assign cfg_data_reg[161] = {24'h548214};  //Gamma Bit[7:0]: Y yst 01
   assign cfg_data_reg[162] = {24'h548328};  //Gamma Bit[7:0]: Y yst 02
@@ -363,21 +305,13 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[246] = {24'h3a1028};  //AEC Stable Range Low Limit (enter) Bit[7:0]: BPT
   assign cfg_data_reg[247] = {24'h3a1b30};  //AEC Stable Range High Limit (go out) Bit[7:0]: WPT2
   assign cfg_data_reg[248] = {24'h3a1e26};  //AEC Stable Range Low Limit (go out) Bit[7:0]: BPT2
-  assign cfg_data_reg[249] = {
-    24'h3a1160
-  };  //AEC Step Manual Mode, Fast Zone High Limit Bit[7:0]: vpt_high
-  assign cfg_data_reg[250] = {
-    24'h3a1f14
-  };  //AEC Step Manual Mode, Fast Zone Low Limit Bit[7:0]: vpt_low
+  assign cfg_data_reg[249] = {24'h3a1160};  //AEC Step Manual Mode, Fast Zone High Limit Bit[7:0]: vpt_high
+  assign cfg_data_reg[250] = {24'h3a1f14};  //AEC Step Manual Mode, Fast Zone Low Limit Bit[7:0]: vpt_low
   assign cfg_data_reg[251] = {24'h300802};  //Release Reset
   // assign cfg_data_reg[252] = {24'h303521}; //System Clocking[7:4] Sys Div, [3:0] MIPI Div (always 0x1)
 
-  assign cfg_data_reg[253] = {
-    24'h3c01b4
-  };  //Bit[7]: Band manual enable Bit[6]: Band begin reset enable Bit[5]: Sum auto mode enable Bit[4]: Band counter enable Bit[3:0]: Band counter Counter threshold for band change
-  assign cfg_data_reg[254] = {
-    24'h3c0004
-  };  //Bit[2]: Band value manual setting 0: 60 Hz light 1: 50 Hz light
+  assign cfg_data_reg[253] = {24'h3c01b4};  //Bit[7]: Band manual enable Bit[6]: Band begin reset enable Bit[5]: Sum auto mode enable Bit[4]: Band counter enable Bit[3:0]: Band counter Counter threshold for band change
+  assign cfg_data_reg[254] = {24'h3c0004};  //Bit[2]: Band value manual setting 0: 60 Hz light 1: 50 Hz light
 
   assign cfg_data_reg[255] = {24'h3a197c};
 
@@ -444,13 +378,9 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[315] = {24'h583b28};  //LENC Bit[7:4]: Blue matrix 43 Bit[3:0]: Red matrix 43
   assign cfg_data_reg[316] = {24'h583c14};  //LENC Bit[7:4]: Blue matrix 44 Bit[3:0]: Red matrix 44
   assign cfg_data_reg[317] = {24'h583dee};  //LENC Bit[7:4]: LENC b offset Bit[3:0]: LENC r offset
-  assign cfg_data_reg[318] = {
-    24'h40051a
-  };  //Bit[1]: BLC always update 0: Normal freeze 1: BLC always update; 
+  assign cfg_data_reg[318] = {24'h40051a};  //Bit[1]: BLC always update 0: Normal freeze 1: BLC always update; 
 
-  assign cfg_data_reg[319] = {
-    24'h538126
-  };  //Bit[7:2]: Debug mode Bit[1]: CMX1 for Y Bit[0]: Debug mode
+  assign cfg_data_reg[319] = {24'h538126};  //Bit[7:2]: Debug mode Bit[1]: CMX1 for Y Bit[0]: Debug mode
   assign cfg_data_reg[320] = {24'h538250};  //Bit[7:0]: CMX2 for Y
   assign cfg_data_reg[321] = {24'h53830c};  //Bit[7:0]: CMX3 for Y
   assign cfg_data_reg[322] = {24'h538409};  //Bit[7:0]: CMX4 for U
@@ -459,55 +389,29 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[325] = {24'h53877e};  //Bit[7:0]: CMX7 for V
   assign cfg_data_reg[326] = {24'h538875};  //Bit[7:0]: CMX8 for V
   assign cfg_data_reg[327] = {24'h538909};  //Bit[7:0]: CMX9 for V
-  assign cfg_data_reg[328] = {
-    24'h538b98
-  };  //Cmxsign Bit[7]: CMX8 sign Bit[6]: CMX7 sign Bit[5]: CMX6 sign Bit[4]: CMX5 sign Bit[3]: CMX4 sign Bit[2]: CMX3 sign Bit[1]: CMX2 sign Bit[0]: CMX1 sign
+  assign cfg_data_reg[328] = {24'h538b98};  //Cmxsign Bit[7]: CMX8 sign Bit[6]: CMX7 sign Bit[5]: CMX6 sign Bit[4]: CMX5 sign Bit[3]: CMX4 sign Bit[2]: CMX3 sign Bit[1]: CMX2 sign Bit[0]: CMX1 sign
   assign cfg_data_reg[329] = {24'h538a01};  //Cmxsign Bit[7:1]: Debug mode Bit[0]: CMX9 sign
 
-  assign cfg_data_reg[330] = {
-    24'h558002
-  };  //Digital Effects Bit[7]: Fixed Y enable 0: Disable 1: Enable Bit[6]: Negative enable 0: Disable 1: Enable Bit[5]: Gray enable 0: Disable 1: Enable Bit[4]: Fixed V enable 0: Disable 1: Enable Bit[3]: Fixed U enable 0: Disable 1: Enable Bit[2]: Contrast enable 0: Disable 1: Enable Bit[1]: Saturation enable 0: Disable 1: Enable Bit[0]: Hue enable 0: Disable 1: Enable
-  assign cfg_data_reg[331] = {
-    24'h558801
-  };  //Digital Effects Bit[7]: Debug mode Bit[5]: Sign5 for hue V, cos Bit[4]: Sign4 for hue U, cos Bit[3]: Sign3 Y bright sign for contrast 0: Keep Y bright sign 1: Negative Y bright sign Bit[2]: Sign2 Y offset sign for contrast when  0x5044[3]=1 0: Keep Y offset sign 1: Negative Y offset sign Bit[1]: Sign1 for hue V, sin Bit[0]: Sign0 for hue U, sin
-  assign cfg_data_reg[332] = {
-    24'h558340
-  };  //Digital Effects Saturation U when 0x5580[1]=1 and 0x5588[6]=1, max value for UV adjust when 0x5580[1]=1 and 0x5588[6]=0 or fixed U when 0x5580[3]=1
-  assign cfg_data_reg[333] = {
-    24'h558410
-  };  //Digital Effects Saturation V when 0x5580[1]=1 and 0x5588[6]=1, min value for UV adjust when 0x5580[1]=1 and 0x5588[6]=0 or Vreg when 0x5580[4]=1
-  assign cfg_data_reg[334] = {
-    24'h55890f
-  };  //Digital Effects Bit[7:0]: UV adjust threshold 1 Valid when 0x5580[1]=1
-  assign cfg_data_reg[335] = {
-    24'h558a00
-  };  //Digital Effects Bit[7:1]: Debug mode Bit[0]: UV adjust threshold 2[8] Valid when 0x5580[1]=1
-  assign cfg_data_reg[336] = {
-    24'h558b3f
-  };  //Digital Effects Bit[7:0]: UV adjust threshold 2[7:0] Valid when 0x5580[1]=1
+  assign cfg_data_reg[330] = {24'h558002};  //Digital Effects Bit[7]: Fixed Y enable 0: Disable 1: Enable Bit[6]: Negative enable 0: Disable 1: Enable Bit[5]: Gray enable 0: Disable 1: Enable Bit[4]: Fixed V enable 0: Disable 1: Enable Bit[3]: Fixed U enable 0: Disable 1: Enable Bit[2]: Contrast enable 0: Disable 1: Enable Bit[1]: Saturation enable 0: Disable 1: Enable Bit[0]: Hue enable 0: Disable 1: Enable
+  assign cfg_data_reg[331] = {24'h558801};  //Digital Effects Bit[7]: Debug mode Bit[5]: Sign5 for hue V, cos Bit[4]: Sign4 for hue U, cos Bit[3]: Sign3 Y bright sign for contrast 0: Keep Y bright sign 1: Negative Y bright sign Bit[2]: Sign2 Y offset sign for contrast when  0x5044[3]=1 0: Keep Y offset sign 1: Negative Y offset sign Bit[1]: Sign1 for hue V, sin Bit[0]: Sign0 for hue U, sin
+  assign cfg_data_reg[332] = {24'h558340};  //Digital Effects Saturation U when 0x5580[1]=1 and 0x5588[6]=1, max value for UV adjust when 0x5580[1]=1 and 0x5588[6]=0 or fixed U when 0x5580[3]=1
+  assign cfg_data_reg[333] = {24'h558410};  //Digital Effects Saturation V when 0x5580[1]=1 and 0x5588[6]=1, min value for UV adjust when 0x5580[1]=1 and 0x5588[6]=0 or Vreg when 0x5580[4]=1
+  assign cfg_data_reg[334] = {24'h55890f};  //Digital Effects Bit[7:0]: UV adjust threshold 1 Valid when 0x5580[1]=1
+  assign cfg_data_reg[335] = {24'h558a00};  //Digital Effects Bit[7:1]: Debug mode Bit[0]: UV adjust threshold 2[8] Valid when 0x5580[1]=1
+  assign cfg_data_reg[336] = {24'h558b3f};  //Digital Effects Bit[7:0]: UV adjust threshold 2[7:0] Valid when 0x5580[1]=1
 
-  assign cfg_data_reg[337] = {
-    24'h530825
-  };  //CIP CTRL Bit[7]: Debug mode Bit[6]: CIP edge MT manual enable Bit[4]: CIP DNS manual enable Bit[2:0]: CIP threshold for BR sharpen
+  assign cfg_data_reg[337] = {24'h530825};  //CIP CTRL Bit[7]: Debug mode Bit[6]: CIP edge MT manual enable Bit[4]: CIP DNS manual enable Bit[2:0]: CIP threshold for BR sharpen
   assign cfg_data_reg[338] = {24'h530408};  //CIP DNS Thresh1
   assign cfg_data_reg[339] = {24'h530530};  //CIP DNS Thresh2
   assign cfg_data_reg[340] = {24'h530610};  //CIP DNS Offset1
   assign cfg_data_reg[341] = {24'h530720};  //CIP DNS Offset2
 
   assign cfg_data_reg[342] = {24'h5180ff};  //AWB B Block
-  assign cfg_data_reg[343] = {
-    24'h5181f2
-  };  //Bit[7:6]: Step local Bit[5:4]: Step fast Bit[3]: Slop 8x Bit[2]: Slop 4x Bit[1]: One zone Bit[0]: AVG all
+  assign cfg_data_reg[343] = {24'h5181f2};  //Bit[7:6]: Step local Bit[5:4]: Step fast Bit[3]: Slop 8x Bit[2]: Slop 4x Bit[1]: One zone Bit[0]: AVG all
   assign cfg_data_reg[344] = {24'h518211};  //Bit[7:4]: Max local counter Bit[3:0]: Max fast counter
-  assign cfg_data_reg[345] = {
-    24'h518314
-  };  //Bit[7]: AWB simple enable 0: AWB advance 1: AWB simple Bit[6]: AWB advance 0: YUV enable 1: Simple YUV enable Bit[5]: AWB preset Bit[4]: AWB SIMF Bit[3:2]: AWB win Bit[0]: Debug mode
-  assign cfg_data_reg[346] = {
-    24'h518425
-  };  //Bit[7:6]: Count area selection Bit[5]: G enable Bit[4:2]: Count limit control Bit[1:0]: Counter threshold
-  assign cfg_data_reg[347] = {
-    24'h518524
-  };  //Bit[7:4]: Stable range unstable Threshold for unstable to stable change Bit[3:0]: Stable range stable Threshold for stable to unstable change
+  assign cfg_data_reg[345] = {24'h518314};  //Bit[7]: AWB simple enable 0: AWB advance 1: AWB simple Bit[6]: AWB advance 0: YUV enable 1: Simple YUV enable Bit[5]: AWB preset Bit[4]: AWB SIMF Bit[3:2]: AWB win Bit[0]: Debug mode
+  assign cfg_data_reg[346] = {24'h518425};  //Bit[7:6]: Count area selection Bit[5]: G enable Bit[4:2]: Count limit control Bit[1:0]: Counter threshold
+  assign cfg_data_reg[347] = {24'h518524};  //Bit[7:4]: Stable range unstable Threshold for unstable to stable change Bit[3:0]: Stable range stable Threshold for stable to unstable change
   assign cfg_data_reg[348] = {24'h518610};  //Advanced AWB Control Registers
   assign cfg_data_reg[349] = {24'h518712};  //Advanced AWB Control Registers
   assign cfg_data_reg[350] = {24'h518810};  //Advanced AWB Control Registers
@@ -524,9 +428,7 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[361] = {24'h5193f0};  //Bit[7:0]: Red limit
   assign cfg_data_reg[362] = {24'h5194f0};  //Bit[7:0]: Green limit
   assign cfg_data_reg[363] = {24'h5195f0};  //Bit[7:0]: Blue limit
-  assign cfg_data_reg[364] = {
-    24'h519603
-  };  //Bit[7:6]: Debug mode Bit[5]: AWB freeze Bit[4]: Debug mode Bit[3:2]: AWB simple selection 00: AWB simple from after AWB gain 01: AWB simple from after RAW GMA 10: AWB simple from after RAW GMA 11: AWB simple from after AWB gain Bit[1]: Fast enable Bit[0]: AWB bias stat
+  assign cfg_data_reg[364] = {24'h519603};  //Bit[7:6]: Debug mode Bit[5]: AWB freeze Bit[4]: Debug mode Bit[3:2]: AWB simple selection 00: AWB simple from after AWB gain 01: AWB simple from after RAW GMA 10: AWB simple from after RAW GMA 11: AWB simple from after AWB gain Bit[1]: Fast enable Bit[0]: AWB bias stat
   assign cfg_data_reg[365] = {24'h519701};  //Bit[7:0]: Local limit
   assign cfg_data_reg[366] = {24'h519806};  //Debug Mode
   assign cfg_data_reg[367] = {24'h519962};  //Debug Mode
@@ -534,13 +436,9 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[369] = {24'h519b00};  //Debug Mode
   assign cfg_data_reg[370] = {24'h519c04};  //Debug Mode
   assign cfg_data_reg[371] = {24'h519de7};  //Debug Mode
-  assign cfg_data_reg[372] = {
-    24'h519e38
-  };  //Bit[7:4]: Debug mode Bit[3]: Local limit select Bit[2]: Simple stable select Bit[1:0]: Debug mode
+  assign cfg_data_reg[372] = {24'h519e38};  //Bit[7:4]: Debug mode Bit[3]: Local limit select Bit[2]: Simple stable select Bit[1:0]: Debug mode
 
   assign cfg_data_reg[373] = {24'h501e40};  // Bit[6]: Scale ratio manual enable
-  assign cfg_data_reg[374] = {
-    24'h474100
-  };  // Bit[2]: Test pattern enable Bit[1]: Test pattern select 0: Output test pattern 0 1: Output test pattern 1 Bit[0]: Test pattern 8-bit/10-bit 0: 10-bit test pattern 1: 8-bit test patter
+  assign cfg_data_reg[374] = {24'h474100};  // Bit[2]: Test pattern enable Bit[1]: Test pattern select 0: Output test pattern 0 1: Output test pattern 1 Bit[0]: Test pattern 8-bit/10-bit 0: 10-bit test pattern 1: 8-bit test patter
 
 endmodule

@@ -5,5 +5,5 @@
   
     "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
     "verilog.formatting.veribleVerilogFormatter.path": "C:/verible-verilog-format/verible-verilog-format.exe",
-    "verilog.formatting.veribleVerilogFormatter.arguments": "--inplace --indentation_spaces=2"
+    "verilog.formatting.veribleVerilogFormatter.arguments": "--column_limit=500 --indentation_spaces=2 --assignment_statement_alignment=flush-left --case_items_alignment=flush-left --class_member_variable_alignment=flush-left --distribution_items_alignment=flush-left --enum_assignment_statement_alignment=flush-left --formal_parameters_alignment=flush-left --module_net_variable_alignment=flush-left --named_parameter_alignment=flush-left --named_port_alignment=flush-left --port_declarations_alignment=flush-left --struct_union_members_alignment=flush-left --try_wrap_long_lines=false --wrap_end_else_clauses=false"
   }
