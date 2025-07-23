@@ -17,9 +17,9 @@ module top (
     input cmos_vsync,  //cmos vsync coming from OV5640
     input cmos_href,  //cmos hsync refrence,data valid coming from OV5640
     input cmos_pclk,  //cmos pixel clock coming from OV5640
-    output cmos_xclk,  //cmos externl clock 
+    output cmos_xclk,  //cmos external clock
     input [7:0] cmos_db,  //cmos data coming from OV5640
-    output cmos_rst_n,  //cmos reset 
+    output cmos_rst_n,  //cmos reset
     output cmos_pwdn,  //cmos power down
 
     // DDR3
@@ -85,7 +85,7 @@ module top (
   wire [DATA_WIDTH-1:0] wr_data;
   wire [DATA_WIDTH/8-1:0] wr_data_mask;
   wire rd_data_valid;
-  wire rd_data_end;  //unused 
+  wire rd_data_end;  //unused
   wire [DATA_WIDTH-1:0] rd_data;
   wire init_calib_complete;
 
@@ -98,7 +98,7 @@ module top (
 
   `define USE_THREE_FRAME_BUFFER
 
-  `define DEF_ADDR_WIDTH 28 
+  `define DEF_ADDR_WIDTH 28
   `define DEF_SRAM_DATA_WIDTH 128
 
   //The memory is organized with byte-sized storage units, and has a total capacity of 2^27 * 16 bits,
@@ -123,15 +123,15 @@ module top (
   timing_tx timing_tx_inst (
       .I_pxl_clk(HDMI_pix_clk),  //pixel clock
       .I_rst_n(HDMI_rst_n),  //low active
-      // 800x600   // 1024x768  // 1280x720    
-      .I_h_total(12'd1650),  //hor total time  // 12'd1056  // 12'd1344  // 12'd1650  
-      .I_h_sync(12'd40),  //hor sync time   // 12'd128   // 12'd136   // 12'd40    
-      .I_h_bporch(12'd220),  //hor back porch  // 12'd88    // 12'd160   // 12'd220   
-      .I_h_res(12'd640),  //hor resolution  // 12'd800   // 12'd1024  // 12'd1280  
-      .I_v_total(12'd750),  //ver total time  // 12'd628   // 12'd806   // 12'd750    
-      .I_v_sync(12'd5),  //ver sync time   // 12'd4     // 12'd6     // 12'd5     
-      .I_v_bporch(12'd20),  //ver back porch  // 12'd23    // 12'd29    // 12'd20    
-      .I_v_res(12'd480),  //ver resolution  // 12'd600   // 12'd768   // 12'd720    
+      // 800x600   // 1024x768  // 1280x720
+      .I_h_total(12'd1650),  //hor total time  // 12'd1056  // 12'd1344  // 12'd1650
+      .I_h_sync(12'd40),  //hor sync time   // 12'd128   // 12'd136   // 12'd40
+      .I_h_bporch(12'd220),  //hor back porch  // 12'd88    // 12'd160   // 12'd220
+      .I_h_res(12'd640),  //hor resolution  // 12'd800   // 12'd1024  // 12'd1280
+      .I_v_total(12'd750),  //ver total time  // 12'd628   // 12'd806   // 12'd750
+      .I_v_sync(12'd5),  //ver sync time   // 12'd4     // 12'd6     // 12'd5
+      .I_v_bporch(12'd20),  //ver back porch  // 12'd23    // 12'd29    // 12'd20
+      .I_v_res(12'd480),  //ver resolution  // 12'd600   // 12'd768   // 12'd720
       .I_hs_pol(1'b1),  //HS polarity , 0:negative polarity，1：positive polarity
       .I_vs_pol(1'b1),  //VS polarity , 0:negative polarity，1：positive polarity
       .O_de(HDMI_de_in),
@@ -180,8 +180,8 @@ module top (
       .I_rgb_hs(HDMI_hs_in),
       .I_rgb_de(HDMI_de_in),
       // .I_rgb_r       (HDMI_data_r    ),
-      // .I_rgb_g       (HDMI_data_g    ),  
-      // .I_rgb_b       (HDMI_data_b    ),  
+      // .I_rgb_g       (HDMI_data_g    ),
+      // .I_rgb_b       (HDMI_data_b    ),
       .I_rgb_r({lcd_r, 3'd0}),  // 5 bits red
       .I_rgb_g({lcd_g, 2'd0}),  // 6 bits green
       .I_rgb_b({lcd_b, 3'd0}),  // 5 bits blue
@@ -240,16 +240,16 @@ module top (
       .I_wr_halt(1'd0),  //1:halt,  0:no halt
       .I_rd_halt(1'd0),  //1:halt,  0:no halt
 `endif
-      // video data input (from OV5640)             
+      // video data input (from OV5640)
       .I_vin0_clk(cmos_pclk),  // Input video clock signal
       .I_vin0_vs_n(~cmos_vsync),  // Input vs, only receive negative polarity
       .I_vin0_de(write_en),  // Input data valid signal
       .I_vin0_data(debayer_pixel_data_16),  // Input video data signal
       .O_vin0_fifo_full(),
 
-      // video data output (to HDMI)            
+      // video data output (to HDMI)
       .I_vout0_clk(HDMI_pix_clk),  // Output video clock signal
-      .I_vout0_vs_n(~HDMI_vs_in),  // Output vs, only receive negative polarity 
+      .I_vout0_vs_n(~HDMI_vs_in),  // Output vs, only receive negative polarity
       .I_vout0_de(HDMI_de_in),  // Output data read enable signal
       .O_vout0_den(off0_syn_de),  // Output data valid signal, 2 clock cycles delayed than I_vout0_de signal
       .O_vout0_data(off0_syn_data),  // Output video data signal
@@ -267,7 +267,7 @@ module top (
       .O_wr_data(wr_data),  //[DATA_WIDTH-1:0]
       .O_wr_data_mask(wr_data_mask),
       .I_rd_data_valid(rd_data_valid),
-      .I_rd_data_end(rd_data_end),  //unused 
+      .I_rd_data_end(rd_data_end),  //unused
       .I_rd_data(rd_data),  //[DATA_WIDTH-1:0]
       .I_init_calib_complete(init_calib_complete)
   );

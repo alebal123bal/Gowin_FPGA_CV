@@ -1,23 +1,23 @@
 `timescale 1ns / 1ns
 
 module i2c_ctrl #(
-    parameter DEVICE_ADDR  = 7'b111_1000,     // I2C device address
+    parameter DEVICE_ADDR = 7'b111_1000,  // I2C device address
     parameter SYS_CLK_FREQ = 26'd24_000_000,  // Input system clock frequency
-    parameter SCL_FREQ     = 19'd250_000      // I2C device SCL clock frequency
+    parameter SCL_FREQ = 19'd250_000  // I2C device SCL clock frequency
 ) (
-    input  wire        sys_clk,    // Input system clock, 50MHz
-    input  wire        sys_rst_n,  // Input reset signal, active low
-    input  wire        wr_en,      // Input write enable signal
-    input  wire        rd_en,      // Input read enable signal
-    input  wire        i2c_start,  // Input I2C trigger signal
-    input  wire        addr_num,   // Input I2C byte address number
-    input  wire [15:0] byte_addr,  // Input I2C byte address
-    input  wire [ 7:0] wr_data,    // Input I2C device data
-    output reg         i2c_clk,    // I2C drive clock
-    output reg         i2c_end,    // I2C read/write operation complete
-    output reg  [ 7:0] rd_data,    // Output I2C device read data
-    output reg         i2c_scl,    // Output serial clock signal SCL to I2C device
-    inout  wire        i2c_sda     // Serial data signal SDA to/from I2C device
+    input wire sys_clk,  // Input system clock, 50MHz
+    input wire sys_rst_n,  // Input reset signal, active low
+    input wire wr_en,  // Input write enable signal
+    input wire rd_en,  // Input read enable signal
+    input wire i2c_start,  // Input I2C trigger signal
+    input wire addr_num,  // Input I2C byte address number
+    input wire [15:0] byte_addr,  // Input I2C byte address
+    input wire [7:0] wr_data,  // Input I2C device data
+    output reg i2c_clk,  // I2C drive clock
+    output reg i2c_end,  // I2C read/write operation complete
+    output reg [7:0] rd_data,  // Output I2C device read data
+    output reg i2c_scl,  // Output serial clock signal SCL to I2C device
+    inout wire i2c_sda  // Serial data signal SDA to/from I2C device
 );
 
   // Parameter and Internal Signal
@@ -44,18 +44,18 @@ module i2c_ctrl #(
   STOP = 4'd15;  // Stop state
 
   // Wire define
-  wire       sda_in;  // SDA input data register
-  wire       sda_en;  // SDA data write enable signal
+  wire sda_in;  // SDA input data register
+  wire sda_en;  // SDA data write enable signal
 
   // Reg define
-  reg  [7:0] cnt_clk;  // System clock counter, controls clk_i2c clock signal generation
-  reg  [3:0] state;  // State machine state
-  reg        cnt_i2c_clk_en;  // cnt_i2c_clk counter enable signal
-  reg  [1:0] cnt_i2c_clk;  // clk_i2c clock counter, controls cnt_bit signal generation
-  reg  [2:0] cnt_bit;  // SDA bit counter
-  reg        ack;  // Acknowledge signal
-  reg        i2c_sda_reg;  // SDA data buffer
-  reg  [7:0] rd_data_reg;  // Data read from I2C device
+  reg [7:0] cnt_clk;  // System clock counter, controls clk_i2c clock signal generation
+  reg [3:0] state;  // State machine state
+  reg cnt_i2c_clk_en;  // cnt_i2c_clk counter enable signal
+  reg [1:0] cnt_i2c_clk;  // clk_i2c clock counter, controls cnt_bit signal generation
+  reg [2:0] cnt_bit;  // SDA bit counter
+  reg ack;  // Acknowledge signal
+  reg i2c_sda_reg;  // SDA data buffer
+  reg [7:0] rd_data_reg;  // Data read from I2C device
 
   // Main Code
 
@@ -84,10 +84,7 @@ module i2c_ctrl #(
   // cnt_bit: SDA bit counter
   always @(posedge i2c_clk or negedge sys_rst_n)
     if (sys_rst_n == 1'b0) cnt_bit <= 3'd0;
-    else if((state == IDLE) || (state == START_1) || (state == START_2)
-        || (state == ACK_1) || (state == ACK_2) || (state == ACK_3)
-        || (state == ACK_4) || (state == ACK_5) || (state == N_ACK))
-      cnt_bit <= 3'd0;
+    else if ((state == IDLE) || (state == START_1) || (state == START_2) || (state == ACK_1) || (state == ACK_2) || (state == ACK_3) || (state == ACK_4) || (state == ACK_5) || (state == N_ACK)) cnt_bit <= 3'd0;
     else if ((cnt_bit == 3'd7) && (cnt_i2c_clk == 2'd3)) cnt_bit <= 3'd0;
     else if ((cnt_i2c_clk == 2'd3) && (state != IDLE)) cnt_bit <= cnt_bit + 1'b1;
 
@@ -155,9 +152,7 @@ module i2c_ctrl #(
   // ack: Acknowledge signal
   always @(*)
     case (state)
-      IDLE, START_1, SEND_D_ADDR, SEND_B_ADDR_H, SEND_B_ADDR_L,
-        WR_DATA, START_2, SEND_RD_ADDR, RD_DATA, N_ACK:
-      ack <= 1'b1;
+      IDLE, START_1, SEND_D_ADDR, SEND_B_ADDR_H, SEND_B_ADDR_L, WR_DATA, START_2, SEND_RD_ADDR, RD_DATA, N_ACK: ack <= 1'b1;
       ACK_1, ACK_2, ACK_3, ACK_4, ACK_5:
       if (cnt_i2c_clk == 2'd0) ack <= sda_in;
       else ack <= ack;
@@ -171,8 +166,7 @@ module i2c_ctrl #(
       START_1:
       if (cnt_i2c_clk == 2'd3) i2c_scl <= 1'b0;
       else i2c_scl <= 1'b1;
-      SEND_D_ADDR, ACK_1, SEND_B_ADDR_H, ACK_2, SEND_B_ADDR_L,
-        ACK_3, WR_DATA, ACK_4, START_2, SEND_RD_ADDR, ACK_5, RD_DATA, N_ACK:
+      SEND_D_ADDR, ACK_1, SEND_B_ADDR_H, ACK_2, SEND_B_ADDR_L, ACK_3, WR_DATA, ACK_4, START_2, SEND_RD_ADDR, ACK_5, RD_DATA, N_ACK:
       if ((cnt_i2c_clk == 2'd1) || (cnt_i2c_clk == 2'd2)) i2c_scl <= 1'b1;
       else i2c_scl <= 1'b0;
       STOP:
@@ -224,8 +218,7 @@ module i2c_ctrl #(
   // rd_data: Data read from I2C device
   always @(posedge i2c_clk or negedge sys_rst_n)
     if (sys_rst_n == 1'b0) rd_data <= 8'd0;
-    else if ((state == RD_DATA) && (cnt_bit == 3'd7) && (cnt_i2c_clk == 2'd3))
-      rd_data <= rd_data_reg;
+    else if ((state == RD_DATA) && (cnt_bit == 3'd7) && (cnt_i2c_clk == 2'd3)) rd_data <= rd_data_reg;
 
   // i2c_end: Read/write completion signal
   always @(posedge i2c_clk or negedge sys_rst_n)
@@ -237,9 +230,7 @@ module i2c_ctrl #(
   assign sda_in = i2c_sda;
 
   // sda_en: SDA data write enable signal
-  assign sda_en = ((state == RD_DATA) || (state == ACK_1) || (state == ACK_2)
-    || (state == ACK_3) || (state == ACK_4) || (state == ACK_5))
-    ? 1'b0 : 1'b1;
+  assign sda_en = ((state == RD_DATA) || (state == ACK_1) || (state == ACK_2) || (state == ACK_3) || (state == ACK_4) || (state == ACK_5)) ? 1'b0 : 1'b1;
 
   // i2c_sda: Serial data signal SDA to/from I2C device
   assign i2c_sda = (sda_en == 1'b1) ? i2c_sda_reg : 1'bz;
