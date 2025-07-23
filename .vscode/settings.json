@@ -1,9 +1,68 @@
 {
-    "verilog.linting.linter": "iverilog",
-    "verilog.linting.iverilog.arguments": "-Wall -y ./src/ddr3_memory_interface -y ./src/dvi_tx -y ./src/gowin_clkdiv -y ./src/gowin_rpll -y ./src/i2c -y ./src/OV5640 -y ./src/uart -y ./src/video_frame_buffer",
-    "verilog.linting.iverilog.runAtFileLocation": false,
-  
-    "verilog.formatting.verilogHDL.formatter": "verible-verilog-format",
-    "verilog.formatting.veribleVerilogFormatter.path": "C:/verible-verilog-format/verible-verilog-format.exe",
-    "verilog.formatting.veribleVerilogFormatter.arguments": "--column_limit=500 --indentation_spaces=2 --assignment_statement_alignment=flush-left --case_items_alignment=flush-left --class_member_variable_alignment=flush-left --distribution_items_alignment=flush-left --enum_assignment_statement_alignment=flush-left --formal_parameters_alignment=flush-left --module_net_variable_alignment=flush-left --named_parameter_alignment=flush-left --named_port_alignment=flush-left --port_declarations_alignment=flush-left --struct_union_members_alignment=flush-left --try_wrap_long_lines=false --wrap_end_else_clauses=false"
-  }
+    /* --------------------------------------------------------------------------
+    0.  GENERAL SETTINGS
+    ------------------------------------------------------------------------- */
+    "[verilog]": {
+      "editor.defaultFormatter": "eirikpre.systemverilog",
+      "editor.formatOnSave": true
+    },
+
+    "[systemverilog]": {
+      "editor.defaultFormatter": "eirikpre.systemverilog",
+      "editor.formatOnSave": true
+    },
+    /* --------------------------------------------------------------------------
+    1.  LINTING  (keep iverilog)
+    ------------------------------------------------------------------------- */
+    "systemverilog.compilerType": "Verilator", // extension picks iverilog below
+    "systemverilog.launchConfigurationVerilator": "iverilog -t null -Wall -y ./src/ddr3_memory_interface -y ./src/dvi_tx -y ./src/gowin_clkdiv -y ./src/gowin_rpll -y ./src/i2c -y ./src/OV5640 -y ./src/uart -y ./src/video_frame_buffer",
+
+    /* --------------------------------------------------------------------------
+    2.  FORMATTING  (Verible)
+    ------------------------------------------------------------------------- */
+    "systemverilog.formatCommand": "C:/verible-verilog-format/verible-verilog-format.exe --column_limit=500 --indentation_spaces=2 --assignment_statement_alignment=flush-left --case_items_alignment=flush-left --class_member_variable_alignment=flush-left --distribution_items_alignment=flush-left --enum_assignment_statement_alignment=flush-left --formal_parameters_alignment=flush-left --module_net_variable_alignment=flush-left --named_parameter_alignment=flush-left --named_port_alignment=flush-left --port_declarations_alignment=flush-left --struct_union_members_alignment=flush-left --try_wrap_long_lines=false --wrap_end_else_clauses=false",
+
+    /* --------------------------------------------------------------------------
+    3.  INDEXING / PERFORMANCE
+    ------------------------------------------------------------------------- */
+    "systemverilog.includeIndexing": [
+      "**/src/**/*.{sv,v,svh,vh}"
+    ],
+    "systemverilog.excludeIndexing": "**/{synth,pnr}/**,**/*.netlist*",
+    "systemverilog.maxLineCountIndexing": 5000, // skip huge netlists
+    "systemverilog.documentSymbolsPrecision": "full", // keep ports, params, etc.
+    "systemverilog.forceFastIndexing": false, // full ANTLR parse
+    "systemverilog.parallelProcessing": 4, // 4 CPU cores
+
+    /* --------------------------------------------------------------------------
+    4.  REAL-TIME ERRORS
+    ------------------------------------------------------------------------- */
+    "systemverilog.antlrVerification": true, // live syntax checking
+    "systemverilog.verifyOnOpen": true,
+    "systemverilog.compileOnSave": true,
+
+    /* --------------------------------------------------------------------------
+    5.  FILE ASSOCIATIONS
+    ------------------------------------------------------------------------- */
+    "files.associations": {
+      "*.v": "verilog",
+      "*.sv": "systemverilog",
+      "*.svp": "systemverilog",
+      "*.svi": "systemverilog"
+    },
+
+    /* --------------------------------------------------------------------------
+    6.  OPTIONAL BRACKET / GUIDE ENHANCEMENT
+    ------------------------------------------------------------------------- */
+    "editor.bracketPairColorization.enabled": false,
+    "editor.guides.bracketPairs": "active",
+
+    /* --------------------------------------------------------------------------
+      7.  FILE HANDLING
+      ------------------------------------------------------------------------- */
+    "files.eol": "\n",  // LF only
+    "files.insertFinalNewline": true, // always newline after endmodule
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+
+}
