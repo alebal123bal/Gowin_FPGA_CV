@@ -1,4 +1,4 @@
-module ov5640_cfg_better_indexed (
+module ov5640_cfg (
     input wire sys_clk,  // System clock from IIC module
     input wire sys_rst_n,  // System reset, active low
     input wire cfg_end,  // Single register configuration complete
@@ -378,7 +378,7 @@ module ov5640_cfg_better_indexed (
   assign cfg_data_reg[315] = {24'h583b28};  //LENC Bit[7:4]: Blue matrix 43 Bit[3:0]: Red matrix 43
   assign cfg_data_reg[316] = {24'h583c14};  //LENC Bit[7:4]: Blue matrix 44 Bit[3:0]: Red matrix 44
   assign cfg_data_reg[317] = {24'h583dee};  //LENC Bit[7:4]: LENC b offset Bit[3:0]: LENC r offset
-  assign cfg_data_reg[318] = {24'h40051a};  //Bit[1]: BLC always update 0: Normal freeze 1: BLC always update; 
+  assign cfg_data_reg[318] = {24'h40051a};  //Bit[1]: BLC always update 0: Normal freeze 1: BLC always update;
 
   assign cfg_data_reg[319] = {24'h538126};  //Bit[7:2]: Debug mode Bit[1]: CMX1 for Y Bit[0]: Debug mode
   assign cfg_data_reg[320] = {24'h538250};  //Bit[7:0]: CMX2 for Y
