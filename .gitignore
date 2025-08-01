@@ -1,5 +1,7 @@
 CV_acceleration/impl
 CV_acceleration/src/dsim_work
+mdc_config.yml
+mdc_ignore
 *.mdc
 *.env
 *.log
@@ -8,3 +10,4 @@ CV_acceleration/src/dsim_work
 *.pdf
 *.sr
 *.pvs
+*.dpf
