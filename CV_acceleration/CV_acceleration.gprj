@@ -10,7 +10,7 @@
         <File path="src/dvi_tx/red_green_fade.v" type="file.verilog" enable="1"/>
         <File path="src/dvi_tx/timing_tx.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_rpll/TMDS_rPLL.v" type="file.verilog" enable="1"/>
-        <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_rpll/CMOS_rpll.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_rpll/mem_pll.v" type="file.verilog" enable="1"/>
         <File path="src/i2c/i2c_ctrl.v" type="file.verilog" enable="1"/>
         <File path="src/ov5640/ov5640_cfg.v" type="file.verilog" enable="1"/>

@@ -1,6 +1,6 @@
 [General]
 ipc_version=4
-file=gowin_rpll
+file=CMOS_rpll
 module=CMOS_rPLL
 target_device=gw2a18c-011
 type=clock_rpll

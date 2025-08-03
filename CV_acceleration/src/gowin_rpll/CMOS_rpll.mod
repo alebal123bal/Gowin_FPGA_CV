@@ -6,8 +6,8 @@
 
 
 -mod_name CMOS_rPLL
--file_name gowin_rpll
--path C:/Users/Alessandro/OneDrive/Desktop/Gowin/Gowin_FPGA_CV/CV_acceleration/src/gowin_rpll/
+-file_name CMOS_rpll
+-path C:/Users/Alessandro/OneDrive/Desktop/Gowin/Gowin_FPGA_CV/CV_acceleration/src/CMOS_rpll/
 -type PLL
 -rPll true
 -file_type vlg
