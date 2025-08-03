@@ -348,7 +348,7 @@ module top (
       .resetn(I_rst_n)  //input resetn
   );
 
-  localparam HALF_PERIOD = 50_000_000;
+  localparam HALF_PERIOD = 48_000_000;
 
   reg [31:0] counter_clk;  // 32 bits can count up to 2.14 Billion
   reg debug_reg_1sec_clk;
