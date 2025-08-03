@@ -12,3 +12,6 @@ mdc_ignore
 *.sr
 *.pvs
 *.dpf
+
+__pycache__
+*.pyc

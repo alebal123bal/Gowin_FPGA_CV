@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Register Config Analysis",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "CV_acceleration.src.OV5640.ov5640_calculator",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Run Register Config Analysis",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "CV_acceleration.src.OV5640.ov5640_calculator",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "stopOnEntry": false
+        },
+    ]
+}
