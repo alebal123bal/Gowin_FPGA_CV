@@ -35,7 +35,7 @@ module ov5640_top (
       .SYS_CLK_FREQ(CLK_FREQ),  // i2c_ctrl module system clock frequency
       .SCL_FREQ(I2C_FREQ)  // I2C SCL clock frequency
   ) i2c_ctrl_inst (
-      .sys_clk(sys_clk),  // Input system clock, 50MHz
+      .sys_clk(sys_clk),  // Input system clock, 24MHz
       .sys_rst_n(sys_rst_n),  // Input reset signal, active low
       .wr_en(1'b1),  // Input write enable signal
       .rd_en(),  // Input read enable signal

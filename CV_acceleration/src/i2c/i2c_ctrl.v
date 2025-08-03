@@ -5,7 +5,7 @@ module i2c_ctrl #(
     parameter SYS_CLK_FREQ = 26'd24_000_000,  // Input system clock frequency
     parameter SCL_FREQ = 19'd250_000  // I2C device SCL clock frequency
 ) (
-    input wire sys_clk,  // Input system clock, 50MHz
+    input wire sys_clk,  // Input system clock, 24MHz
     input wire sys_rst_n,  // Input reset signal, active low
     input wire wr_en,  // Input write enable signal
     input wire rd_en,  // Input read enable signal
