@@ -340,14 +340,6 @@ module top (
 
   //===================================================
   // Frequency test: convert to 1 second counters
-  wire scaled_down_DDR3_clk;
-
-  Gowin_CLKDIV_DDR3 your_instance_name (
-      .clkout(scaled_down_DDR3_clk),  //output clkout 400 DIV 5 = 80MHz
-      .hclkin(memory_clk),  //input hclkin
-      .resetn(I_rst_n)  //input resetn
-  );
-
   localparam HALF_PERIOD = 48_000_000;
 
   reg [31:0] counter_clk;  // 32 bits can count up to 2.14 Billion
