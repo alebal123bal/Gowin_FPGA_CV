@@ -103,35 +103,48 @@ class OV5640Calculator:
         return (high << 8) | low
 
     def calculate_pll_clocks(self, registers, input_clock_mhz=24):
-        """Calculate PLL and pixel clocks from register values"""
+        """Calculate PLL and pixel clocks from register values with intermediate steps"""
 
+        # Extract register values
+        pll_bit_div_reg = registers.get(0x3034, 0)
+        sys_config = registers.get(0x3035, 0x21)
+        pll_multiplier = registers.get(0x3036, 0)
+        pll_config = registers.get(0x3037, 0)
+        pclk_config = registers.get(0x3108, 0x01)
+        dvp_pclk_div = registers.get(0x3824, 1)
+
+        # Parse individual fields
         # Bit div (0x3034)
-        pll_bit_div = registers.get(0x3034, 0)
-        bit_div = 2.5 if (pll_bit_div & 0x0F) == 0xA else 2.0
+        bit_div_value = pll_bit_div_reg & 0x0F
+        bit_div = 2.5 if bit_div_value == 0xA else 2.0
 
         # System Clock Configuration (0x3035)
-        sys_config = registers.get(0x3035, 0x21)
         sys_div = (sys_config >> 4) & 0x0F
         mipi_div = sys_config & 0x0F
 
-        # PLL Multiplier (0x3036)
-        pll_multiplier = registers.get(0x3036, 0)
-
         # PLL Configuration (0x3037)
-        pll_config = registers.get(0x3037, 0)
         pll_pre_div = pll_config & 0x0F
-        pll_root_div_bits = 2 if ((pll_config >> 4) & 0x0F) == 1 else 1
+        pll_root_div_bits = (pll_config >> 4) & 0x0F
+        pll_root_div = 2 if pll_root_div_bits == 1 else 1
 
         # PCLK Configuration (0x3108)
-        pclk_config = registers.get(0x3108, 0x01)
-        pclk_div = 1 if ((pclk_config >> 4) & 0x0F) == 0 else 2
+        pclk_div_bits = (pclk_config >> 4) & 0x0F
+        pclk_div = 1 if pclk_div_bits == 0 else 2
         sclk_div = pclk_config & 0x0F
 
-        # DVP PCLK Divider (0x3824) - additional pixel clock division
-        dvp_pclk_div = registers.get(0x3824, 1)
+        # Calculate intermediate steps
+        step1_after_multiplier = input_clock_mhz * pll_multiplier
+        step2_after_bit_div = step1_after_multiplier / bit_div
+        step3_after_sys_div = step2_after_bit_div / sys_div
+        step4_after_mipi_div = step3_after_sys_div / mipi_div
+        step5_after_pre_div = step4_after_mipi_div / pll_pre_div
+        step6_after_root_div = step5_after_pre_div / pll_root_div
+        step7_after_pclk_div = step6_after_root_div / pclk_div
+        step8_after_sclk_div = step7_after_pclk_div / sclk_div
+        pixel_clk = step8_after_sclk_div / dvp_pclk_div
 
-        # Calculate step by step
-        pixel_clk = (
+        # Alternative single calculation for verification
+        pixel_clk_direct = (
             input_clock_mhz
             * pll_multiplier
             / (
@@ -139,7 +152,7 @@ class OV5640Calculator:
                 * sys_div
                 * mipi_div
                 * pll_pre_div
-                * pll_root_div_bits
+                * pll_root_div
                 * pclk_div
                 * sclk_div
                 * dvp_pclk_div
@@ -147,8 +160,41 @@ class OV5640Calculator:
         )
 
         return {
+            # Input
             "input_clock_mhz": input_clock_mhz,
+            # Raw register values
+            "pll_bit_div_reg": pll_bit_div_reg,
+            "sys_config_reg": sys_config,
+            "pll_multiplier_reg": pll_multiplier,
+            "pll_config_reg": pll_config,
+            "pclk_config_reg": pclk_config,
+            "dvp_pclk_div_reg": dvp_pclk_div,
+            # Parsed divider values
+            "bit_div_value": bit_div_value,
+            "bit_div": bit_div,
+            "sys_div": sys_div,
+            "mipi_div": mipi_div,
+            "pll_multiplier": pll_multiplier,
+            "pll_pre_div": pll_pre_div,
+            "pll_root_div_bits": pll_root_div_bits,
+            "pll_root_div": pll_root_div,
+            "pclk_div_bits": pclk_div_bits,
+            "pclk_div": pclk_div,
+            "sclk_div": sclk_div,
+            "dvp_pclk_div": dvp_pclk_div,
+            # Intermediate calculation steps
+            "step1_after_multiplier": step1_after_multiplier,
+            "step2_after_bit_div": step2_after_bit_div,
+            "step3_after_sys_div": step3_after_sys_div,
+            "step4_after_mipi_div": step4_after_mipi_div,
+            "step5_after_pre_div": step5_after_pre_div,
+            "step6_after_root_div": step6_after_root_div,
+            "step7_after_pclk_div": step7_after_pclk_div,
+            "step8_after_sclk_div": step8_after_sclk_div,
+            # Final results
             "pixel_clk_mhz": pixel_clk,
+            "pixel_clk_direct": pixel_clk_direct,
+            "calculation_matches": abs(pixel_clk - pixel_clk_direct) < 0.001,
         }
 
     def calculate_resolution_and_binning(self, registers):
@@ -257,8 +303,61 @@ class OV5640Calculator:
         # Clock analysis
         clocks = self.calculate_pll_clocks(registers, input_clock_mhz)
         print(f"\n📡 CLOCK CONFIGURATION:")
-        print(f"  Input Clock:        {clocks['input_clock_mhz']:8.1f} MHz")
-        print(f"  Pixel Clock:        {clocks['pixel_clk_mhz']:8.1f} MHz")
+        print(f"  Input Clock:                    {clocks['input_clock_mhz']:8.1f} MHz")
+        print(f"  ─────────────────────────────────────────────────")
+        print(f"  Register Values:")
+        print(f"    0x3034 (Bit Div):            0x{clocks['pll_bit_div_reg']:02X}")
+        print(f"    0x3035 (Sys/MIPI Div):       0x{clocks['sys_config_reg']:02X}")
+        print(f"    0x3036 (PLL Multiplier):     0x{clocks['pll_multiplier_reg']:02X}")
+        print(f"    0x3037 (PLL Pre/Root):       0x{clocks['pll_config_reg']:02X}")
+        print(f"    0x3108 (PCLK/SCLK Div):      0x{clocks['pclk_config_reg']:02X}")
+        print(f"    0x3824 (DVP PCLK Div):       0x{clocks['dvp_pclk_div_reg']:02X}")
+        print(f"  ─────────────────────────────────────────────────")
+        print(f"  Parsed Dividers:")
+        print(f"    Bit Divider:                  {clocks['bit_div']:6.1f}")
+        print(f"    System Divider:               {clocks['sys_div']:6d}")
+        print(f"    MIPI Divider:                 {clocks['mipi_div']:6d}")
+        print(f"    PLL Multiplier:               {clocks['pll_multiplier']:6d}")
+        print(f"    PLL Pre-divider:              {clocks['pll_pre_div']:6d}")
+        print(f"    PLL Root Divider:             {clocks['pll_root_div']:6d}")
+        print(f"    PCLK Divider:                 {clocks['pclk_div']:6d}")
+        print(f"    SCLK Divider:                 {clocks['sclk_div']:6d}")
+        print(f"    DVP PCLK Divider:             {clocks['dvp_pclk_div']:6d}")
+        print(f"  ─────────────────────────────────────────────────")
+        print(f"  Calculation Steps:")
+        print(
+            f"    1. After Multiplier:          {clocks['step1_after_multiplier']:8.1f} MHz"
+        )
+        print(
+            f"    2. After Bit Div:             {clocks['step2_after_bit_div']:8.1f} MHz"
+        )
+        print(
+            f"    3. After Sys Div:             {clocks['step3_after_sys_div']:8.1f} MHz"
+        )
+        print(
+            f"    4. After MIPI Div:            {clocks['step4_after_mipi_div']:8.1f} MHz"
+        )
+        print(
+            f"    5. After Pre Div:             {clocks['step5_after_pre_div']:8.1f} MHz"
+        )
+        print(
+            f"    6. After Root Div:            {clocks['step6_after_root_div']:8.1f} MHz"
+        )
+        print(
+            f"    7. After PCLK Div:            {clocks['step7_after_pclk_div']:8.1f} MHz"
+        )
+        print(
+            f"    8. After SCLK Div:            {clocks['step8_after_sclk_div']:8.1f} MHz"
+        )
+        print(f"    9. Final Pixel Clock:         {clocks['pixel_clk_mhz']:8.1f} MHz")
+        print(f"  ─────────────────────────────────────────────────")
+        print(f"  Verification:")
+        print(
+            f"    Direct Calculation:           {clocks['pixel_clk_direct']:8.1f} MHz"
+        )
+        print(
+            f"    Calculations Match:           {'✅' if clocks['calculation_matches'] else '❌'}"
+        )
 
         # Resolution analysis
         resolution = self.calculate_resolution_and_binning(registers)
