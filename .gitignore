@@ -1,6 +1,6 @@
 CV_acceleration/CV_acceleration.gprj.user
 CV_acceleration/impl
-CV_acceleration/src/dsim_work
+CV_acceleration/dsim_work
 mdc_config.yml
 mdc_ignore
 *.mdc
