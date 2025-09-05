@@ -90,13 +90,13 @@ module top (
   wire init_calib_complete;
 
   //According to IP parameters to choose
-  `define WR_VIDEO_WIDTH_16
+  `define WR_VIDEO_WIDTH_16 
   `define DEF_WR_VIDEO_WIDTH 16
 
-  `define RD_VIDEO_WIDTH_16
+  `define RD_VIDEO_WIDTH_16 
   `define DEF_RD_VIDEO_WIDTH 16
 
-  `define USE_THREE_FRAME_BUFFER
+  `define USE_THREE_FRAME_BUFFER 
 
   `define DEF_ADDR_WIDTH 28
   `define DEF_SRAM_DATA_WIDTH 128
@@ -274,7 +274,7 @@ module top (
 
 
   //=========================================================================
-  // DDR3 PLL (400MHz)
+  // DDR3 PLL (398.250MHz)
   mem_pll mem_pll_m0 (
       .clkin(clk),
       .clkout(memory_clk),
@@ -284,31 +284,31 @@ module top (
   //=========================================================================
   // DDR3 interface
   DDR3MI DDR3_Memory_Interface_Top_inst (
-      .clk(HDMI_pix_clk),
-      .memory_clk(memory_clk),
+      .clk(HDMI_pix_clk),  // Slow speed internal clock; suggestion is 50MHz; 74.25MHz do the job
+      .memory_clk(memory_clk),  // High speed memory clock; 398.250MHz
       .pll_lock(DDR_pll_lock),
       .rst_n(I_rst_n),
       .app_burst_number(app_burst_number),
-      .cmd_ready(cmd_ready),
-      .cmd(cmd),
-      .cmd_en(cmd_en),
-      .addr(addr),
-      .wr_data_rdy(wr_data_rdy),
-      .wr_data(wr_data),
-      .wr_data_en(wr_data_en),
-      .wr_data_end(wr_data_end),
-      .wr_data_mask(wr_data_mask),
-      .rd_data(rd_data),
-      .rd_data_valid(rd_data_valid),
-      .rd_data_end(rd_data_end),
-      .sr_req(1'b0),
-      .ref_req(1'b0),
-      .sr_ack(),
-      .ref_ack(),
-      .init_calib_complete(init_calib_complete),
-      .clk_out(dma_clk),
+      .cmd_ready(cmd_ready),  // Command ready signal
+      .cmd(cmd),  // 3'b000:write;  3'b001:read
+      .cmd_en(cmd_en),  // Command enable signal
+      .addr(addr),  // Address signal
+      .wr_data_rdy(wr_data_rdy),  // Write data ready signal
+      .wr_data(wr_data),  // Write data signal
+      .wr_data_en(wr_data_en),  // Write data enable signal
+      .wr_data_end(wr_data_end),  // Write data end signal
+      .wr_data_mask(wr_data_mask),  // Write data mask signal
+      .rd_data(rd_data),  // Read data signal
+      .rd_data_valid(rd_data_valid),  // Read data valid signal
+      .rd_data_end(rd_data_end),  // Read data end signal
+      .sr_req(1'b0),  // Self-refresh request
+      .ref_req(1'b0),  // Refresh request
+      .sr_ack(),  // Self-refresh acknowledge
+      .ref_ack(),  // Refresh acknowledge
+      .init_calib_complete(init_calib_complete),  // Initialization calibration complete
+      .clk_out(dma_clk),  // User design clock; ratio 1:4; 99.562MHz
       .burst(1'b1),
-      // mem interface
+      // mem interface (PHY)
       .ddr_rst(),
       .O_ddr_addr(ddr_addr),
       .O_ddr_ba(ddr_bank),
