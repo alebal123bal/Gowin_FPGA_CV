@@ -329,10 +329,11 @@ module top (
 
   //===================================================
   // Print Control
+  // TODO instantiate it
 
 
   //===================================================
-  // LED test
+  // LEDs
   assign O_led[0] = 1;
   assign O_led[1] = 1;
   assign O_led[2] = 1;
@@ -366,6 +367,7 @@ module top (
   assign PMOD_wire[1] = cmos_scl;
   assign PMOD_wire[2] = cmos_sda;
 
+  // TODO: instead of writing here (high freq, difficult to observe), count total at each vsync
   assign PMOD_wire[3] = write_en;
 
   assign PMOD_wire[4] = cmos_href;
