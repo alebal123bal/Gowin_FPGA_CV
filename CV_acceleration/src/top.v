@@ -117,7 +117,7 @@ module top (
   wire off0_syn_de;
   wire [RD_VIDEO_WIDTH-1:0] off0_syn_data;
 
-  //===========================================================================
+  ////=====================================================
   // Timing generator
   // My FULLHD (1920x1080) screen works both with timing 1024x768 and 1280x720 due to upscaling
   timing_tx timing_tx_inst (
@@ -139,7 +139,7 @@ module top (
       .O_vs(HDMI_vs_in)
   );
 
-  //===========================================================================
+  ////=====================================================
   //Testpattern generator
   red_green_fade red_green_fade_inst (
       .I_pxl_clk(HDMI_pix_clk),  //pixel clock
@@ -150,7 +150,7 @@ module top (
       .O_data_b(HDMI_data_b)
   );
 
-  //==============================================================================
+  ////========================================================
   //PLL for TMDS TX(HDMI4) @ 371.25MHz
   TMDS_rPLL u_tmds_rpll (
       .clkin(clk),
@@ -160,7 +160,7 @@ module top (
 
   assign HDMI_rst_n = I_rst_n & pll_lock;  //Release reset only when PLL is working
 
-  //==============================================================================
+  ////========================================================
   //PLL for HDMI @ 74.25MHz
   CLKDIV u_clkdiv (
       .RESETN(HDMI_rst_n),
@@ -170,7 +170,7 @@ module top (
   );
   defparam u_clkdiv.DIV_MODE = "5"; defparam u_clkdiv.GSREN = "false";
 
-  //==============================================================================
+  ////========================================================
   //Actual HDMI transmitter, receiving input from testpattern and interfacing with PHYSICAL HDMI cable
   DVI_TX_Top DVI_TX_Top_inst (
       .I_rst_n(HDMI_rst_n),  //asynchronous reset, low active
@@ -194,14 +194,14 @@ module top (
   wire [5:0] lcd_g;
   assign {lcd_r, lcd_g, lcd_b} = off0_syn_de ? off0_syn_data[15:0] : 16'h0000;  //{r,g,b}
 
-  //=========================================================================
+  ////===================================================
   //PLL for OV5640 @ 24MHz
   CMOS_rPLL CMOS_rPLL_inst (
       .clkout(cmos_clk_24),  //output clkout
       .clkin(clk)  //input clkin
   );
 
-  //=========================================================================
+  ////===================================================
   // OV5640 setup
   ov5640_top ov5640_top_inst (
       .sys_clk(cmos_clk_24),  // System clock
@@ -231,7 +231,7 @@ module top (
       .camera_rstn(cmos_rst_n)
   );
 
-  //=========================================================================
+  ////===================================================
   // Video Frame Buffer
   Video_Frame_Buffer_Top Video_Frame_Buffer_Top_inst (
       .I_rst_n(init_calib_complete),  // rst_n
@@ -273,7 +273,7 @@ module top (
   );
 
 
-  //=========================================================================
+  ////===================================================
   // DDR3 PLL (398.250MHz)
   mem_pll mem_pll_m0 (
       .clkin(clk),
@@ -281,7 +281,7 @@ module top (
       .lock(DDR_pll_lock)
   );
 
-  //=========================================================================
+  ////===================================================
   // DDR3 interface
   DDR3MI DDR3_Memory_Interface_Top_inst (
       .clk(HDMI_pix_clk),  // Slow speed internal clock; suggestion is 50MHz; 74.25MHz do the job
