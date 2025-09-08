@@ -328,6 +328,22 @@ module top (
   );
 
   //===================================================
+  // FIFO HS
+  FIFO_HS_Top fifo_hs (
+      .Data(),  //input [15:0] Data
+      .WrClk(),  //input WrClk
+      .RdClk(),  //input RdClk
+      .WrEn(),  //input WrEn
+      .RdEn(),  //input RdEn
+      .Rnum(),  //output [16:0] Rnum
+      .Almost_Empty(),  //output Almost_Empty
+      .Almost_Full(),  //output Almost_Full
+      .Q(),  //output [7:0] Q
+      .Empty(),  //output Empty
+      .Full()  //output Full
+  );
+
+  //===================================================
   // Print Control
   // TODO instantiate it
 
