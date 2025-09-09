@@ -89,7 +89,20 @@ module top (
   wire [DATA_WIDTH-1:0] rd_data;
   wire init_calib_complete;
 
-  //According to IP parameters to choose
+  //===================================================
+  // FIFO HS
+  wire fifo_hs_almost_empty;
+  wire fifo_hs_almost_full;
+  wire fifo_hs_empty;
+  wire fifo_hs_full;
+  wire [15:0] fifo_hs_data;
+  wire fifo_hs_wr_en;
+  wire [7:0] fifo_hs_q;
+  wire fifo_hs_rd_en;
+  wire [16:0] fifo_hs_rnum;
+
+  //===================================================
+  // Video Frame Buffer
   `define WR_VIDEO_WIDTH_16 
   `define DEF_WR_VIDEO_WIDTH 16
 
@@ -330,18 +343,22 @@ module top (
   //===================================================
   // FIFO HS
   FIFO_HS_Top fifo_hs (
-      .Data(),  //input [15:0] Data
-      .WrClk(),  //input WrClk
+      .Data(fifo_hs_data),  //input [15:0] Data
+      .WrClk(cmos_pclk),  //input WrClk
       .RdClk(),  //input RdClk
-      .WrEn(),  //input WrEn
-      .RdEn(),  //input RdEn
-      .Rnum(),  //output [16:0] Rnum
-      .Almost_Empty(),  //output Almost_Empty
-      .Almost_Full(),  //output Almost_Full
-      .Q(),  //output [7:0] Q
-      .Empty(),  //output Empty
-      .Full()  //output Full
+      .WrEn(fifo_hs_wr_en),  //input WrEn
+      .RdEn(fifo_hs_rd_en),  //input RdEn
+      .Rnum(fifo_hs_rnum),  //output [16:0] Rnum
+      .Almost_Empty(fifo_hs_almost_empty),  //output Almost_Empty
+      .Almost_Full(fifo_hs_almost_full),  //output Almost_Full
+      .Q(fifo_hs_q),  //output [7:0] Q
+      .Empty(fifo_hs_empty),  //output Empty
+      .Full(fifo_hs_full)  //output Full
   );
+
+  assign fifo_hs_data = pixel_data_16;
+  assign fifo_hs_wr_en = write_en & ~fifo_hs_almost_full;  //write when fifo not almost full
+  // TODO: complete other signals when USB Controller IP is ready
 
   //===================================================
   // Print Control
