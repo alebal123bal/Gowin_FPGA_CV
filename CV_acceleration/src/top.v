@@ -63,11 +63,11 @@ module top (
   //===================================================
   // OV5640 camera
   wire cmos_clk_24;
-  wire write_en;
-  wire cfg_done;
-  wire sys_init_done;
-  wire [15:0] pixel_data_16;
-  wire [15:0] debayer_pixel_data_16;
+  wire cmos_write_en;
+  wire cmos_cfg_done;
+  wire cmos_init_done;
+  wire [15:0] cmos_data_16;
+  wire [15:0] cmos_debayer_data_16;
 
   //===================================================
   // DDR3 interface
@@ -219,22 +219,22 @@ module top (
   ov5640_top ov5640_top_inst (
       .sys_clk(cmos_clk_24),  // System clock
       .sys_rst_n(I_rst_n),  // Reset signal
-      .sys_init_done(sys_init_done),  // Unused atm
+      .sys_init_done(cmos_init_done),  // Unused atm
       .ov5640_pclk(cmos_pclk),  // Camera pixel clock
       .ov5640_href(cmos_href),  // Camera horizontal sync signal
       .ov5640_vsync(cmos_vsync),  // Camera vertical sync signal
       .ov5640_data(cmos_db),  // Camera image data
 
-      .cfg_done(cfg_done),  // Register configuration complete
+      .cfg_done(cmos_cfg_done),  // Register configuration complete
       .sccb_scl(cmos_scl),  // SCL signal
       .sccb_sda(cmos_sda),  // SDA signal
-      .ov5640_wr_en(write_en),  // Image data valid enable signal
-      .ov5640_data_out(pixel_data_16)  // Image data output 16 bit (still shuffled RGB565)
+      .ov5640_wr_en(cmos_write_en),  // Image data valid enable signal
+      .ov5640_data_out(cmos_data_16)  // Image data output 16 bit (still shuffled RGB565)
   );
 
-  assign sys_init_done = 1'b1;  // Unused
+  assign cmos_init_done = 1'b1;  // Unused
   assign cmos_xclk = cmos_clk_24;  // Connect external (from FPGA) to OV5640 clock
-  assign debayer_pixel_data_16 = {pixel_data_16[4:0], pixel_data_16[10:5], pixel_data_16[15:11]};  // Demosaic
+  assign cmos_debayer_data_16 = {cmos_data_16[4:0], cmos_data_16[10:5], cmos_data_16[15:11]};  // Demosaic
 
   // Instantiate OV5640 Power and StartUp Control
   power_on_delay pod_inst (
@@ -256,8 +256,8 @@ module top (
       // video data input (from OV5640)
       .I_vin0_clk(cmos_pclk),  // Input video clock signal
       .I_vin0_vs_n(~cmos_vsync),  // Input vs, only receive negative polarity
-      .I_vin0_de(write_en),  // Input data valid signal
-      .I_vin0_data(debayer_pixel_data_16),  // Input video data signal
+      .I_vin0_de(cmos_write_en),  // Input data valid signal
+      .I_vin0_data(cmos_debayer_data_16),  // Input video data signal
       .O_vin0_fifo_full(),
 
       // video data output (to HDMI)
@@ -356,8 +356,8 @@ module top (
       .Full(fifo_hs_full)  //output Full
   );
 
-  assign fifo_hs_data = pixel_data_16;
-  assign fifo_hs_wr_en = write_en & ~fifo_hs_almost_full;  //write when fifo not almost full
+  assign fifo_hs_data = cmos_data_16;
+  assign fifo_hs_wr_en = cmos_write_en & ~fifo_hs_almost_full;  //write when fifo not almost full
   // TODO: complete other signals when USB Controller IP is ready
 
   //===================================================
@@ -401,7 +401,7 @@ module top (
   assign PMOD_wire[2] = cmos_sda;
 
   // TODO: instead of writing here (high freq, difficult to observe), count total at each vsync
-  assign PMOD_wire[3] = write_en;
+  assign PMOD_wire[3] = cmos_write_en;
 
   assign PMOD_wire[4] = cmos_href;
   assign PMOD_wire[5] = cmos_vsync;  // Once per image valid
