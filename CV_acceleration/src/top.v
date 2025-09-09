@@ -87,7 +87,7 @@ module top (
   wire ddr_rd_data_valid;
   wire ddr_rd_data_end;  //unused
   wire [DATA_WIDTH-1:0] ddr_rd_data;
-  wire init_calib_complete;
+  wire ddr_calib_complete;
 
   //===================================================
   // FIFO HS
@@ -247,7 +247,7 @@ module top (
   ////===================================================
   // Video Frame Buffer
   Video_Frame_Buffer_Top Video_Frame_Buffer_Top_inst (
-      .I_rst_n(init_calib_complete),  // rst_n
+      .I_rst_n(ddr_calib_complete),  // rst_n
       .I_dma_clk(ddr_slow_clk),  // Memory W/R clock signal
 `ifdef USE_THREE_FRAME_BUFFER
       .I_wr_halt(1'd0),  //1:halt,  0:no halt
@@ -282,7 +282,7 @@ module top (
       .I_rd_data_valid(ddr_rd_data_valid),
       .I_rd_data_end(ddr_rd_data_end),  //unused
       .I_rd_data(ddr_rd_data),  //[DATA_WIDTH-1:0]
-      .I_init_calib_complete(init_calib_complete)
+      .I_init_calib_complete(ddr_calib_complete)
   );
 
 
@@ -318,7 +318,7 @@ module top (
       .ref_req(1'b0),  // Refresh request
       .sr_ack(),  // Self-refresh acknowledge
       .ref_ack(),  // Refresh acknowledge
-      .init_calib_complete(init_calib_complete),  // Initialization calibration complete
+      .init_calib_complete(ddr_calib_complete),  // Initialization calibration complete
       .clk_out(ddr_slow_clk),  // User design clock; ratio 1:4; 99.562MHz
       .burst(1'b1),
       // mem interface (PHY)
