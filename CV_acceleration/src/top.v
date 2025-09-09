@@ -127,8 +127,8 @@ module top (
   parameter RD_VIDEO_WIDTH = `DEF_RD_VIDEO_WIDTH;
 
   // Data for video sink
-  wire off0_syn_de;
-  wire [RD_VIDEO_WIDTH-1:0] off0_syn_data;
+  wire VFB_data_en;
+  wire [RD_VIDEO_WIDTH-1:0] VFB_data;
 
   ////=====================================================
   // Timing generator
@@ -205,7 +205,7 @@ module top (
   );
   wire [4:0] lcd_r, lcd_b;
   wire [5:0] lcd_g;
-  assign {lcd_r, lcd_g, lcd_b} = off0_syn_de ? off0_syn_data[15:0] : 16'h0000;  //{r,g,b}
+  assign {lcd_r, lcd_g, lcd_b} = VFB_data_en ? VFB_data[15:0] : 16'h0000;  //{r,g,b}
 
   ////===================================================
   //PLL for OV5640 @ 24MHz
@@ -264,8 +264,8 @@ module top (
       .I_vout0_clk(HDMI_pix_clk),  // Output video clock signal
       .I_vout0_vs_n(~HDMI_vs_in),  // Output vs, only receive negative polarity
       .I_vout0_de(HDMI_de_in),  // Output data read enable signal
-      .O_vout0_den(off0_syn_de),  // Output data valid signal, 2 clock cycles delayed than I_vout0_de signal
-      .O_vout0_data(off0_syn_data),  // Output video data signal
+      .O_vout0_den(VFB_data_en),  // Output data valid signal, 2 clock cycles delayed than I_vout0_de signal
+      .O_vout0_data(VFB_data),  // Output video data signal
       .O_vout0_fifo_empty(),
 
       // DDR3 interface for write request
