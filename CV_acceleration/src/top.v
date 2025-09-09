@@ -73,20 +73,20 @@ module top (
   // DDR3 interface
   wire ddr_fast_clk;
   wire ddr_slow_clk;
-  wire DDR_pll_lock;
-  wire cmd_ready;
-  wire [2:0] cmd;
-  wire cmd_en;
-  wire [5:0] app_burst_number;
-  wire [ADDR_WIDTH-1:0] addr;
-  wire wr_data_rdy;
-  wire wr_data_en;
-  wire wr_data_end;
-  wire [DATA_WIDTH-1:0] wr_data;
-  wire [DATA_WIDTH/8-1:0] wr_data_mask;
-  wire rd_data_valid;
-  wire rd_data_end;  //unused
-  wire [DATA_WIDTH-1:0] rd_data;
+  wire ddr_pll_lock;
+  wire ddr_cmd_ready;
+  wire [2:0] ddr_cmd;
+  wire ddr_cmd_en;
+  wire [5:0] ddr_app_burst_number;
+  wire [ADDR_WIDTH-1:0] ddr_address;
+  wire ddr_wr_data_rdy;
+  wire ddr_wr_data_en;
+  wire ddr_wr_data_end;
+  wire [DATA_WIDTH-1:0] ddr_wr_data;
+  wire [DATA_WIDTH/8-1:0] ddr_wr_data_mask;
+  wire ddr_rd_data_valid;
+  wire ddr_rd_data_end;  //unused
+  wire [DATA_WIDTH-1:0] ddr_rd_data;
   wire init_calib_complete;
 
   //===================================================
@@ -269,19 +269,19 @@ module top (
       .O_vout0_fifo_empty(),
 
       // DDR3 interface for write request
-      .I_cmd_ready(cmd_ready),
-      .O_cmd(cmd),  //0:write;  1:read
-      .O_cmd_en(cmd_en),
-      .O_app_burst_number(app_burst_number),
-      .O_addr(addr),  //[ADDR_WIDTH-1:0]
-      .I_wr_data_rdy(wr_data_rdy),
-      .O_wr_data_en(wr_data_en),  //
-      .O_wr_data_end(wr_data_end),  //
-      .O_wr_data(wr_data),  //[DATA_WIDTH-1:0]
-      .O_wr_data_mask(wr_data_mask),
-      .I_rd_data_valid(rd_data_valid),
-      .I_rd_data_end(rd_data_end),  //unused
-      .I_rd_data(rd_data),  //[DATA_WIDTH-1:0]
+      .I_cmd_ready(ddr_cmd_ready),
+      .O_cmd(ddr_cmd),  //0:write;  1:read
+      .O_cmd_en(ddr_cmd_en),
+      .O_app_burst_number(ddr_app_burst_number),
+      .O_addr(ddr_address),  //[ADDR_WIDTH-1:0]
+      .I_wr_data_rdy(ddr_wr_data_rdy),
+      .O_wr_data_en(ddr_wr_data_en),  //
+      .O_wr_data_end(ddr_wr_data_end),  //
+      .O_wr_data(ddr_wr_data),  //[DATA_WIDTH-1:0]
+      .O_wr_data_mask(ddr_wr_data_mask),
+      .I_rd_data_valid(ddr_rd_data_valid),
+      .I_rd_data_end(ddr_rd_data_end),  //unused
+      .I_rd_data(ddr_rd_data),  //[DATA_WIDTH-1:0]
       .I_init_calib_complete(init_calib_complete)
   );
 
@@ -291,7 +291,7 @@ module top (
   mem_pll mem_pll_m0 (
       .clkin(clk),
       .clkout(ddr_fast_clk),
-      .lock(DDR_pll_lock)
+      .lock(ddr_pll_lock)
   );
 
   ////===================================================
@@ -299,21 +299,21 @@ module top (
   DDR3MI DDR3_Memory_Interface_Top_inst (
       .clk(HDMI_pix_clk),  // Slow speed internal clock; suggestion is 50MHz; 74.25MHz do the job
       .memory_clk(ddr_fast_clk),  // High speed memory clock; 398.250MHz
-      .pll_lock(DDR_pll_lock),
+      .pll_lock(ddr_pll_lock),
       .rst_n(I_rst_n),
-      .app_burst_number(app_burst_number),
-      .cmd_ready(cmd_ready),  // Command ready signal
-      .cmd(cmd),  // 3'b000:write;  3'b001:read
-      .cmd_en(cmd_en),  // Command enable signal
-      .addr(addr),  // Address signal
-      .wr_data_rdy(wr_data_rdy),  // Write data ready signal
-      .wr_data(wr_data),  // Write data signal
-      .wr_data_en(wr_data_en),  // Write data enable signal
-      .wr_data_end(wr_data_end),  // Write data end signal
-      .wr_data_mask(wr_data_mask),  // Write data mask signal
-      .rd_data(rd_data),  // Read data signal
-      .rd_data_valid(rd_data_valid),  // Read data valid signal
-      .rd_data_end(rd_data_end),  // Read data end signal
+      .app_burst_number(ddr_app_burst_number),
+      .cmd_ready(ddr_cmd_ready),  // Command ready signal
+      .cmd(ddr_cmd),  // 3'b000:write;  3'b001:read
+      .cmd_en(ddr_cmd_en),  // Command enable signal
+      .addr(ddr_address),  // Address signal
+      .wr_data_rdy(ddr_wr_data_rdy),  // Write data ready signal
+      .wr_data(ddr_wr_data),  // Write data signal
+      .wr_data_en(ddr_wr_data_en),  // Write data enable signal
+      .wr_data_end(ddr_wr_data_end),  // Write data end signal
+      .wr_data_mask(ddr_wr_data_mask),  // Write data mask signal
+      .rd_data(ddr_rd_data),  // Read data signal
+      .rd_data_valid(ddr_rd_data_valid),  // Read data valid signal
+      .rd_data_end(ddr_rd_data_end),  // Read data end signal
       .sr_req(1'b0),  // Self-refresh request
       .ref_req(1'b0),  // Refresh request
       .sr_ack(),  // Self-refresh acknowledge
