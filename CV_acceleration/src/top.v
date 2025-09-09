@@ -71,8 +71,8 @@ module top (
 
   //===================================================
   // DDR3 interface
-  wire memory_clk;
-  wire dma_clk;
+  wire ddr_fast_clk;
+  wire ddr_slow_clk;
   wire DDR_pll_lock;
   wire cmd_ready;
   wire [2:0] cmd;
@@ -248,7 +248,7 @@ module top (
   // Video Frame Buffer
   Video_Frame_Buffer_Top Video_Frame_Buffer_Top_inst (
       .I_rst_n(init_calib_complete),  // rst_n
-      .I_dma_clk(dma_clk),  // Memory W/R clock signal
+      .I_dma_clk(ddr_slow_clk),  // Memory W/R clock signal
 `ifdef USE_THREE_FRAME_BUFFER
       .I_wr_halt(1'd0),  //1:halt,  0:no halt
       .I_rd_halt(1'd0),  //1:halt,  0:no halt
@@ -290,7 +290,7 @@ module top (
   // DDR3 PLL (398.250MHz)
   mem_pll mem_pll_m0 (
       .clkin(clk),
-      .clkout(memory_clk),
+      .clkout(ddr_fast_clk),
       .lock(DDR_pll_lock)
   );
 
@@ -298,7 +298,7 @@ module top (
   // DDR3 interface
   DDR3MI DDR3_Memory_Interface_Top_inst (
       .clk(HDMI_pix_clk),  // Slow speed internal clock; suggestion is 50MHz; 74.25MHz do the job
-      .memory_clk(memory_clk),  // High speed memory clock; 398.250MHz
+      .memory_clk(ddr_fast_clk),  // High speed memory clock; 398.250MHz
       .pll_lock(DDR_pll_lock),
       .rst_n(I_rst_n),
       .app_burst_number(app_burst_number),
@@ -319,7 +319,7 @@ module top (
       .sr_ack(),  // Self-refresh acknowledge
       .ref_ack(),  // Refresh acknowledge
       .init_calib_complete(init_calib_complete),  // Initialization calibration complete
-      .clk_out(dma_clk),  // User design clock; ratio 1:4; 99.562MHz
+      .clk_out(ddr_slow_clk),  // User design clock; ratio 1:4; 99.562MHz
       .burst(1'b1),
       // mem interface (PHY)
       .ddr_rst(),
