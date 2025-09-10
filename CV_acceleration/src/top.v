@@ -390,7 +390,7 @@ module top (
 
   assign fifo_hs_data = cmos_data_16;
   assign fifo_hs_wr_en = cmos_write_en & ~fifo_hs_almost_full;  //write when fifo not almost full
-  assign fifo_hs_rd_en = (~fifo_hs_empty) & (fifo_hs_rnum >= 17'd512) & txpop_o;  //read when fifo not empty and at least 512 bytes available
+  assign fifo_hs_rd_en = (~fifo_hs_empty) & (fifo_hs_rnum >= 17'd512) & usb_txpop_o;  //read when fifo not empty and at least 512 bytes available
   // TODO: complete other signals when USB Controller IP is ready
 
 

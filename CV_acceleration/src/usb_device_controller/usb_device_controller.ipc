@@ -8,7 +8,7 @@ version=1.0
 
 [Config]
 DISABLE_IO_INSERTION=true
-Descriptor_Max_Packet_Size=8
+Descriptor_Max_Packet_Size=64
 Endpoint_10_Input_Transfor_Type=Bulk
 Endpoint_10_Output_Transfor_Type=Bulk
 Endpoint_11_Input_Transfor_Type=Bulk
