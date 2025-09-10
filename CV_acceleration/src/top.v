@@ -128,7 +128,7 @@ module top (
   wire usb_txcork_i;
   wire usb_txpop_o;
   wire usb_txact_o;
-
+  wire usb_txiso_pid_i;
 
   // internal signals for ULPI
   wire [7:0] ulpi_txdata;
@@ -407,7 +407,7 @@ module top (
       .txdat_i(usb_txdat_i),  //input [7:0] txdat_i
       .txval_i(usb_txval_i),  //input txval_i
       .txdat_len_i(usb_txdat_len_i),  //input [11:0] txdat_len_i
-      .txiso_pid_i(),  //input [3:0] txiso_pid_i
+      .txiso_pid_i(usb_txiso_pid_i),  //input [3:0] txiso_pid_i
       .txcork_i(usb_txcork_i),  //input txcork_i
       .txpop_o(usb_txpop_o),  //output txpop_o
       .txact_o(usb_txact_o),  //output txact_o
@@ -462,9 +462,14 @@ module top (
   // 2.  PHY  -> FPGA  (sample on rising edge)
   assign ulpi_rxdata = ulpi_data;  // constant connection
 
+  assign ulpi_rst = ~I_rst_n;  // active-low, 1 ms pulse
+
   assign usb_txcork_i = (fifo_hs_rnum >= 17'd512) ? 1'b0 : 1'b1;  // Allow TX when at least 512 bytes available
   assign usb_txdat_len_i = 12'd512;  // Always send 512 bytes
   assign usb_txdat_i = fifo_hs_q;  // Data from FIFO
+
+  assign usb_txiso_pid_i = 4'b1011;  // DATA1
+
 
   //===================================================
   // Print Control
