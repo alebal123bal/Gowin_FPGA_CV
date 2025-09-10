@@ -47,6 +47,10 @@ module top (
     output wire ulpi_stp,
     inout wire [7:0] ulpi_data,
 
+    // internal signals for ULPI
+    wire [7:0] ulpi_txdata,
+    wire [7:0] ulpi_rxdata,
+
     // UART TX
     output uart_tx,
 
@@ -108,6 +112,26 @@ module top (
   wire [7:0] fifo_hs_q;
   wire fifo_hs_rd_en;
   wire [16:0] fifo_hs_rnum;
+
+  //===================================================
+  // USB2.0 Device Controller
+  wire usb_rst_o;
+  wire usb_highspeed_o;
+  wire usb_suspend_o;
+  wire usb_online_o;
+  wire [7:0] usb_txdat_i;
+  wire usb_txval_i;
+  wire [7:0] usb_rxdat_o;
+  wire usb_rxval_o;
+  wire usb_ract_o;
+  wire usb_rxpktval_o;
+  wire usb_setup_o;
+  wire [3:0] usb_endpt_o;
+  wire usb_sof_o;
+  wire [11:0] usb_txdat_len_i;
+  wire usb_txcork_i;
+  wire usb_txpop_o;
+  wire usb_txact_o;
 
   //===================================================
   // Video Frame Buffer
@@ -353,7 +377,7 @@ module top (
   FIFO_HS_Top fifo_hs (
       .Data(fifo_hs_data),  //input [15:0] Data
       .WrClk(cmos_pclk),  //input WrClk
-      .RdClk(),  //input RdClk
+      .RdClk(ulpi_clk),  //input RdClk, use ulpi_clk when USB Controller IP is ready
       .WrEn(fifo_hs_wr_en),  //input WrEn
       .RdEn(fifo_hs_rd_en),  //input RdEn
       .Rnum(fifo_hs_rnum),  //output [16:0] Rnum
@@ -366,6 +390,7 @@ module top (
 
   assign fifo_hs_data = cmos_data_16;
   assign fifo_hs_wr_en = cmos_write_en & ~fifo_hs_almost_full;  //write when fifo not almost full
+  assign fifo_hs_rd_en = (~fifo_hs_empty) & (fifo_hs_rnum >= 17'd512) & txpop_o;  //read when fifo not empty and at least 512 bytes available
   // TODO: complete other signals when USB Controller IP is ready
 
 
@@ -373,31 +398,31 @@ module top (
   // USB2.0 Device Controller
   USB_Device_Controller_Top usb_controller (
       .clk_i(ulpi_clk),  //input clk_i
-      .reset_i(),  //input reset_i
-      .usbrst_o(),  //output usbrst_o
-      .highspeed_o(),  //output highspeed_o
-      .suspend_o(),  //output suspend_o
-      .online_o(),  //output online_o
-      .txdat_i(),  //input [7:0] txdat_i
-      .txval_i(),  //input txval_i
-      .txdat_len_i(),  //input [11:0] txdat_len_i
+      .reset_i(I_rst_n),  //input reset_i
+      .usbrst_o(usb_rst_o),  //output usbrst_o
+      .highspeed_o(usb_highspeed_o),  //output highspeed_o
+      .suspend_o(usb_suspend_o),  //output suspend_o
+      .online_o(usb_online_o),  //output online_o
+      .txdat_i(usb_txdat_i),  //input [7:0] txdat_i
+      .txval_i(usb_txval_i),  //input txval_i
+      .txdat_len_i(usb_txdat_len_i),  //input [11:0] txdat_len_i
       .txiso_pid_i(),  //input [3:0] txiso_pid_i
-      .txcork_i(),  //input txcork_i
-      .txpop_o(),  //output txpop_o
-      .txact_o(),  //output txact_o
-      .txpktfin_o(),  //output txpktfin_o
+      .txcork_i(usb_txcork_i),  //input txcork_i
+      .txpop_o(usb_txpop_o),  //output txpop_o
+      .txact_o(usb_txact_o),  //output txact_o
+      .txpktfin_o(usb_txpktfin_o),  //output txpktfin_o
       .rxdat_o(),  //output [7:0] rxdat_o
       .rxval_o(),  //output rxval_o
-      .rxrdy_i(),  //input rxrdy_i
+      .rxrdy_i(1'b1),  //input rxrdy_i, always ready to receive
       .rxact_o(),  //output rxact_o
       .rxpktval_o(),  //output rxpktval_o
       .setup_o(),  //output setup_o
       .endpt_o(),  //output [3:0] endpt_o
       .sof_o(),  //output sof_o
-      .inf_alter_i(),  //input [7:0] inf_alter_i
-      .inf_alter_o(),  //output [7:0] inf_alter_o
-      .inf_sel_o(),  //output [7:0] inf_sel_o
-      .inf_set_o(),  //output inf_set_o
+      .inf_alter_i(),  //input [7:0] inf_alter_i, safely ignored
+      .inf_alter_o(),  //output [7:0] inf_alter_o, safely ignored
+      .inf_sel_o(),  //output [7:0] inf_sel_o, safely ignored
+      .inf_set_o(),  //output inf_set_o, safely ignored
       .descrom_raddr_o(),  //output [15:0] descrom_raddr_o
       .desc_index_o(),  //output [7:0] desc_index_o
       .desc_type_o(),  //output [7:0] desc_type_o
@@ -423,13 +448,22 @@ module top (
       .desc_strserial_addr_i(),  //input [15:0] desc_strserial_addr_i
       .desc_strserial_len_i(),  //input [15:0] desc_strserial_len_i
       .desc_have_strings_i(),  //input desc_have_strings_i
-      .ulpi_nxt_i(),  //input ulpi_nxt_i
-      .ulpi_dir_i(),  //input ulpi_dir_i
-      .ulpi_rxdata_i(),  //input [7:0] ulpi_rxdata_i
-      .ulpi_txdata_o(),  //output [7:0] ulpi_txdata_o
-      .ulpi_stp_o()  //output ulpi_stp_o
+      .ulpi_nxt_i(ulpi_nxt),  //input ulpi_nxt_i
+      .ulpi_dir_i(ulpi_dir),  //input ulpi_dir_i
+      .ulpi_rxdata_i(ulpi_rxdata),  //input [7:0] ulpi_rxdata_i
+      .ulpi_txdata_o(ulpi_txdata),  //output [7:0] ulpi_txdata_o
+      .ulpi_stp_o(ulpi_stp)  //output ulpi_stp_o
   );
 
+  // 1.  FPGA -> PHY  (when we own the bus)
+  assign ulpi_data = (ulpi_dir == 1'b0) ? ulpi_txdata : 8'hzz;
+
+  // 2.  PHY  -> FPGA  (sample on rising edge)
+  assign ulpi_rxdata = ulpi_data;  // constant connection
+
+  assign usb_txcork_i = (fifo_hs_rnum >= 17'd512) ? 1'b0 : 1'b1;  // Allow TX when at least 512 bytes available
+  assign usb_txdat_len_i = 12'd512;  // Always send 512 bytes
+  assign usb_txdat_i = fifo_hs_q;  // Data from FIFO
 
   //===================================================
   // Print Control
@@ -438,7 +472,7 @@ module top (
 
   //===================================================
   // LEDs
-  assign O_led[0] = 1;
+  assign O_led[0] = ~usb_online_o;
   assign O_led[1] = 1;
   assign O_led[2] = 1;
   assign O_led[3] = I_rst_n;
