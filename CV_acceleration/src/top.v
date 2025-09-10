@@ -47,10 +47,6 @@ module top (
     output wire ulpi_stp,
     inout wire [7:0] ulpi_data,
 
-    // internal signals for ULPI
-    wire [7:0] ulpi_txdata,
-    wire [7:0] ulpi_rxdata,
-
     // UART TX
     output uart_tx,
 
@@ -132,6 +128,11 @@ module top (
   wire usb_txcork_i;
   wire usb_txpop_o;
   wire usb_txact_o;
+
+
+  // internal signals for ULPI
+  wire [7:0] ulpi_txdata;
+  wire [7:0] ulpi_rxdata;
 
   //===================================================
   // Video Frame Buffer
