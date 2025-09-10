@@ -134,6 +134,34 @@ module top (
   wire [7:0] ulpi_txdata;
   wire [7:0] ulpi_rxdata;
 
+  //Descriptor related signals
+  wire [15:0] DESCROM_RADDR;
+  wire [7:0] DESC_INDEX;
+  wire [7:0] DESC_TYPE;
+  wire [7:0] DESCROM_RDAT;
+  wire [15:0] DESC_DEV_ADDR;
+  wire [15:0] DESC_DEV_LEN;
+  wire [15:0] DESC_QUAL_ADDR;
+  wire [15:0] DESC_QUAL_LEN;
+  wire [15:0] DESC_FSCFG_ADDR;
+  wire [15:0] DESC_FSCFG_LEN;
+  wire [15:0] DESC_HSCFG_ADDR;
+  wire [15:0] DESC_HSCFG_LEN;
+  wire [15:0] DESC_OSCFG_ADDR;
+  wire [15:0] DESC_HIDRPT_ADDR;
+  wire [15:0] DESC_HIDRPT_LEN;
+  wire [15:0] DESC_BOS_ADDR;
+  wire [15:0] DESC_BOS_LEN;
+  wire [15:0] DESC_STRLANG_ADDR;
+  wire [15:0] DESC_STRVENDOR_ADDR;
+  wire [15:0] DESC_STRVENDOR_LEN;
+  wire [15:0] DESC_STRPRODUCT_ADDR;
+  wire [15:0] DESC_STRPRODUCT_LEN;
+  wire [15:0] DESC_STRSERIAL_ADDR;
+  wire [15:0] DESC_STRSERIAL_LEN;
+  wire DESCROM_HAVE_STRINGS;
+
+
   //===================================================
   // Video Frame Buffer
   `define WR_VIDEO_WIDTH_16 
@@ -424,31 +452,31 @@ module top (
       .inf_alter_o(),  //output [7:0] inf_alter_o, safely ignored
       .inf_sel_o(),  //output [7:0] inf_sel_o, safely ignored
       .inf_set_o(),  //output inf_set_o, safely ignored
-      .descrom_raddr_o(),  //output [15:0] descrom_raddr_o
-      .desc_index_o(),  //output [7:0] desc_index_o
-      .desc_type_o(),  //output [7:0] desc_type_o
-      .descrom_rdata_i(),  //input [7:0] descrom_rdata_i
-      .desc_dev_addr_i(),  //input [15:0] desc_dev_addr_i
-      .desc_dev_len_i(),  //input [15:0] desc_dev_len_i
-      .desc_qual_addr_i(),  //input [15:0] desc_qual_addr_i
-      .desc_qual_len_i(),  //input [15:0] desc_qual_len_i
-      .desc_fscfg_addr_i(),  //input [15:0] desc_fscfg_addr_i
-      .desc_fscfg_len_i(),  //input [15:0] desc_fscfg_len_i
-      .desc_hscfg_addr_i(),  //input [15:0] desc_hscfg_addr_i
-      .desc_hscfg_len_i(),  //input [15:0] desc_hscfg_len_i
-      .desc_oscfg_addr_i(),  //input [15:0] desc_oscfg_addr_i
-      .desc_hidrpt_addr_i(),  //input [15:0] desc_hidrpt_addr_i
-      .desc_hidrpt_len_i(),  //input [15:0] desc_hidrpt_len_i
-      .desc_bos_addr_i(),  //input [15:0] desc_bos_addr_i
-      .desc_bos_len_i(),  //input [15:0] desc_bos_len_i
-      .desc_strlang_addr_i(),  //input [15:0] desc_strlang_addr_i
-      .desc_strvendor_addr_i(),  //input [15:0] desc_strvendor_addr_i
-      .desc_strvendor_len_i(),  //input [15:0] desc_strvendor_len_i
-      .desc_strproduct_addr_i(),  //input [15:0] desc_strproduct_addr_i
-      .desc_strproduct_len_i(),  //input [15:0] desc_strproduct_len_i
-      .desc_strserial_addr_i(),  //input [15:0] desc_strserial_addr_i
-      .desc_strserial_len_i(),  //input [15:0] desc_strserial_len_i
-      .desc_have_strings_i(),  //input desc_have_strings_i
+      .descrom_raddr_o(DESCROM_RADDR),  //output [15:0] descrom_raddr_o
+      .desc_index_o(DESC_INDEX),  //output [7:0] desc_index_o
+      .desc_type_o(DESC_TYPE),  //output [7:0] desc_type_o
+      .descrom_rdata_i(DESCROM_RDAT),  //input [7:0] descrom_rdata_i
+      .desc_dev_addr_i(DESC_DEV_ADDR),  //input [15:0] desc_dev_addr_i
+      .desc_dev_len_i(DESC_DEV_LEN),  //input [15:0] desc_dev_len_i
+      .desc_qual_addr_i(DESC_QUAL_ADDR),  //input [15:0] desc_qual_addr_i
+      .desc_qual_len_i(DESC_QUAL_LEN),  //input [15:0] desc_qual_len_i
+      .desc_fscfg_addr_i(DESC_FSCFG_ADDR),  //input [15:0] desc_fscfg_addr_i
+      .desc_fscfg_len_i(DESC_FSCFG_LEN),  //input [15:0] desc_fscfg_len_i
+      .desc_hscfg_addr_i(DESC_HSCFG_ADDR),  //input [15:0] desc_hscfg_addr_i
+      .desc_hscfg_len_i(DESC_HSCFG_LEN),  //input [15:0] desc_hscfg_len_i
+      .desc_oscfg_addr_i(DESC_OSCFG_ADDR),  //input [15:0] desc_oscfg_addr_i
+      .desc_hidrpt_addr_i(DESC_HIDRPT_ADDR),  //input [15:0] desc_hidrpt_addr_i
+      .desc_hidrpt_len_i(DESC_HIDRPT_LEN),  //input [15:0] desc_hidrpt_len_i
+      .desc_bos_addr_i(DESC_BOS_ADDR),  //input [15:0] desc_bos_addr_i
+      .desc_bos_len_i(DESC_BOS_LEN),  //input [15:0] desc_bos_len_i
+      .desc_strlang_addr_i(DESC_STRLANG_ADDR),  //input [15:0] desc_strlang_addr_i
+      .desc_strvendor_addr_i(DESC_STRVENDOR_ADDR),  //input [15:0] desc_strvendor_addr_i
+      .desc_strvendor_len_i(DESC_STRVENDOR_LEN),  //input [15:0] desc_strvendor_len_i
+      .desc_strproduct_addr_i(DESC_STRPRODUCT_ADDR),  //input [15:0] desc_strproduct_addr_i
+      .desc_strproduct_len_i(DESC_STRPRODUCT_LEN),  //input [15:0] desc_strproduct_len_i
+      .desc_strserial_addr_i(DESC_STRSERIAL_ADDR),  //input [15:0] desc_strserial_addr_i
+      .desc_strserial_len_i(DESC_STRSERIAL_LEN),  //input [15:0] desc_strserial_len_i
+      .desc_have_strings_i(DESC_HAVE_STRINGS),  //input desc_have_strings_i
       .ulpi_nxt_i(ulpi_nxt),  //input ulpi_nxt_i
       .ulpi_dir_i(ulpi_dir),  //input ulpi_dir_i
       .ulpi_rxdata_i(ulpi_rxdata),  //input [7:0] ulpi_rxdata_i
@@ -470,6 +498,39 @@ module top (
 
   assign usb_txiso_pid_i = 4'b1011;  // DATA1
 
+  //==============================================================
+  //======USB Device descriptor Demo
+  usb_desc #(
+      .VENDORID(16'h33AA)
+      , .PRODUCTID(16'h0000)
+      , .VERSIONBCD(16'h0100)
+      , .HSSUPPORT(1)
+      , .SELFPOWERED(1)
+  ) u_usb_desc (
+      .CLK(ulpi_clk)
+      , .RESET(I_rst_n)
+      , .i_pid(16'd0)
+      , .i_vid(16'd0)
+      , .i_descrom_raddr(DESCROM_RADDR)
+      , .o_descrom_rdat(DESCROM_RDAT)
+      , .o_desc_dev_addr(DESC_DEV_ADDR)
+      , .o_desc_dev_len(DESC_DEV_LEN)
+      , .o_desc_qual_addr(DESC_QUAL_ADDR)
+      , .o_desc_qual_len(DESC_QUAL_LEN)
+      , .o_desc_fscfg_addr(DESC_FSCFG_ADDR)
+      , .o_desc_fscfg_len(DESC_FSCFG_LEN)
+      , .o_desc_hscfg_addr(DESC_HSCFG_ADDR)
+      , .o_desc_hscfg_len(DESC_HSCFG_LEN)
+      , .o_desc_oscfg_addr(DESC_OSCFG_ADDR)
+      , .o_desc_strlang_addr(DESC_STRLANG_ADDR)
+      , .o_desc_strvendor_addr(DESC_STRVENDOR_ADDR)
+      , .o_desc_strvendor_len(DESC_STRVENDOR_LEN)
+      , .o_desc_strproduct_addr(DESC_STRPRODUCT_ADDR)
+      , .o_desc_strproduct_len(DESC_STRPRODUCT_LEN)
+      , .o_desc_strserial_addr(DESC_STRSERIAL_ADDR)
+      , .o_desc_strserial_len(DESC_STRSERIAL_LEN)
+      , .o_descrom_have_strings(DESCROM_HAVE_STRINGS)
+  );
 
   //===================================================
   // Print Control
@@ -478,7 +539,7 @@ module top (
 
   //===================================================
   // LEDs
-  assign O_led[0] = ~usb_online_o;
+  assign O_led[0] = usb_online_o;  // Indicate USB is connected
   assign O_led[1] = 1;
   assign O_led[2] = 1;
   assign O_led[3] = I_rst_n;
@@ -517,7 +578,7 @@ module top (
   assign PMOD_wire[4] = cmos_href;
   assign PMOD_wire[5] = cmos_vsync;  // Once per image valid
 
-  assign PMOD_wire[6] = cmos_pwdn;
+  assign PMOD_wire[6] = usb_txact_o;  // High when transmitting
 
   assign PMOD_wire[7] = debug_reg_1sec_clk;
 
