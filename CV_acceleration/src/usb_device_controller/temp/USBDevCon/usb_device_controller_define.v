@@ -1,6 +1,7 @@
 `define module_name USB_Device_Controller_Top
 `define HSSUPPORT
 `define DESC_PACKET_MAX64
+`define SELFPOWERED
 `define ENDPT1_IN_T_TYPE 0
 `define ENDPT1_OUT_T_TYPE 0
 `define ENDPT2_IN_T_TYPE 0
