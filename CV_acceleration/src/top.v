@@ -507,6 +507,8 @@ module top (
       , .VERSIONBCD(16'h0100)
       , .HSSUPPORT(1)
       , .SELFPOWERED(1)
+      , .BOSUPPORT(1)
+      , .BOS_LEN(15)
   ) u_usb_desc (
       .CLK(ulpi_clk)
       , .RESET(~I_rst_n)
@@ -531,6 +533,8 @@ module top (
       , .o_desc_strserial_addr(DESC_STRSERIAL_ADDR)
       , .o_desc_strserial_len(DESC_STRSERIAL_LEN)
       , .o_descrom_have_strings(DESCROM_HAVE_STRINGS)
+      , .o_desc_bos_addr(DESC_BOS_ADDR)
+      , .o_desc_bos_len(DESC_BOS_LEN)
   );
 
   //===================================================
