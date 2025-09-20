@@ -58,7 +58,7 @@ module usb_desc #(
   localparam DESC_HSCFG_ADDR = DESC_FSCFG_ADDR + DESC_FSCFG_LEN;
   localparam DESC_HSCFG_LEN = 32;
   localparam DESC_OSCFG_ADDR = DESC_HSCFG_ADDR + DESC_HSCFG_LEN;
-  localparam DESC_OSCFG_LEN = 1;
+  localparam DESC_OSCFG_LEN = 26;
   localparam DESC_STRLANG_ADDR = DESC_OSCFG_ADDR + DESC_OSCFG_LEN;
   localparam DESC_STRVENDOR_ADDR = DESC_STRLANG_ADDR + 4;
   localparam DESC_STRVENDOR_LEN = 2 + 2 * VENDORSTR_LEN;
@@ -101,8 +101,8 @@ module usb_desc #(
       // 18 bytes device descriptor
       descrom[0] <= 8'h12;  // bLength = 18 bytes
       descrom[1] <= 8'h01;  // bDescriptorType = device descriptor
-      descrom[2] <= (HSSUPPORT) ? 8'h00 : 8'h10;  // bcdUSB = 1.10 || 2.00
-      descrom[3] <= (HSSUPPORT) ? 8'h02 : 8'h01;
+      descrom[2] <= 8'h01;  // bcdUSB LSB
+      descrom[3] <= 8'h02;  // bcdUSB MSB   → 0201 = USB 2.1
       descrom[4] <= 8'h02;  // 00: 02:bDeviceClass = Communication Device Class
       descrom[5] <= 8'h00;  // bDeviceSubClass = none
       descrom[6] <= 8'h00;  // bDeviceProtocol = none
@@ -233,10 +233,37 @@ module usb_desc #(
       //descrom[DESC_HSCFG_ADDR + 36] <= 8'h08;
       //descrom[DESC_HSCFG_ADDR + 37] <= 8'h00;// wMaxPacketSize = 8 bytes
       //descrom[DESC_HSCFG_ADDR + 38] <= 8'h01;// bInterval = 0 ms
-      // 1 byte // other_speed_configuration
-      descrom[DESC_OSCFG_ADDR+0] <= 8'h07;  // Other Speed Configuration Descriptor replace HS/FS
-      //descrom[DESC_FSCFG_ADDR + 1] <= 8'h02;// bDescriptorType = configuration descriptor
-      //descrom[DESC_HSCFG_ADDR + 1] <= 8'h02;// bDescriptorType = configuration descriptor
+      // --- OTHER-SPEED CONFIGURATION (26 bytes) ---
+      descrom[DESC_OSCFG_ADDR+0] <= 8'h09;  // bLength
+      descrom[DESC_OSCFG_ADDR+1] <= 8'h0F;  // bDescriptorType (OTHER_SPEED_CONFIGURATION)
+      descrom[DESC_OSCFG_ADDR+2] <= 8'h1A;  // wTotalLength LSB = 26
+      descrom[DESC_OSCFG_ADDR+3] <= 8'h00;  // wTotalLength MSB
+      descrom[DESC_OSCFG_ADDR+4] <= 8'h01;  // bNumInterfaces
+      descrom[DESC_OSCFG_ADDR+5] <= 8'h01;  // bConfigurationValue
+      descrom[DESC_OSCFG_ADDR+6] <= 8'h00;  // iConfiguration
+      descrom[DESC_OSCFG_ADDR+7] <= SELFPOWERED ? 8'hC0 : 8'h80;  // bmAttributes
+      descrom[DESC_OSCFG_ADDR+8] <= 8'hFA;  // bMaxPower = 500 mA
+
+      // --- Interface Descriptor (9 bytes) ---
+      descrom[DESC_OSCFG_ADDR+9] <= 8'h09;  // bLength
+      descrom[DESC_OSCFG_ADDR+10] <= 8'h04;  // bDescriptorType (INTERFACE)
+      descrom[DESC_OSCFG_ADDR+11] <= 8'h00;  // bInterfaceNumber
+      descrom[DESC_OSCFG_ADDR+12] <= 8'h00;  // bAlternateSetting
+      descrom[DESC_OSCFG_ADDR+13] <= 8'h01;  // bNumEndpoints
+      descrom[DESC_OSCFG_ADDR+14] <= 8'hFF;  // bInterfaceClass (Vendor-defined)
+      descrom[DESC_OSCFG_ADDR+15] <= 8'h00;  // bInterfaceSubClass
+      descrom[DESC_OSCFG_ADDR+16] <= 8'h00;  // bInterfaceProtocol
+      descrom[DESC_OSCFG_ADDR+17] <= 8'h00;  // iInterface
+
+      // --- Endpoint Descriptor (7 bytes) IN 1 Bulk ---
+      descrom[DESC_OSCFG_ADDR+18] <= 8'h07;  // bLength
+      descrom[DESC_OSCFG_ADDR+19] <= 8'h05;  // bDescriptorType (ENDPOINT)
+      descrom[DESC_OSCFG_ADDR+20] <= 8'h81;  // bEndpointAddress (EP1 IN)
+      descrom[DESC_OSCFG_ADDR+21] <= 8'h02;  // bmAttributes (Bulk)
+      descrom[DESC_OSCFG_ADDR+22] <= 8'h40;  // wMaxPacketSize LSB = 64
+      descrom[DESC_OSCFG_ADDR+23] <= 8'h00;  // wMaxPacketSize MSB
+      descrom[DESC_OSCFG_ADDR+24] <= 8'h00;  // bInterval (ignored for Bulk)
+
       if (descrom_len > DESC_STRLANG_ADDR) begin
         // string descriptor 0 (supported languages)
         descrom[DESC_STRLANG_ADDR+0] <= 8'h04;  // bLength = 4

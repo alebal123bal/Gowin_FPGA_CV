@@ -427,7 +427,7 @@ module top (
   // USB2.0 Device Controller
   USB_Device_Controller_Top usb_controller (
       .clk_i(ulpi_clk),  //input clk_i
-      .reset_i(I_rst_n),  //input reset_i
+      .reset_i(~I_rst_n),  //input reset_i
       .usbrst_o(usb_rst_o),  //output usbrst_o
       .highspeed_o(usb_highspeed_o),  //output highspeed_o
       .suspend_o(usb_suspend_o),  //output suspend_o
@@ -490,13 +490,14 @@ module top (
   // 2.  PHY  -> FPGA  (sample on rising edge)
   assign ulpi_rxdata = ulpi_data;  // constant connection
 
-  assign ulpi_rst = ~I_rst_n;  // active-low, 1 ms pulse
+  assign ulpi_rst = 1'b1;  // Keep PHY out of reset
 
+  assign usb_txval_i = (fifo_hs_rnum >= 17'd512) && usb_online_o && !usb_suspend_o;  // Transmit when at least 512 bytes available and USB is online and not suspended
   assign usb_txcork_i = (fifo_hs_rnum >= 17'd512) ? 1'b0 : 1'b1;  // Allow TX when at least 512 bytes available
   assign usb_txdat_len_i = 12'd512;  // Always send 512 bytes
   assign usb_txdat_i = fifo_hs_q;  // Data from FIFO
 
-  assign usb_txiso_pid_i = 4'b1011;  // DATA1
+  assign usb_txiso_pid_i = 4'b0011;  // DATA0
 
   //==============================================================
   //======USB Device descriptor Demo
@@ -508,7 +509,7 @@ module top (
       , .SELFPOWERED(1)
   ) u_usb_desc (
       .CLK(ulpi_clk)
-      , .RESET(I_rst_n)
+      , .RESET(~I_rst_n)
       , .i_pid(16'd0)
       , .i_vid(16'd0)
       , .i_descrom_raddr(DESCROM_RADDR)
@@ -539,9 +540,9 @@ module top (
 
   //===================================================
   // LEDs
-  assign O_led[0] = usb_online_o;  // Indicate USB is connected
-  assign O_led[1] = 1;
-  assign O_led[2] = 1;
+  assign O_led[0] = ~usb_online_o;  // Indicate USB is connected
+  assign O_led[1] = ~usb_rst_o;  // Indicate USB reset
+  assign O_led[2] = ~usb_suspend_o;  // Indicate USB suspend
   assign O_led[3] = I_rst_n;
 
   //===================================================
