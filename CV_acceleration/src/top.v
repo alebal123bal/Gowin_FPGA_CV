@@ -501,7 +501,7 @@ module top (
 
   //==============================================================
   //======USB Device descriptor Demo
-  usb_desc #(
+  usb_descriptor #(
       .VENDORID(16'h33AA)
       , .PRODUCTID(16'h0000)
       , .VERSIONBCD(16'h0100)
@@ -509,7 +509,7 @@ module top (
       , .SELFPOWERED(1)
       , .BOSUPPORT(1)
       , .BOS_LEN(15)
-  ) u_usb_desc (
+  ) u_usb_descriptor (
       .CLK(ulpi_clk)
       , .RESET(~I_rst_n)
       , .i_pid(16'd0)

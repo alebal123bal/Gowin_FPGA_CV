@@ -1,4 +1,11 @@
-module usb_desc #(
+// USB2.0 device descriptor module
+// Configures the FPGA to stream data from OV5640 camera over USB using a specific bulk endpoint.
+// 3 Endpoints are still needed: EP0 for control and EP1 IN for data streaming, EP1 OUT for ack.
+// USB bulk must alternate DATA0/DATA1 toggles; 
+// without an OUT endpoint the host has no way to send the ACK handshake that contains the toggle bit, 
+// so every IN transaction is retried forever and no data reaches the PC.
+
+module usb_descriptor #(
     // Vendor ID to report in device descriptor.
     parameter VENDORID = 16'h33AA,
     // Product ID to report in device descriptor.
@@ -55,11 +62,11 @@ module usb_desc #(
   localparam DESC_QUAL_ADDR = 20;
   localparam DESC_QUAL_LEN = 10;
   localparam DESC_FSCFG_ADDR = 32;
-  localparam DESC_FSCFG_LEN = 25;  // 9+9+7 = 25 bytes for single bulk endpoint
+  localparam DESC_FSCFG_LEN = 32;  // 9+9+7+7 = 32 bytes for single bulk endpoint
   localparam DESC_HSCFG_ADDR = DESC_FSCFG_ADDR + DESC_FSCFG_LEN;
-  localparam DESC_HSCFG_LEN = 25;  // 9+9+7 = 25 bytes for single bulk endpoint
+  localparam DESC_HSCFG_LEN = 32;  // 9+9+7+7 = 32 bytes for single bulk endpoint
   localparam DESC_OSCFG_ADDR = DESC_HSCFG_ADDR + DESC_HSCFG_LEN;
-  localparam DESC_OSCFG_LEN = 25;  // 9+9+7 = 25 bytes for single bulk endpoint
+  localparam DESC_OSCFG_LEN = 32;  // 9+9+7+7 = 32 bytes for single bulk endpoint
   localparam DESC_BOS_ADDR = DESC_OSCFG_ADDR + DESC_OSCFG_LEN;
   localparam DESC_BOS_LEN = BOS_LEN;
   localparam DESC_STRLANG_ADDR = DESC_BOS_ADDR + DESC_BOS_LEN;
@@ -107,8 +114,8 @@ module usb_desc #(
       descrom[2] <= 8'h00;  // bcdUSB LSB
       descrom[3] <= 8'h02;  // bcdUSB MSB → 0200 = USB 2.0
       descrom[4] <= 8'hFF;  // bDeviceClass = Vendor Specific
-      descrom[5] <= 8'hFF;  // bDeviceSubClass = Vendor Specific
-      descrom[6] <= 8'hFF;  // bDeviceProtocol = Vendor Specific
+      descrom[5] <= 8'h00;  // bDeviceSubClass = none
+      descrom[6] <= 8'h00;  // bDeviceProtocol = none
       descrom[7] <= 8'h40;  // bMaxPacketSize0 = 64 bytes
       descrom[8] <= VENDORID[7 : 0];  // idVendor
       descrom[9] <= VENDORID[15 : 8];
@@ -131,8 +138,8 @@ module usb_desc #(
       descrom[20+2] <= 8'h00;  // bcdUSB LSB
       descrom[20+3] <= 8'h02;  // bcdUSB MSB = 2.0
       descrom[20+4] <= 8'hFF;  // bDeviceClass = Vendor Specific
-      descrom[20+5] <= 8'hFF;  // bDeviceSubClass = Vendor Specific
-      descrom[20+6] <= 8'hFF;  // bDeviceProtocol = Vendor Specific
+      descrom[20+5] <= 8'h00;  // bDeviceSubClass = none
+      descrom[20+6] <= 8'h00;  // bDeviceProtocol = none
       descrom[20+7] <= 8'h40;  // bMaxPacketSize0 = 64 bytes
       descrom[20+8] <= 8'h01;  // bNumConfigurations = 1
       descrom[20+9] <= 8'h00;  // bReserved
@@ -141,7 +148,7 @@ module usb_desc #(
       descrom[20+10] <= 8'h00;
       descrom[20+11] <= 8'h00;
 
-      //======Full Speed Configuration (25 bytes)
+      //======Full Speed Configuration (32 bytes)
       // 9 bytes configuration header
       descrom[DESC_FSCFG_ADDR+0] <= 8'h09;  // bLength = 9 bytes
       descrom[DESC_FSCFG_ADDR+1] <= 8'h02;  // bDescriptorType = configuration descriptor
@@ -158,13 +165,13 @@ module usb_desc #(
       descrom[DESC_FSCFG_ADDR+10] <= 8'h04;  // bDescriptorType = interface descriptor
       descrom[DESC_FSCFG_ADDR+11] <= 8'h00;  // bInterfaceNumber = 0
       descrom[DESC_FSCFG_ADDR+12] <= 8'h00;  // bAlternateSetting = 0
-      descrom[DESC_FSCFG_ADDR+13] <= 8'h01;  // bNumEndpoints = 1 (single bulk endpoint)
+      descrom[DESC_FSCFG_ADDR+13] <= 8'h02;  // bNumEndpoints = 2 (single bulk endpoint)
       descrom[DESC_FSCFG_ADDR+14] <= 8'hFF;  // bInterfaceClass = Vendor Specific
-      descrom[DESC_FSCFG_ADDR+15] <= 8'hFF;  // bInterfaceSubClass = Vendor Specific
-      descrom[DESC_FSCFG_ADDR+16] <= 8'hFF;  // bInterfaceProtocol = Vendor Specific
+      descrom[DESC_FSCFG_ADDR+15] <= 8'h00;  // bInterfaceSubClass = none
+      descrom[DESC_FSCFG_ADDR+16] <= 8'h00;  // bInterfaceProtocol = none
       descrom[DESC_FSCFG_ADDR+17] <= 8'h00;  // iInterface = none
 
-      //----------------- Endpoint Descriptor -----------------
+      //----------------- Endpoint Descriptor EP1 IN (camera → PC) -----------------
       descrom[DESC_FSCFG_ADDR+18] <= 8'h07;  // bLength = 7 bytes
       descrom[DESC_FSCFG_ADDR+19] <= 8'h05;  // bDescriptorType = endpoint descriptor
       descrom[DESC_FSCFG_ADDR+20] <= 8'h81;  // bEndpointAddress = INPUT 1 (EP1 IN)
@@ -173,7 +180,16 @@ module usb_desc #(
       descrom[DESC_FSCFG_ADDR+23] <= 8'h00;  // wMaxPacketSize MSB
       descrom[DESC_FSCFG_ADDR+24] <= 8'h00;  // bInterval = 0 (ignored for bulk)
 
-      //======High Speed Configuration (25 bytes)
+      //----------------- Endpoint Descriptor EP1 OUT (PC → camera) -----------------
+      descrom[DESC_FSCFG_ADDR+25] <= 8'h07;  // bLength = 7 bytes
+      descrom[DESC_FSCFG_ADDR+26] <= 8'h05;  // bDescriptorType = endpoint descriptor
+      descrom[DESC_FSCFG_ADDR+27] <= 8'h01;  // bEndpointAddress = OUTPUT 1 (EP1 OUT)
+      descrom[DESC_FSCFG_ADDR+28] <= 8'h02;  // bmAttributes = Bulk Transfer
+      descrom[DESC_FSCFG_ADDR+29] <= 8'h40;  // wMaxPacketSize LSB = 64 bytes (FS)
+      descrom[DESC_FSCFG_ADDR+30] <= 8'h00;  // wMaxPacketSize MSB
+      descrom[DESC_FSCFG_ADDR+31] <= 8'h00;  // bInterval = 0 (ignored for bulk)
+
+      //======High Speed Configuration (32 bytes)
       // 9 bytes configuration header
       descrom[DESC_HSCFG_ADDR+0] <= 8'h09;  // bLength = 9 bytes
       descrom[DESC_HSCFG_ADDR+1] <= 8'h02;  // bDescriptorType = configuration descriptor
@@ -190,13 +206,13 @@ module usb_desc #(
       descrom[DESC_HSCFG_ADDR+10] <= 8'h04;  // bDescriptorType = interface descriptor
       descrom[DESC_HSCFG_ADDR+11] <= 8'h00;  // bInterfaceNumber = 0
       descrom[DESC_HSCFG_ADDR+12] <= 8'h00;  // bAlternateSetting = 0
-      descrom[DESC_HSCFG_ADDR+13] <= 8'h01;  // bNumEndpoints = 1
+      descrom[DESC_HSCFG_ADDR+13] <= 8'h02;  // bNumEndpoints = 2 (single bulk endpoint)
       descrom[DESC_HSCFG_ADDR+14] <= 8'hFF;  // bInterfaceClass = Vendor Specific
-      descrom[DESC_HSCFG_ADDR+15] <= 8'hFF;  // bInterfaceSubClass = Vendor Specific
-      descrom[DESC_HSCFG_ADDR+16] <= 8'hFF;  // bInterfaceProtocol = Vendor Specific
+      descrom[DESC_HSCFG_ADDR+15] <= 8'h00;  // bInterfaceSubClass = none
+      descrom[DESC_HSCFG_ADDR+16] <= 8'h00;  // bInterfaceProtocol = none
       descrom[DESC_HSCFG_ADDR+17] <= 8'h00;  // iInterface = none
 
-      //----------------- Endpoint Descriptor -----------------
+      //----------------- Endpoint Descriptor EP1 IN (camera → PC) -----------------
       descrom[DESC_HSCFG_ADDR+18] <= 8'h07;  // bLength = 7 bytes
       descrom[DESC_HSCFG_ADDR+19] <= 8'h05;  // bDescriptorType = endpoint descriptor
       descrom[DESC_HSCFG_ADDR+20] <= 8'h81;  // bEndpointAddress = INPUT 1 (EP1 IN)
@@ -205,7 +221,16 @@ module usb_desc #(
       descrom[DESC_HSCFG_ADDR+23] <= 8'h02;  // wMaxPacketSize MSB
       descrom[DESC_HSCFG_ADDR+24] <= 8'h00;  // bInterval = 0 (ignored for bulk)
 
-      // --- OTHER-SPEED CONFIGURATION (25 bytes) ---
+      //----------------- Endpoint Descriptor EP1 OUT (PC → camera) -----------------
+      descrom[DESC_HSCFG_ADDR+25] <= 8'h07;  // bLength = 7 bytes
+      descrom[DESC_HSCFG_ADDR+26] <= 8'h05;  // bDescriptorType = endpoint descriptor
+      descrom[DESC_HSCFG_ADDR+27] <= 8'h01;  // bEndpointAddress = OUTPUT 1 (EP1 OUT)
+      descrom[DESC_HSCFG_ADDR+28] <= 8'h02;  // bmAttributes = Bulk Transfer
+      descrom[DESC_HSCFG_ADDR+29] <= 8'h00;  // wMaxPacketSize LSB = 512 bytes (HS)
+      descrom[DESC_HSCFG_ADDR+30] <= 8'h02;  // wMaxPacketSize MSB
+      descrom[DESC_HSCFG_ADDR+31] <= 8'h00;  // bInterval = 0 (ignored for bulk)
+
+      //======OTHER-SPEED CONFIGURATION (32 bytes)
       descrom[DESC_OSCFG_ADDR+0] <= 8'h09;  // bLength
       descrom[DESC_OSCFG_ADDR+1] <= 8'h07;  // bDescriptorType (OTHER_SPEED_CONFIGURATION)
       descrom[DESC_OSCFG_ADDR+2] <= DESC_OSCFG_LEN[7:0];  // wTotalLength LSB
@@ -221,20 +246,29 @@ module usb_desc #(
       descrom[DESC_OSCFG_ADDR+10] <= 8'h04;  // bDescriptorType (INTERFACE)
       descrom[DESC_OSCFG_ADDR+11] <= 8'h00;  // bInterfaceNumber
       descrom[DESC_OSCFG_ADDR+12] <= 8'h00;  // bAlternateSetting
-      descrom[DESC_OSCFG_ADDR+13] <= 8'h01;  // bNumEndpoints
+      descrom[DESC_OSCFG_ADDR+13] <= 8'h02;  // bNumEndpoints = 2 (single bulk endpoint)
       descrom[DESC_OSCFG_ADDR+14] <= 8'hFF;  // bInterfaceClass (Vendor-defined)
-      descrom[DESC_OSCFG_ADDR+15] <= 8'hFF;  // bInterfaceSubClass
-      descrom[DESC_OSCFG_ADDR+16] <= 8'hFF;  // bInterfaceProtocol
+      descrom[DESC_OSCFG_ADDR+15] <= 8'h00;  // bInterfaceSubClass = none
+      descrom[DESC_OSCFG_ADDR+16] <= 8'h00;  // bInterfaceProtocol = none
       descrom[DESC_OSCFG_ADDR+17] <= 8'h00;  // iInterface
 
-      // --- Endpoint Descriptor (7 bytes) IN 1 Bulk ---
+      //----------------- Endpoint Descriptor EP1 IN (camera → PC) -----------------
       descrom[DESC_OSCFG_ADDR+18] <= 8'h07;  // bLength
       descrom[DESC_OSCFG_ADDR+19] <= 8'h05;  // bDescriptorType (ENDPOINT)
       descrom[DESC_OSCFG_ADDR+20] <= 8'h81;  // bEndpointAddress (EP1 IN)
       descrom[DESC_OSCFG_ADDR+21] <= 8'h02;  // bmAttributes (Bulk)
-      descrom[DESC_OSCFG_ADDR+22] <= 8'h40;  // wMaxPacketSize LSB = 64 (other speed)
+      descrom[DESC_OSCFG_ADDR+22] <= 8'h40;  // wMaxPacketSize LSB = 64 bytes (other speed)
       descrom[DESC_OSCFG_ADDR+23] <= 8'h00;  // wMaxPacketSize MSB
       descrom[DESC_OSCFG_ADDR+24] <= 8'h00;  // bInterval (ignored for Bulk)
+
+      //----------------- Endpoint Descriptor EP1 OUT (PC → camera) -----------------
+      descrom[DESC_OSCFG_ADDR+25] <= 8'h07;  // bLength
+      descrom[DESC_OSCFG_ADDR+26] <= 8'h05;  // bDescriptorType (ENDPOINT)
+      descrom[DESC_OSCFG_ADDR+27] <= 8'h01;  // bEndpointAddress (EP1 OUT)
+      descrom[DESC_OSCFG_ADDR+28] <= 8'h02;  // bmAttributes (Bulk)
+      descrom[DESC_OSCFG_ADDR+29] <= 8'h40;  // wMaxPacketSize LSB = 64 bytes (HS)
+      descrom[DESC_OSCFG_ADDR+30] <= 8'h00;  // wMaxPacketSize MSB
+      descrom[DESC_OSCFG_ADDR+31] <= 8'h00;  // bInterval (ignored for Bulk)
 
       if (BOSUPPORT && (descrom_len > DESC_BOS_ADDR)) begin
         // BOS Descriptor (15 bytes)
