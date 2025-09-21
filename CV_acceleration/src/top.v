@@ -129,6 +129,7 @@ module top (
   wire usb_txpop_o;
   wire usb_txact_o;
   wire usb_txiso_pid_i;
+  wire endpt_o;
 
   // internal signals for ULPI
   wire [7:0] ulpi_txdata;
@@ -446,7 +447,7 @@ module top (
       .rxact_o(),  //output rxact_o
       .rxpktval_o(),  //output rxpktval_o
       .setup_o(),  //output setup_o
-      .endpt_o(),  //output [3:0] endpt_o
+      .endpt_o(endpt_o),  //output [3:0] endpt_o
       .sof_o(),  //output sof_o
       .inf_alter_i(),  //input [7:0] inf_alter_i, safely ignored
       .inf_alter_o(),  //output [7:0] inf_alter_o, safely ignored
@@ -484,19 +485,16 @@ module top (
       .ulpi_stp_o(ulpi_stp)  //output ulpi_stp_o
   );
 
-  // 1.  FPGA -> PHY  (when we own the bus)
+  // ULPI
   assign ulpi_data = (ulpi_dir == 1'b0) ? ulpi_txdata : 8'hzz;
-
-  // 2.  PHY  -> FPGA  (sample on rising edge)
   assign ulpi_rxdata = ulpi_data;  // constant connection
-
   assign ulpi_rst = 1'b1;  // Keep PHY out of reset
 
+  // USB
   assign usb_txval_i = (fifo_hs_rnum >= 17'd512) && usb_online_o && !usb_suspend_o;  // Transmit when at least 512 bytes available and USB is online and not suspended
   assign usb_txcork_i = (fifo_hs_rnum >= 17'd512) ? 1'b0 : 1'b1;  // Allow TX when at least 512 bytes available
   assign usb_txdat_len_i = 12'd512;  // Always send 512 bytes
   assign usb_txdat_i = fifo_hs_q;  // Data from FIFO
-
   assign usb_txiso_pid_i = 4'b0011;  // DATA0
 
   //==============================================================
