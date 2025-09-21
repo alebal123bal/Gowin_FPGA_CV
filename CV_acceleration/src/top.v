@@ -129,6 +129,7 @@ module top (
   wire usb_txpop_o;
   wire usb_txact_o;
   wire usb_txiso_pid_i;
+  wire usb_txpktfin_o;
   wire endpt_o;
 
   // internal signals for ULPI
