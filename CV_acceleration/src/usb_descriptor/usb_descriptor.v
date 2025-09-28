@@ -16,8 +16,8 @@ module usb_descriptor #(
     parameter VENDORSTR = "OV5640 Camera",
     parameter VENDORSTR_LEN = 13,
     // Optional description of product (max 126 characters).
-    parameter PRODUCTSTR = "Video Streamer",
-    parameter PRODUCTSTR_LEN = 14,
+    parameter PRODUCTSTR = "Alessandro Video Streamer",
+    parameter PRODUCTSTR_LEN = 25,
     // Optional product serial number (max 126 characters).
     parameter SERIALSTR = "12345678",
     parameter SERIALSTR_LEN = 8,
