@@ -478,7 +478,7 @@ module top (
       .desc_strproduct_len_i(DESC_STRPRODUCT_LEN),  //input [15:0] desc_strproduct_len_i
       .desc_strserial_addr_i(DESC_STRSERIAL_ADDR),  //input [15:0] desc_strserial_addr_i
       .desc_strserial_len_i(DESC_STRSERIAL_LEN),  //input [15:0] desc_strserial_len_i
-      .desc_have_strings_i(DESC_HAVE_STRINGS),  //input desc_have_strings_i
+      .desc_have_strings_i(DESCROM_HAVE_STRINGS),  //input desc_have_strings_i
       .ulpi_nxt_i(ulpi_nxt),  //input ulpi_nxt_i
       .ulpi_dir_i(ulpi_dir),  //input ulpi_dir_i
       .ulpi_rxdata_i(ulpi_rxdata),  //input [7:0] ulpi_rxdata_i
