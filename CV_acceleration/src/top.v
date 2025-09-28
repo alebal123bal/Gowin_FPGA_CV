@@ -492,11 +492,27 @@ module top (
   assign ulpi_rst = 1'b1;  // Keep PHY out of reset
 
   // USB
-  assign usb_txval_i = (fifo_hs_rnum >= 17'd512) && usb_online_o && !usb_suspend_o;  // Transmit when at least 512 bytes available and USB is online and not suspended
-  assign usb_txcork_i = (fifo_hs_rnum >= 17'd512) ? 1'b0 : 1'b1;  // Allow TX when at least 512 bytes available
-  assign usb_txdat_len_i = 12'd512;  // Always send 512 bytes
   assign usb_txdat_i = fifo_hs_q;  // Data from FIFO
-  assign usb_txiso_pid_i = 4'b0011;  // DATA0
+  assign usb_txiso_pid_i = 4'b0011;  // Don't care for non-isochronous
+
+  reg tx_ready_latched;
+  reg [11:0] tx_len_latched;
+
+  always @(posedge ulpi_clk or negedge I_rst_n) begin
+    if (!I_rst_n) begin
+      tx_ready_latched <= 1'b0;
+      tx_len_latched <= 12'd0;
+    end else if (!usb_txact_o) begin
+      // Evaluate readiness only when idle
+      tx_ready_latched <= (fifo_hs_rnum >= 17'd512);
+      tx_len_latched <= 12'd512;  // or the actual number you intend to send
+    end
+  end
+
+  assign usb_txcork_i = ~tx_ready_latched;
+  assign usb_txdat_len_i = tx_len_latched;
+
+  assign usb_txval_i = 1'b0;
 
   //==============================================================
   //======USB Device descriptor Demo
