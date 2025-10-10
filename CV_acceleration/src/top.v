@@ -491,8 +491,18 @@ module top (
   assign ulpi_rxdata = ulpi_data;  // constant connection
   assign ulpi_rst = 1'b1;  // Keep PHY out of reset
 
+  // Create a mock counter to tx through USB
+  reg [7:0] usb_tx_counter;
+  always @(posedge ulpi_clk or negedge I_rst_n) begin
+    if (!I_rst_n) begin
+      usb_tx_counter <= 8'd0;
+    end else if (usb_txact_o) begin
+      usb_tx_counter <= usb_tx_counter + 8'd5;
+    end
+  end
+
   // USB
-  assign usb_txdat_i = fifo_hs_q;  // Data from FIFO
+  assign usb_txdat_i = usb_tx_counter;
   assign usb_txiso_pid_i = 4'b0011;  // Don't care for non-isochronous
 
   reg tx_ready_latched;
@@ -502,9 +512,9 @@ module top (
     if (!I_rst_n) begin
       tx_ready_latched <= 1'b0;
       tx_len_latched <= 12'd0;
-    end else if (!usb_txact_o) begin
-      // Evaluate readiness only when idle
-      tx_ready_latched <= (fifo_hs_rnum >= 17'd512);
+    end else begin
+      // Evaluate readiness to send
+      tx_ready_latched <= 1;  // Always ready to send for now
       tx_len_latched <= 12'd512;  // or the actual number you intend to send
     end
   end
@@ -592,13 +602,12 @@ module top (
   assign PMOD_wire[1] = cmos_scl;
   assign PMOD_wire[2] = cmos_sda;
 
-  // TODO: instead of writing here (high freq, difficult to observe), count total at each vsync
-  assign PMOD_wire[3] = cmos_write_en;
+  assign PMOD_wire[3] = cmos_href;
+  assign PMOD_wire[4] = cmos_vsync;  // Once per image valid
 
-  assign PMOD_wire[4] = cmos_href;
-  assign PMOD_wire[5] = cmos_vsync;  // Once per image valid
-
-  assign PMOD_wire[6] = usb_txact_o;  // High when transmitting
+  // You will see these signals when running the Python dev.read (Laptop must signal IN token)
+  assign PMOD_wire[5] = usb_txpop_o;
+  assign PMOD_wire[6] = usb_txact_o;
 
   assign PMOD_wire[7] = debug_reg_1sec_clk;
 
