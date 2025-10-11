@@ -1,10 +1,11 @@
+# pylint: disable=all
+
 import usb.core, usb.util
 import usb.backend.libusb1
 import numpy as np
 import threading
 import queue
 import time
-from collections import deque
 
 # Configuration
 VID = 0x33AA
@@ -158,66 +159,6 @@ class HighSpeedUSBReader:
 
         print("USB reader thread stopped")
 
-    def collect_packets(self, num_packets=PACKETS_TO_COLLECT, wait_for_boundary=True):
-        """Collect specified number of packets, optionally waiting for frame boundary"""
-        collected_packets = []
-        boundary_found = False
-        processed_count = 0
-
-        print(f"Starting packet collection...")
-        if wait_for_boundary:
-            print(
-                f"Waiting for frame boundary ({FRAME_BOUNDARY_ZEROS}+ consecutive zeros)..."
-            )
-
-        start_time = time.time()
-
-        while len(collected_packets) < num_packets:
-            try:
-                # Get packet from high-speed reader
-                packet_num, data = self.packet_queue.get(timeout=5.0)
-                processed_count += 1
-
-                # Check for frame boundary if required
-                if wait_for_boundary and not boundary_found:
-                    if self.has_consecutive_zeros(data):
-                        print(f"Frame boundary detected at packet {packet_num}!")
-                        boundary_found = True
-                        collected_packets = []  # Reset collection after boundary
-
-                # Collect packet if boundary found or not waiting for boundary
-                if not wait_for_boundary or boundary_found:
-                    collected_packets.append((packet_num, data))
-
-                    # Progress update
-                    if len(collected_packets) % 100 == 0:
-                        print(
-                            f"Collected {len(collected_packets)}/{num_packets} packets..."
-                        )
-
-            except queue.Empty:
-                print("Timeout waiting for packets from USB reader")
-                break
-
-        collection_time = time.time() - start_time
-
-        # Calculate statistics
-        total_bytes = len(collected_packets) * PKT_SIZE
-        total_bits = total_bytes * 8
-        collection_speed = (
-            (total_bits / collection_time) / 1_000_000 if collection_time > 0 else 0
-        )
-
-        print(f"\nCollection Complete:")
-        print(f"Packets collected: {len(collected_packets):,}")
-        print(f"Total bytes: {total_bytes:,} bytes ({total_bytes/1024:.1f} KB)")
-        print(f"Total bits: {total_bits:,} bits ({total_bits/1_000_000:.1f} Mbits)")
-        print(f"Collection time: {collection_time:.2f} seconds")
-        print(f"Collection speed: {collection_speed:.1f} Mbps")
-        print(f"Processed packets: {processed_count:,}")
-
-        return collected_packets
-
     def start(self):
         """Start the high-speed USB reader"""
         self.running = True
@@ -245,67 +186,19 @@ class HighSpeedUSBReader:
 
 
 def main():
-    """Main function with user interaction"""
+    """Simple daemon streaming"""
     reader = HighSpeedUSBReader()
 
     try:
-        # Start high-speed reader
+        # Start daemon streaming
         reader.start()
-        print("High-speed USB reader started successfully!")
-        print("Commands:")
-        print(
-            "  collect [num_packets] [boundary] - Collect packets (default: 1200, boundary: True)"
-        )
-        print("  stats - Show reading statistics")
-        print("  quit - Exit")
+        print("USB daemon streaming started - Ctrl+C to stop")
 
+        # Keep running until interrupted
         while True:
-            try:
-                cmd = input("\n> ").strip().lower().split()
+            time.sleep(1)
 
-                if not cmd:
-                    continue
-
-                if cmd[0] == "quit" or cmd[0] == "exit":
-                    break
-
-                elif cmd[0] == "collect":
-                    # Parse arguments
-                    num_packets = int(cmd[1]) if len(cmd) > 1 else PACKETS_TO_COLLECT
-                    wait_boundary = cmd[2].lower() == "true" if len(cmd) > 2 else True
-
-                    print(
-                        f"\nCollecting {num_packets} packets (boundary detection: {wait_boundary})..."
-                    )
-                    packets = reader.collect_packets(num_packets, wait_boundary)
-
-                    # Show first few packets as sample
-                    if packets:
-                        print("\nFirst 3 packets:")
-                        for i, (pkt_num, data) in enumerate(packets[:3]):
-                            print(
-                                f"Packet {pkt_num}: {data[:20]}... (showing first 20 bytes)"
-                            )
-
-                elif cmd[0] == "stats":
-                    stats = reader.get_stats()
-                    print(f"\nUSB Reader Statistics:")
-                    print(f"Packets read: {stats['packets']:,}")
-                    print(
-                        f"Bytes read: {stats['bytes']:,} ({stats['bytes']/1_000_000:.1f} MB)"
-                    )
-                    print(f"Current speed: {stats['speed_mbps']:.1f} Mbps")
-                    print(f"Queue size: {stats['queue_size']}")
-
-                else:
-                    print("Unknown command. Use 'collect', 'stats', or 'quit'")
-
-            except KeyboardInterrupt:
-                break
-            except Exception as e:
-                print(f"Error: {e}")
-
-    finally:
+    except KeyboardInterrupt:
         print("\nStopping USB reader...")
         reader.stop()
         print("Done!")
