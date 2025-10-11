@@ -492,11 +492,6 @@ module top (
       .ulpi_stp_o(ulpi_stp)  //output ulpi_stp_o
   );
 
-  // ULPI
-  assign ulpi_data = (ulpi_dir == 1'b0) ? ulpi_txdata : 8'hzz;
-  assign ulpi_rxdata = ulpi_data;  // constant connection
-  assign ulpi_rst = 1'b1;  // Keep PHY out of reset
-
   // Create a mock counter to tx through USB
   reg [7:0] usb_tx_counter;
   always @(posedge ulpi_clk or negedge I_rst_n) begin
@@ -568,6 +563,11 @@ module top (
       , .o_desc_bos_addr(DESC_BOS_ADDR)
       , .o_desc_bos_len(DESC_BOS_LEN)
   );
+
+  // ULPI
+  assign ulpi_data = (ulpi_dir == 1'b0) ? ulpi_txdata : 8'hzz;
+  assign ulpi_rxdata = ulpi_data;  // constant connection
+  assign ulpi_rst = 1'b1;  // Keep PHY out of reset
 
   //===================================================
   // Print Control
