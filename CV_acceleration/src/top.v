@@ -431,6 +431,41 @@ module top (
   assign fifo_hs_rd_en = (~fifo_hs_empty) & (fifo_hs_rnum >= 17'd512) & usb_txpop_o;  //read when fifo not empty and at least 512 bytes available
 
 
+  // Create a mock counter to tx through USB
+  reg [7:0] usb_tx_counter;
+  always @(posedge ulpi_clk or negedge I_rst_n) begin
+    if (!I_rst_n) begin
+      usb_tx_counter <= 8'd0;
+    end else if (usb_txact_o) begin
+      usb_tx_counter <= usb_tx_counter + 8'd5;
+    end
+  end
+
+  // USB
+  // assign usb_txdat_i = usb_tx_counter;
+  assign usb_txdat_i = fifo_hs_q;  // Send data from FIFO
+  assign usb_txiso_pid_i = 4'b0011;  // Don't care for non-isochronous
+
+  reg tx_ready_latched;
+  reg [11:0] tx_len_latched;
+
+  always @(posedge ulpi_clk or negedge I_rst_n) begin
+    if (!I_rst_n) begin
+      tx_ready_latched <= 1'b0;
+      tx_len_latched <= 12'd0;
+    end else begin
+      // Evaluate readiness to send
+      tx_ready_latched <= 1;  // Always ready to send for now
+      tx_len_latched <= 12'd512;  // Actual number to send
+    end
+  end
+
+  assign usb_txcork_i = ~tx_ready_latched;
+  assign usb_txdat_len_i = tx_len_latched;
+
+  assign usb_txval_i = 1'b0;
+
+
   //===================================================
   // USB2.0 Device Controller
   USB_Device_Controller_Top usb_controller (
@@ -491,40 +526,6 @@ module top (
       .ulpi_txdata_o(ulpi_txdata),  //output [7:0] ulpi_txdata_o
       .ulpi_stp_o(ulpi_stp)  //output ulpi_stp_o
   );
-
-  // Create a mock counter to tx through USB
-  reg [7:0] usb_tx_counter;
-  always @(posedge ulpi_clk or negedge I_rst_n) begin
-    if (!I_rst_n) begin
-      usb_tx_counter <= 8'd0;
-    end else if (usb_txact_o) begin
-      usb_tx_counter <= usb_tx_counter + 8'd5;
-    end
-  end
-
-  // USB
-  // assign usb_txdat_i = usb_tx_counter;
-  assign usb_txdat_i = fifo_hs_q;  // Send data from FIFO
-  assign usb_txiso_pid_i = 4'b0011;  // Don't care for non-isochronous
-
-  reg tx_ready_latched;
-  reg [11:0] tx_len_latched;
-
-  always @(posedge ulpi_clk or negedge I_rst_n) begin
-    if (!I_rst_n) begin
-      tx_ready_latched <= 1'b0;
-      tx_len_latched <= 12'd0;
-    end else begin
-      // Evaluate readiness to send
-      tx_ready_latched <= 1;  // Always ready to send for now
-      tx_len_latched <= 12'd512;  // Actual number to send
-    end
-  end
-
-  assign usb_txcork_i = ~tx_ready_latched;
-  assign usb_txdat_len_i = tx_len_latched;
-
-  assign usb_txval_i = 1'b0;
 
   //==============================================================
   //======USB Device descriptor Demo
