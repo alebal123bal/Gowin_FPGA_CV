@@ -1,90 +1,315 @@
 import usb.core, usb.util
 import usb.backend.libusb1
 import numpy as np
+import threading
+import queue
+import time
+from collections import deque
 
+# Configuration
 VID = 0x33AA
 PID = 0x0000
 EP_IN = 0x81  # endpoint address
-PKT = 512  # wMaxPacketSize
+PKT_SIZE = 512  # wMaxPacketSize
+TIMEOUT = 100  # Reduced timeout for high-speed operation
+PACKETS_TO_COLLECT = 1200  # Default: 640x480 RGB565 frame
+FRAME_BOUNDARY_ZEROS = 30  # Consecutive zeros to detect frame boundary
 
 
-backend = usb.backend.libusb1.get_backend()
-print("Backend:", backend)
+class HighSpeedUSBReader:
+    def __init__(self):
+        self.running = False
+        self.packet_queue = queue.Queue(
+            maxsize=10000
+        )  # Buffer for high-speed operation
+        self.stats_lock = threading.Lock()
+        self.total_packets_read = 0
+        self.total_bytes_read = 0
+        self.read_speed_mbps = 0.0
 
-dev = usb.core.find(idVendor=VID, idProduct=PID)
-if dev is None:
-    raise ValueError("Device not found")
+        # USB setup
+        self.setup_usb()
 
-dev.set_configuration()
-cfg = dev.get_active_configuration()
-intf = cfg[(0, 0)]
-ep = usb.util.find_descriptor(intf, bEndpointAddress=EP_IN)
+    def setup_usb(self):
+        """Initialize USB device with optimized settings"""
+        backend = usb.backend.libusb1.get_backend()
+        print("Backend:", backend)
 
-i = 0
-frame_boundary_detected = False
-packets_to_collect = 0
-collected_packets = []  # Pre-allocate list to store packets
+        print(f"Searching for USB device (VID: 0x{VID:04X}, PID: 0x{PID:04X})...")
+        self.dev = usb.core.find(idVendor=VID, idProduct=PID)
+
+        if self.dev is None:
+            print("Device not found! Listing all USB devices:")
+            devices = usb.core.find(find_all=True)
+            for device in devices:
+                try:
+                    print(
+                        f"  Found device: VID=0x{device.idVendor:04X}, PID=0x{device.idProduct:04X}"
+                    )
+                except:
+                    print("  Found device: (unable to read VID/PID)")
+            raise ValueError("Target device not found")
+
+        print(
+            f"Found target device: VID=0x{self.dev.idVendor:04X}, PID=0x{self.dev.idProduct:04X}"
+        )
+
+        try:
+            # Set configuration for high-speed operation
+            print("Setting USB configuration...")
+            self.dev.set_configuration()
+
+            print("Getting active configuration...")
+            cfg = self.dev.get_active_configuration()
+            intf = cfg[(0, 0)]
+
+            print(f"Finding endpoint {EP_IN:02X}...")
+            self.ep = usb.util.find_descriptor(intf, bEndpointAddress=EP_IN)
+
+            if self.ep is None:
+                print("Available endpoints:")
+                for ep in intf:
+                    print(f"  Endpoint: 0x{ep.bEndpointAddress:02X}")
+                raise ValueError(f"Endpoint {EP_IN:02X} not found")
+
+            print(f"Found endpoint: 0x{self.ep.bEndpointAddress:02X}")
+
+            # Reset any stale data
+            print("Clearing USB buffer...")
+            cleared_packets = 0
+            try:
+                while True:
+                    self.dev.read(self.ep.bEndpointAddress, PKT_SIZE, timeout=10)
+                    cleared_packets += 1
+                    if cleared_packets > 100:  # Prevent infinite loop
+                        break
+            except usb.core.USBTimeoutError:
+                pass  # Expected when buffer is empty
+
+            if cleared_packets > 0:
+                print(f"Cleared {cleared_packets} stale packets from buffer")
+
+            print("USB device initialized for high-speed operation")
+
+        except usb.core.USBError as e:
+            print(f"USB setup error: {e}")
+            raise
+        except Exception as e:
+            print(f"Unexpected error during USB setup: {e}")
+            raise
+
+    def has_consecutive_zeros(self, data_array, min_count=FRAME_BOUNDARY_ZEROS):
+        """Fast consecutive zero detection"""
+        consecutive = 0
+        for byte_val in data_array:
+            if byte_val == 0:
+                consecutive += 1
+                if consecutive >= min_count:
+                    return True
+            else:
+                consecutive = 0
+        return False
+
+    def usb_reader_thread(self):
+        """Dedicated high-speed USB reading thread"""
+        packet_count = 0
+        start_time = time.time()
+
+        print("High-speed USB reader thread started")
+
+        while self.running:
+            try:
+                # Read packet at maximum speed
+                data = self.dev.read(
+                    self.ep.bEndpointAddress, PKT_SIZE, timeout=TIMEOUT
+                )
+
+                # Queue packet for processing (non-blocking)
+                if not self.packet_queue.full():
+                    self.packet_queue.put((packet_count, data), block=False)
+
+                packet_count += 1
+
+                # Update statistics every 1000 packets
+                if packet_count % 1000 == 0:
+                    with self.stats_lock:
+                        elapsed = time.time() - start_time
+                        self.total_packets_read = packet_count
+                        self.total_bytes_read = packet_count * PKT_SIZE
+                        self.read_speed_mbps = (self.total_bytes_read * 8) / (
+                            elapsed * 1_000_000
+                        )
+
+                        print(
+                            f"USB Reader: {packet_count:,} packets, "
+                            f"{self.total_bytes_read/1_000_000:.1f} MB, "
+                            f"{self.read_speed_mbps:.1f} Mbps"
+                        )
+
+            except usb.core.USBTimeoutError:
+                # Normal timeout, continue reading
+                continue
+            except usb.core.USBError as e:
+                print(f"USB Error: {e}")
+                break
+            except Exception as e:
+                print(f"Reader thread error: {e}")
+                break
+
+        print("USB reader thread stopped")
+
+    def collect_packets(self, num_packets=PACKETS_TO_COLLECT, wait_for_boundary=True):
+        """Collect specified number of packets, optionally waiting for frame boundary"""
+        collected_packets = []
+        boundary_found = False
+        processed_count = 0
+
+        print(f"Starting packet collection...")
+        if wait_for_boundary:
+            print(
+                f"Waiting for frame boundary ({FRAME_BOUNDARY_ZEROS}+ consecutive zeros)..."
+            )
+
+        start_time = time.time()
+
+        while len(collected_packets) < num_packets:
+            try:
+                # Get packet from high-speed reader
+                packet_num, data = self.packet_queue.get(timeout=5.0)
+                processed_count += 1
+
+                # Check for frame boundary if required
+                if wait_for_boundary and not boundary_found:
+                    if self.has_consecutive_zeros(data):
+                        print(f"Frame boundary detected at packet {packet_num}!")
+                        boundary_found = True
+                        collected_packets = []  # Reset collection after boundary
+
+                # Collect packet if boundary found or not waiting for boundary
+                if not wait_for_boundary or boundary_found:
+                    collected_packets.append((packet_num, data))
+
+                    # Progress update
+                    if len(collected_packets) % 100 == 0:
+                        print(
+                            f"Collected {len(collected_packets)}/{num_packets} packets..."
+                        )
+
+            except queue.Empty:
+                print("Timeout waiting for packets from USB reader")
+                break
+
+        collection_time = time.time() - start_time
+
+        # Calculate statistics
+        total_bytes = len(collected_packets) * PKT_SIZE
+        total_bits = total_bytes * 8
+        collection_speed = (
+            (total_bits / collection_time) / 1_000_000 if collection_time > 0 else 0
+        )
+
+        print(f"\nCollection Complete:")
+        print(f"Packets collected: {len(collected_packets):,}")
+        print(f"Total bytes: {total_bytes:,} bytes ({total_bytes/1024:.1f} KB)")
+        print(f"Total bits: {total_bits:,} bits ({total_bits/1_000_000:.1f} Mbits)")
+        print(f"Collection time: {collection_time:.2f} seconds")
+        print(f"Collection speed: {collection_speed:.1f} Mbps")
+        print(f"Processed packets: {processed_count:,}")
+
+        return collected_packets
+
+    def start(self):
+        """Start the high-speed USB reader"""
+        self.running = True
+        self.reader_thread = threading.Thread(
+            target=self.usb_reader_thread, daemon=True
+        )
+        self.reader_thread.start()
+        time.sleep(0.5)  # Let reader start
+
+    def stop(self):
+        """Stop the USB reader"""
+        self.running = False
+        if hasattr(self, "reader_thread"):
+            self.reader_thread.join(timeout=2.0)
+
+    def get_stats(self):
+        """Get current reading statistics"""
+        with self.stats_lock:
+            return {
+                "packets": self.total_packets_read,
+                "bytes": self.total_bytes_read,
+                "speed_mbps": self.read_speed_mbps,
+                "queue_size": self.packet_queue.qsize(),
+            }
 
 
-def has_consecutive_zeros(data_array, min_count=30):
-    """Check if data_array has min_count consecutive zeros using numpy"""
-    # Convert array to numpy array if it isn't already
-    arr = np.array(data_array)
+def main():
+    """Main function with user interaction"""
+    reader = HighSpeedUSBReader()
 
-    # Simple approach: count consecutive zeros
-    consecutive_count = 0
-    max_consecutive = 0
+    try:
+        # Start high-speed reader
+        reader.start()
+        print("High-speed USB reader started successfully!")
+        print("Commands:")
+        print(
+            "  collect [num_packets] [boundary] - Collect packets (default: 1200, boundary: True)"
+        )
+        print("  stats - Show reading statistics")
+        print("  quit - Exit")
 
-    for value in arr:
-        if value == 0:
-            consecutive_count += 1
-            max_consecutive = max(max_consecutive, consecutive_count)
-            if max_consecutive >= min_count:
-                return True
-        else:
-            consecutive_count = 0
+        while True:
+            try:
+                cmd = input("\n> ").strip().lower().split()
 
-    return max_consecutive >= min_count
+                if not cmd:
+                    continue
+
+                if cmd[0] == "quit" or cmd[0] == "exit":
+                    break
+
+                elif cmd[0] == "collect":
+                    # Parse arguments
+                    num_packets = int(cmd[1]) if len(cmd) > 1 else PACKETS_TO_COLLECT
+                    wait_boundary = cmd[2].lower() == "true" if len(cmd) > 2 else True
+
+                    print(
+                        f"\nCollecting {num_packets} packets (boundary detection: {wait_boundary})..."
+                    )
+                    packets = reader.collect_packets(num_packets, wait_boundary)
+
+                    # Show first few packets as sample
+                    if packets:
+                        print("\nFirst 3 packets:")
+                        for i, (pkt_num, data) in enumerate(packets[:3]):
+                            print(
+                                f"Packet {pkt_num}: {data[:20]}... (showing first 20 bytes)"
+                            )
+
+                elif cmd[0] == "stats":
+                    stats = reader.get_stats()
+                    print(f"\nUSB Reader Statistics:")
+                    print(f"Packets read: {stats['packets']:,}")
+                    print(
+                        f"Bytes read: {stats['bytes']:,} ({stats['bytes']/1_000_000:.1f} MB)"
+                    )
+                    print(f"Current speed: {stats['speed_mbps']:.1f} Mbps")
+                    print(f"Queue size: {stats['queue_size']}")
+
+                else:
+                    print("Unknown command. Use 'collect', 'stats', or 'quit'")
+
+            except KeyboardInterrupt:
+                break
+            except Exception as e:
+                print(f"Error: {e}")
+
+    finally:
+        print("\nStopping USB reader...")
+        reader.stop()
+        print("Done!")
 
 
-print("Searching for frame boundary (30+ consecutive zeros)...")
-
-while True:
-    data = dev.read(ep.bEndpointAddress, PKT, timeout=2000)
-
-    # Show progress every 100 packets (only while searching)
-    if not frame_boundary_detected and i % 100 == 0:
-        print(f"Processed {i} packets, still searching for frame boundary...")
-
-    # Check for frame boundary (30+ consecutive zeros)
-    if has_consecutive_zeros(data, 30):
-        print(f"Frame boundary detected at packet {i}! Collecting next 100 packets...")
-        frame_boundary_detected = True
-        packets_to_collect = 10
-        collected_packets = []  # Reset the collection
-
-    # Collect packets if we're in collection mode
-    if packets_to_collect > 0:
-        collected_packets.append((i, data))
-        packets_to_collect -= 1
-
-        # Show collection progress every 20 packets
-        if packets_to_collect % 20 == 0:
-            print(f"Collected {100 - packets_to_collect}/100 packets...")
-
-        if packets_to_collect == 0:
-            print("Finished collecting 100 packets. Printing all at once:")
-            print("=" * 60)
-            for packet_num, packet_data in collected_packets:
-                print(f"Packet {packet_num}: {packet_data}")
-                print()
-            print("=" * 60)
-            print("All packets printed. Exiting.")
-            break
-
-    i += 1
-
-    # Safety exit after reading many packets without finding boundary
-    if i >= 1000 and not frame_boundary_detected:
-        print("Read 1000 packets without finding frame boundary, exiting.")
-        break
+if __name__ == "__main__":
+    main()
