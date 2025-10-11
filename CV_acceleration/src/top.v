@@ -246,8 +246,11 @@ module top (
   );
   defparam u_clkdiv.DIV_MODE = "5"; defparam u_clkdiv.GSREN = "false";
 
+
+  // `define USE_TESTPATTERN 
+
   ////========================================================
-  //Actual HDMI transmitter, receiving input from testpattern and interfacing with PHYSICAL HDMI cable
+  //Actual HDMI transmitter, receiving input from testpattern/VFBuffer and interfacing with PHYSICAL HDMI cable
   DVI_TX_Top DVI_TX_Top_inst (
       .I_rst_n(HDMI_rst_n),  //asynchronous reset, low active
       .I_serial_clk(HDMI_TMDS_clk),
@@ -255,12 +258,15 @@ module top (
       .I_rgb_vs(HDMI_vs_in),
       .I_rgb_hs(HDMI_hs_in),
       .I_rgb_de(HDMI_de_in),
-      // .I_rgb_r       (HDMI_data_r    ),
-      // .I_rgb_g       (HDMI_data_g    ),
-      // .I_rgb_b       (HDMI_data_b    ),
+`ifdef USE_TESTPATTERN
+      .I_rgb_r(HDMI_data_r),
+      .I_rgb_g(HDMI_data_g),
+      .I_rgb_b(HDMI_data_b),
+`else
       .I_rgb_r({lcd_r, 3'd0}),  // 5 bits red
       .I_rgb_g({lcd_g, 2'd0}),  // 6 bits green
       .I_rgb_b({lcd_b, 3'd0}),  // 5 bits blue
+`endif
       .O_tmds_clk_p(O_tmds_clk_p),  //Positive clock
       .O_tmds_clk_n(O_tmds_clk_n),
       .O_tmds_data_p(O_tmds_data_p),
