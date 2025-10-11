@@ -131,8 +131,8 @@ class HighSpeedUSBReader:
 
                 packet_count += 1
 
-                # Update statistics every 1000 packets
-                if packet_count % 1000 == 0:
+                # Update statistics every 2000 packets
+                if packet_count % 2000 == 0:
                     with self.stats_lock:
                         elapsed = time.time() - start_time
                         self.total_packets_read = packet_count
