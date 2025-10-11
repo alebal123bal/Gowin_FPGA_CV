@@ -13,8 +13,8 @@ PID = 0x0000
 EP_IN = 0x81  # endpoint address
 PKT_SIZE = 512  # wMaxPacketSize
 TIMEOUT = 100  # Reduced timeout for high-speed operation
-PACKETS_TO_COLLECT = 1200  # Default: 640x480 RGB565 frame
-FRAME_BOUNDARY_ZEROS = 30  # Consecutive zeros to detect frame boundary
+TOTAL_PACKETS = 5000  # Total packets to read in this demo
+FRAME_BOUNDARY_ZEROS = 400  # Consecutive zeros to detect frame boundary
 
 
 class HighSpeedUSBReader:
@@ -112,13 +112,15 @@ class HighSpeedUSBReader:
         return False
 
     def usb_reader_thread(self):
-        """Dedicated high-speed USB reading thread"""
+        """Dedicated high-speed USB reading thread - stops after TOTAL_PACKETS packets"""
         packet_count = 0
         start_time = time.time()
 
-        print("High-speed USB reader thread started")
+        print(
+            f"High-speed USB reader thread started - will stop after {TOTAL_PACKETS} packets"
+        )
 
-        while self.running:
+        while self.running and packet_count < TOTAL_PACKETS:
             try:
                 # Read packet at maximum speed
                 data = self.dev.read(
@@ -131,21 +133,11 @@ class HighSpeedUSBReader:
 
                 packet_count += 1
 
-                # Update statistics every 2000 packets
-                if packet_count % 2000 == 0:
-                    with self.stats_lock:
-                        elapsed = time.time() - start_time
-                        self.total_packets_read = packet_count
-                        self.total_bytes_read = packet_count * PKT_SIZE
-                        self.read_speed_mbps = (self.total_bytes_read * 8) / (
-                            elapsed * 1_000_000
-                        )
-
-                        print(
-                            f"USB Reader: {packet_count:,} packets, "
-                            f"{self.total_bytes_read/1_000_000:.1f} MB, "
-                            f"{self.read_speed_mbps:.1f} Mbps"
-                        )
+                # Update statistics every 500 packets
+                if packet_count % 500 == 0:
+                    print(
+                        f"Reading progress: {packet_count}/{TOTAL_PACKETS} packets..."
+                    )
 
             except usb.core.USBTimeoutError:
                 # Normal timeout, continue reading
@@ -157,7 +149,17 @@ class HighSpeedUSBReader:
                 print(f"Reader thread error: {e}")
                 break
 
-        print("USB reader thread stopped")
+        # Store final stats
+        with self.stats_lock:
+            elapsed = time.time() - start_time
+            self.total_packets_read = packet_count
+            self.total_bytes_read = packet_count * PKT_SIZE
+            self.read_speed_mbps = (self.total_bytes_read * 8) / (elapsed * 1_000_000)
+
+        print(
+            f"USB reader thread stopped after {packet_count} packets in {elapsed:.2f}s"
+        )
+        self.running = False
 
     def start(self):
         """Start the high-speed USB reader"""
@@ -185,23 +187,78 @@ class HighSpeedUSBReader:
             }
 
 
+def analyze_queue(reader):
+    """Analyze the packet queue contents"""
+    print("\n" + "=" * 50)
+    print("ANALYZING PACKET QUEUE")
+    print("=" * 50)
+
+    queue_size = reader.packet_queue.qsize()
+    print(f"Packets in queue: {queue_size}")
+
+    if queue_size == 0:
+        print("No packets to analyze!")
+        return
+
+    # Extract all packets from queue
+    packets = []
+    while not reader.packet_queue.empty():
+        try:
+            packet = reader.packet_queue.get_nowait()
+            packets.append(packet)
+        except queue.Empty:
+            break
+
+    print(f"Extracted {len(packets)} packets for analysis")
+
+    # Show first 3 packets
+    print(f"\nFirst 3 packets:")
+    for i, (pkt_num, data) in enumerate(packets[:3]):
+        preview = list(data[:10])  # First 10 bytes
+        print(f"  Packet {pkt_num}: {preview}...")
+
+    # Look for frame boundaries
+    boundaries = 0
+    for pkt_num, data in packets:
+        if reader.has_consecutive_zeros(data):
+            boundaries += 1
+            print(f"  Frame boundary found in packet {pkt_num}")
+
+    print(f"\nFrame boundaries found: {boundaries}")
+
+    # Basic stats
+    total_bytes = len(packets) * PKT_SIZE
+    print(f"Total bytes: {total_bytes:,}")
+    print(f"Total packets analyzed: {len(packets)}")
+
+    stats = reader.get_stats()
+    print(f"Reading speed: {stats['speed_mbps']:.1f} Mbps")
+    print("=" * 50)
+
+
 def main():
-    """Simple daemon streaming"""
+    """Stream TOTAL_PACKETS packets then analyze"""
     reader = HighSpeedUSBReader()
 
     try:
-        # Start daemon streaming
+        # Start streaming
         reader.start()
-        print("USB daemon streaming started - Ctrl+C to stop")
+        print(f"Streaming {TOTAL_PACKETS} packets...")
 
-        # Keep running until interrupted
-        while True:
-            time.sleep(1)
+        # Wait for reader to finish
+        while reader.running:
+            time.sleep(0.1)
+
+        # Analyze the queue
+        analyze_queue(reader)
+
+        print("\nAnalysis complete!")
 
     except KeyboardInterrupt:
-        print("\nStopping USB reader...")
+        print("\nStopping...")
         reader.stop()
-        print("Done!")
+
+    print("Done!")
 
 
 if __name__ == "__main__":
