@@ -425,10 +425,10 @@ module top (
       .Full(fifo_hs_full)  //output Full
   );
 
+  // TODO: complete this
   assign fifo_hs_data = cmos_data_16;
   assign fifo_hs_wr_en = cmos_write_en & ~fifo_hs_almost_full;  //write when fifo not almost full
   assign fifo_hs_rd_en = (~fifo_hs_empty) & (fifo_hs_rnum >= 17'd512) & usb_txpop_o;  //read when fifo not empty and at least 512 bytes available
-  // TODO: complete other signals when USB Controller IP is ready
 
 
   //===================================================
@@ -508,7 +508,8 @@ module top (
   end
 
   // USB
-  assign usb_txdat_i = usb_tx_counter;
+  // assign usb_txdat_i = usb_tx_counter;
+  assign usb_txdat_i = fifo_hs_q;  // Send data from FIFO
   assign usb_txiso_pid_i = 4'b0011;  // Don't care for non-isochronous
 
   reg tx_ready_latched;
@@ -521,7 +522,7 @@ module top (
     end else begin
       // Evaluate readiness to send
       tx_ready_latched <= 1;  // Always ready to send for now
-      tx_len_latched <= 12'd512;  // or the actual number you intend to send
+      tx_len_latched <= 12'd512;  // Actual number to send
     end
   end
 
