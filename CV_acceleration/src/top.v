@@ -463,23 +463,8 @@ module top (
   // USB
   assign usb_txdat_i = fifo_hs_q;  // Send data from FIFO
   assign usb_txiso_pid_i = 4'b0011;  // Don't care for non-isochronous
-
-  reg tx_ready_latched;
-  reg [11:0] tx_len_latched;
-
-  always @(posedge ulpi_clk or negedge I_rst_n) begin
-    if (!I_rst_n) begin
-      tx_ready_latched <= 1'b0;
-      tx_len_latched <= 12'd0;
-    end else begin
-      // Evaluate readiness to send
-      tx_ready_latched <= 1;  // Always ready to send for now
-      tx_len_latched <= 12'd512;  // Actual number to send
-    end
-  end
-
-  assign usb_txcork_i = ~tx_ready_latched;
-  assign usb_txdat_len_i = tx_len_latched;
+  assign usb_txcork_i = 1'b0;  // Always ready to send
+  assign usb_txdat_len_i = 12'd512;  // 512 bytes per packet
 
   assign usb_txval_i = 1'b0;
 
