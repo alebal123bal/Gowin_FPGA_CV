@@ -12,16 +12,16 @@ VID = 0x33AA
 PID = 0x0000
 EP_IN = 0x81  # endpoint address
 PKT_SIZE = 512  # wMaxPacketSize
-TIMEOUT = 100  # Reduced timeout for high-speed operation
+TIMEOUT = 10  # Reduced timeout for high-speed operation
 TOTAL_PACKETS = 5000  # Total packets to read in this demo
-FRAME_BOUNDARY_ZEROS = 500  # Consecutive zeros to detect frame boundary
+FRAME_BOUNDARY_ONES = 500  # Consecutive ones to detect frame boundary
 
 
 class HighSpeedUSBReader:
     def __init__(self):
         self.running = False
         self.packet_queue = queue.Queue(
-            maxsize=10000
+            maxsize=TOTAL_PACKETS * 2
         )  # Buffer for high-speed operation
         self.stats_lock = threading.Lock()
         self.total_packets_read = 0
@@ -99,11 +99,11 @@ class HighSpeedUSBReader:
             print(f"Unexpected error during USB setup: {e}")
             raise
 
-    def has_consecutive_zeros(self, data_array, min_count=FRAME_BOUNDARY_ZEROS):
-        """Fast consecutive zero detection"""
+    def has_consecutive_ones(self, data_array, min_count=FRAME_BOUNDARY_ONES):
+        """Fast consecutive one detection"""
         consecutive = 0
         for byte_val in data_array:
-            if byte_val == 0:
+            if byte_val == 1:
                 consecutive += 1
                 if consecutive >= min_count:
                     return True
@@ -220,7 +220,7 @@ def analyze_queue(reader):
     # Look for frame boundaries
     boundaries = 0
     for pkt_num, data in packets:
-        if reader.has_consecutive_zeros(data):
+        if reader.has_consecutive_ones(data):
             boundaries += 1
             print(f"  Frame boundary found in packet {pkt_num}")
 
