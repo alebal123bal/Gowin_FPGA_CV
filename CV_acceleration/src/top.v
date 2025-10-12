@@ -455,7 +455,7 @@ module top (
   end
 
   // Multiplex between camera data and frame markers
-  assign fifo_hs_data = frame_marker_active ? 16'h0000 : cmos_debayer_data_16;
+  assign fifo_hs_data = frame_marker_active ? 16'h0001 : cmos_debayer_data_16;
   assign fifo_hs_wr_en = frame_marker_active ? (~fifo_hs_almost_full) : (cmos_write_en & ~fifo_hs_almost_full);
   assign fifo_hs_rd_en = (~fifo_hs_empty) & (fifo_hs_rnum >= 17'd512) & usb_txpop_o;
 
@@ -581,8 +581,8 @@ module top (
   //===================================================
   // LEDs
   assign O_led[0] = ~usb_online_o;  // Indicate USB is connected
-  assign O_led[1] = ~usb_rst_o;  // Indicate USB reset
-  assign O_led[2] = ~usb_suspend_o;  // Indicate USB suspend
+  assign O_led[1] = ~fifo_hs_full;  // Indicate FIFO full
+  assign O_led[2] = ~fifo_hs_almost_full;  // Indicate FIFO almost full
   assign O_led[3] = I_rst_n;
 
   //===================================================
