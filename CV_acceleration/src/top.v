@@ -425,24 +425,42 @@ module top (
       .Full(fifo_hs_full)  //output Full
   );
 
-  // TODO: complete this
-  assign fifo_hs_data = cmos_data_16;
-  assign fifo_hs_wr_en = cmos_write_en & ~fifo_hs_almost_full;  //write when fifo not almost full
-  assign fifo_hs_rd_en = (~fifo_hs_empty) & (fifo_hs_rnum >= 17'd512) & usb_txpop_o;  //read when fifo not empty and at least 512 bytes available
+  // Insert zero bytes on rising edge of cmos_vsync (start of frame)
+  reg [15:0] frame_marker_counter;  // 16 bits for counting
+  reg frame_marker_active;
+  reg cmos_vsync_prev;  // Previous state for edge detection
 
-
-  // Create a mock counter to tx through USB
-  reg [7:0] usb_tx_counter;
-  always @(posedge ulpi_clk or negedge I_rst_n) begin
+  always @(posedge cmos_pclk or negedge I_rst_n) begin
     if (!I_rst_n) begin
-      usb_tx_counter <= 8'd0;
-    end else if (usb_txact_o) begin
-      usb_tx_counter <= usb_tx_counter + 8'd5;
+      frame_marker_counter <= 16'd0;
+      frame_marker_active <= 1'b0;
+      cmos_vsync_prev <= 1'b0;
+    end else begin
+      cmos_vsync_prev <= cmos_vsync;  // Store previous state
+
+      // Detect rising edge of cmos_vsync
+      if (cmos_vsync && !cmos_vsync_prev && !frame_marker_active && ~fifo_hs_almost_full) begin
+        // Start frame marker insertion on rising edge of vsync
+        frame_marker_active <= 1'b1;
+        frame_marker_counter <= 16'd0;
+      end else if (frame_marker_active && ~fifo_hs_almost_full) begin
+        // Count up to x
+        if (frame_marker_counter < 16'd1000) begin
+          frame_marker_counter <= frame_marker_counter + 1'b1;
+        end else begin
+          frame_marker_active <= 1'b0;
+        end
+      end
     end
   end
 
+  // Multiplex between camera data and frame markers
+  assign fifo_hs_data = frame_marker_active ? 16'h0000 : cmos_debayer_data_16;
+  assign fifo_hs_wr_en = frame_marker_active ? (~fifo_hs_almost_full) : (cmos_write_en & ~fifo_hs_almost_full);
+  assign fifo_hs_rd_en = (~fifo_hs_empty) & (fifo_hs_rnum >= 17'd512) & usb_txpop_o;
+
+
   // USB
-  // assign usb_txdat_i = usb_tx_counter;
   assign usb_txdat_i = fifo_hs_q;  // Send data from FIFO
   assign usb_txiso_pid_i = 4'b0011;  // Don't care for non-isochronous
 
