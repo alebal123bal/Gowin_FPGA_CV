@@ -587,12 +587,13 @@ module top (
 
   //===================================================
   // Frequency test: convert to 1 second counters
-  localparam HALF_PERIOD = 30_000_000;
+  // Write enable once every 640x480@51.454FPS = 15.444MHz; Half period = 1/(2*15.444MHz) = 32.4ns -> 7_903_334 cycles
+  localparam HALF_PERIOD = 7_903_334;
 
   reg [31:0] counter_clk;  // 32 bits can count up to 2.14 Billion
   reg debug_reg_1sec_clk;
 
-  always @(posedge ulpi_clk or negedge I_rst_n) begin
+  always @(posedge cmos_write_en or negedge I_rst_n) begin
     if (!I_rst_n) begin
       counter_clk <= 0;
       debug_reg_1sec_clk <= 0;
