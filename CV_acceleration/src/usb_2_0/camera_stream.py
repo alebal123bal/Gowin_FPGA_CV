@@ -14,7 +14,7 @@ EP_IN = 0x81  # endpoint address
 PKT_SIZE = 512  # wMaxPacketSize
 TIMEOUT = 10  # Reduced timeout for high-speed operation
 TOTAL_PACKETS = 5000  # Total packets to read in this demo
-FRAME_BOUNDARY_ONES = 500  # Consecutive ones to detect frame boundary
+FRAME_BOUNDARY_ONES = 1000 / 2  # Consecutive ones to detect frame boundary
 
 
 class HighSpeedUSBReader:

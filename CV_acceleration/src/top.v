@@ -425,7 +425,7 @@ module top (
       .Full(fifo_hs_full)  //output Full
   );
 
-  // Insert zero bytes on rising edge of cmos_vsync (start of frame)
+  // Insert one bytes on rising edge of cmos_vsync (start of frame)
   reg [15:0] frame_marker_counter;  // 16 bits for counting
   reg frame_marker_active;
   reg cmos_vsync_prev;  // Previous state for edge detection
@@ -439,11 +439,11 @@ module top (
       cmos_vsync_prev <= cmos_vsync;  // Store previous state
 
       // Detect rising edge of cmos_vsync
-      if (cmos_vsync && !cmos_vsync_prev && !frame_marker_active && ~fifo_hs_almost_full) begin
+      if (cmos_vsync && !cmos_vsync_prev && !frame_marker_active) begin
         // Start frame marker insertion on rising edge of vsync
         frame_marker_active <= 1'b1;
         frame_marker_counter <= 16'd0;
-      end else if (frame_marker_active && ~fifo_hs_almost_full) begin
+      end else if (frame_marker_active) begin
         // Count up to x
         if (frame_marker_counter < 16'd1000) begin
           frame_marker_counter <= frame_marker_counter + 1'b1;
@@ -455,8 +455,8 @@ module top (
   end
 
   // Multiplex between camera data and frame markers
-  assign fifo_hs_data = frame_marker_active ? 16'h0001 : cmos_debayer_data_16;
-  assign fifo_hs_wr_en = frame_marker_active ? (~fifo_hs_almost_full) : (cmos_write_en & ~fifo_hs_almost_full);
+  assign fifo_hs_data = frame_marker_active ? 16'h0101 : cmos_debayer_data_16;
+  assign fifo_hs_wr_en = frame_marker_active ? 1 : (cmos_write_en & ~fifo_hs_almost_full);
   assign fifo_hs_rd_en = (~fifo_hs_empty) & (fifo_hs_rnum >= 17'd512) & usb_txpop_o;
 
 
