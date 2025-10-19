@@ -7,9 +7,10 @@ PID = 0x0000
 EP_IN = 0x81
 PKT_SIZE = 512
 BULK_READ_SIZE = PKT_SIZE * 1024  # 512 KB per read
-READ_COUNT = 2000
+READ_COUNT = 200
 TIMEOUT_MS = 20
 MAX_TIMEOUTS = 200  # Stop after these many consecutive timeouts
+FRAME_ONES_THRESHOLD = 200  # configurable threshold (consecutive "1"s)
 
 
 def read_usb_data():
@@ -55,36 +56,77 @@ def read_usb_data():
     mbits_per_s = mb_per_s * 8
 
     print("\n===== USB READ COMPLETE =====")
-    print(f"Total bytes read: {total_bytes:,}")
-    print(f"Elapsed time: {elapsed:.3f} s")
-    print(f"Speed: {mb_per_s:.2f} MB/s ({mbits_per_s:.2f} Mb/s)")
-    print("==============================\n")
+    print(f"Total bytes read : {total_bytes:,}")
+    print(f"Elapsed time     : {elapsed:.3f} s")
+    print(f"Speed            : {mb_per_s:.2f} MB/s ({mbits_per_s:.2f} Mb/s)")
+    print("=================================\n")
+
+    if not all_data:
+        return np.array([], dtype=np.uint8)
 
     return np.concatenate([np.frombuffer(chunk, dtype=np.uint8) for chunk in all_data])
 
 
+def find_consecutive_ones(packet: np.ndarray, threshold: int) -> bool:
+    """Return True if the packet has >= threshold consecutive 1's."""
+    if packet.size == 0:
+        return False
+    # Efficient vectorized search for consecutive ones
+    # Convert to boolean mask
+    ones = (packet == 1).astype(np.int8)
+    # Find run lengths of consecutive 1s
+    diffs = np.diff(np.concatenate(([0], ones, [0])))
+    run_starts = np.where(diffs == 1)[0]
+    run_ends = np.where(diffs == -1)[0]
+    if run_starts.size == 0:
+        return False
+    run_lengths = run_ends - run_starts
+    return np.any(run_lengths >= threshold)
+
+
 def post_process(data: np.ndarray):
-    """Example post‑processing of collected USB data buffer."""
+    """Do post‑processing and find packets with long consecutive 1s."""
     print("Starting post‑processing ...")
 
-    # Example: simple statistics
+    # ---- Basic statistics ----
     print(f"Total samples: {len(data):,}")
-    print(f"Mean value: {data.mean():.2f}")
-    print(f"Std deviation: {data.std():.2f}")
+    print(f"Mean: {data.mean():.2f}, Std: {data.std():.2f}")
     print(f"Min: {data.min()}   Max: {data.max()}")
 
-    # Example: detect frame boundary based on value pattern
+    # ---- Count zeros/ones just for global info ----
     ones = np.count_nonzero(data == 1)
     zeros = np.count_nonzero(data == 0)
     print(f"Zeros: {zeros:,}, Ones: {ones:,}")
 
-    # Replace dump file
+    # ---- Frame boundary search ----
+    print(f"\nSearching packets with >= {FRAME_ONES_THRESHOLD} consecutive '1's ...")
+
+    # Split the entire stream into 512‑byte logical packets
+    packet_count = len(data) // PKT_SIZE
+    matches = []
+
+    for pkt_idx in range(packet_count):
+        start = pkt_idx * PKT_SIZE
+        end = start + PKT_SIZE
+        pkt = data[start:end]
+        if find_consecutive_ones(pkt, FRAME_ONES_THRESHOLD):
+            matches.append(pkt_idx)
+
+    if matches:
+        print(f"\nFound {len(matches)} packets matching threshold:")
+        print(matches[:50])  # Show first 50 packet indices only
+        if len(matches) > 50:
+            print(f"... and {len(matches) - 50} more not shown")
+    else:
+        print("No packets found with that pattern.")
+
+    # ---- Save binary dump for offline analysis ----
     out_file = "CV_acceleration/src/usb_2_0/usb_stream_dump/usb_stream_dump.bin"
     with open(out_file, "wb") as f:
         data.tofile(f)
-    print(f"Saved raw stream to '{out_file}' ({len(data)/1024/1024:.1f} MB)")
+    print(f"\nSaved raw stream to '{out_file}' ({len(data)/1024/1024:.1f} MB)")
 
-    print("Post‑processing complete.")
+    print("\nPost‑processing complete.")
 
 
 def main():
