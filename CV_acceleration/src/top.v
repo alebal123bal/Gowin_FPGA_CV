@@ -581,8 +581,8 @@ module top (
   //===================================================
   // LEDs
   assign O_led[0] = ~usb_online_o;  // Indicate USB is connected
-  assign O_led[1] = ~fifo_hs_full;  // Indicate FIFO full
-  assign O_led[2] = ~fifo_hs_almost_full;  // Indicate FIFO almost full
+  assign O_led[1] = ~fifo_hs_almost_full;  // Indicate FIFO almost full
+  assign O_led[2] = ~fifo_hs_almost_empty;  // Indicate FIFO almost empty
   assign O_led[3] = I_rst_n;
 
   //===================================================
