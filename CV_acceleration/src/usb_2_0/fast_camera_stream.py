@@ -1,5 +1,5 @@
-import usb.core, usb.util, usb.backend.libusb1
 import time
+import usb.core, usb.util, usb.backend.libusb1
 import numpy as np
 
 VID = 0x33AA
@@ -10,7 +10,8 @@ BULK_READ_SIZE = PKT_SIZE * 1024  # 512 KB per read
 READ_COUNT = 200
 TIMEOUT_MS = 20
 MAX_TIMEOUTS = 200  # Stop after these many consecutive timeouts
-FRAME_ONES_THRESHOLD = 200  # configurable threshold (consecutive "1"s)
+FRAME_ONES_THRESHOLD = 511  # configurable threshold (consecutive occurrences)
+CONSECUTIVE_TARGET_VALUE = 255  # int8 arbitrary number to search for (0-255)
 
 
 def read_usb_data():
@@ -67,14 +68,14 @@ def read_usb_data():
     return np.concatenate([np.frombuffer(chunk, dtype=np.uint8) for chunk in all_data])
 
 
-def find_consecutive_ones(packet: np.ndarray, threshold: int) -> bool:
-    """Return True if the packet has >= threshold consecutive 1's."""
+def find_consecutive_value(packet: np.ndarray, threshold: int) -> bool:
+    """Return True if the packet has >= threshold consecutive occurrences of CONSECUTIVE_TARGET_VALUE."""
     if packet.size == 0:
         return False
-    # Efficient vectorized search for consecutive ones
+    # Efficient vectorized search for consecutive target values
     # Convert to boolean mask
-    ones = (packet == 1).astype(np.int8)
-    # Find run lengths of consecutive 1s
+    ones = (packet == CONSECUTIVE_TARGET_VALUE).astype(np.int8)
+    # Find run lengths of consecutive target values
     diffs = np.diff(np.concatenate(([0], ones, [0])))
     run_starts = np.where(diffs == 1)[0]
     run_ends = np.where(diffs == -1)[0]
@@ -99,7 +100,9 @@ def post_process(data: np.ndarray):
     print(f"Zeros: {zeros:,}, Ones: {ones:,}")
 
     # ---- Frame boundary search ----
-    print(f"\nSearching packets with >= {FRAME_ONES_THRESHOLD} consecutive '1's ...")
+    print(
+        f"\nSearching packets with >= {FRAME_ONES_THRESHOLD} consecutive '{CONSECUTIVE_TARGET_VALUE}'s ..."
+    )
 
     # Split the entire stream into 512‑byte logical packets
     packet_count = len(data) // PKT_SIZE
@@ -109,14 +112,14 @@ def post_process(data: np.ndarray):
         start = pkt_idx * PKT_SIZE
         end = start + PKT_SIZE
         pkt = data[start:end]
-        if find_consecutive_ones(pkt, FRAME_ONES_THRESHOLD):
+        if find_consecutive_value(pkt, FRAME_ONES_THRESHOLD):
             matches.append(pkt_idx)
 
     if matches:
         print(f"\nFound {len(matches)} packets matching threshold:")
-        print(matches[:50])  # Show first 50 packet indices only
-        if len(matches) > 50:
-            print(f"... and {len(matches) - 50} more not shown")
+        print(matches[:150])  # Show first 150 packet indices only
+        if len(matches) > 150:
+            print(f"... and {len(matches) - 150} more not shown")
     else:
         print("No packets found with that pattern.")
 
@@ -126,7 +129,7 @@ def post_process(data: np.ndarray):
         data.tofile(f)
     print(f"\nSaved raw stream to '{out_file}' ({len(data)/1024/1024:.1f} MB)")
 
-    print("\nPost‑processing complete.")
+    print("\nPost-processing complete.")
 
 
 def main():
