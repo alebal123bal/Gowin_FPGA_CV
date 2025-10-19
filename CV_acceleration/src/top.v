@@ -446,7 +446,7 @@ module top (
   // USB
   assign usb_txdat_i = fifo_hs_q;  // Send data from FIFO
   assign usb_txiso_pid_i = 4'b0011;  // Don't care for non-isochronous
-  assign usb_txcork_i = 1'b0;  // Always ready to send
+  assign usb_txcork_i = usb_online_o & fifo_hs_almost_empty;  // Cork (pause tx) when FIFO is almost empty
   assign usb_txdat_len_i = 12'd512;  // 512 bytes per packet
 
   assign usb_txval_i = 1'b0;
@@ -599,10 +599,10 @@ module top (
 
   assign PMOD_wire[3] = cmos_href;
   assign PMOD_wire[4] = cmos_vsync;  // Once per image valid
+  assign PMOD_wire[5] = cmos_write_en;
 
   // You will see these signals when running the Python dev.read (Laptop must signal IN token)
-  assign PMOD_wire[5] = usb_txpop_o;
-  assign PMOD_wire[6] = usb_txact_o;
+  assign PMOD_wire[6] = usb_txpop_o;
 
   assign PMOD_wire[7] = debug_reg_1sec_clk;
 
