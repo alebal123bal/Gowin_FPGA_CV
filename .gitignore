@@ -2,6 +2,7 @@ CV_acceleration/CV_acceleration.gprj.user
 CV_acceleration/impl
 CV_acceleration/dsim_work
 CV_acceleration/pulseview
+CV_acceleration/src/usb_2_0/usb_stream_dump
 mdc_config.yml
 mdc_ignore
 *.mdc
