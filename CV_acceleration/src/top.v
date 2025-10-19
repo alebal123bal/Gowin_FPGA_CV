@@ -439,7 +439,7 @@ module top (
 
   // Multiplex between camera data and frame ending markers
   assign fifo_hs_data = frame_end_marker_active ? 16'hFFFF : cmos_debayer_data_16;
-  assign fifo_hs_wr_en = frame_end_marker_active ? 1 : (cmos_write_en & ~fifo_hs_almost_full);
+  assign fifo_hs_wr_en = frame_end_marker_active ? (1 & usb_online_o) : (cmos_write_en & ~fifo_hs_almost_full & usb_online_o);
   assign fifo_hs_rd_en = (~fifo_hs_almost_empty) & usb_txpop_o;
 
 
