@@ -425,20 +425,47 @@ module top (
       .Full(fifo_hs_full)  //output Full
   );
 
-  // Insert frame ending markers continuously while cmos_vsync is high (39us @ 96MHz = 3744 cycles)
+  // Send exactly 512 bytes (256 words) when vsync condition is met
   reg frame_end_marker_active;
+  reg cmos_vsync_prev;
+  reg [8:0] marker_word_count;  // Count up to 256 words (512 bytes)
+  wire vsync_negedge;
 
+  // Detect negative edge of cmos_vsync
+  always @(posedge cmos_pclk or negedge I_rst_n) begin
+    if (!I_rst_n) begin
+      cmos_vsync_prev <= 1'b0;
+    end else begin
+      cmos_vsync_prev <= cmos_vsync;
+    end
+  end
+
+  assign vsync_negedge = cmos_vsync_prev & ~cmos_vsync;
+
+  // Control marker transmission - exactly 256 words (512 bytes)
   always @(posedge cmos_pclk or negedge I_rst_n) begin
     if (!I_rst_n) begin
       frame_end_marker_active <= 1'b0;
+      marker_word_count <= 9'd0;
     end else begin
-      // Directly use vsync state - insert markers throughout the entire vsync high period
-      frame_end_marker_active <= cmos_vsync;
+      if (vsync_negedge && usb_online_o) begin
+        // Start sending markers when vsync falls
+        frame_end_marker_active <= 1'b1;
+        marker_word_count <= 9'd0;
+      end else if (frame_end_marker_active) begin
+        if (marker_word_count >= 9'd255) begin
+          // Stop after exactly 256 words (512 bytes)
+          frame_end_marker_active <= 1'b0;
+          marker_word_count <= 9'd0;
+        end else begin
+          marker_word_count <= marker_word_count + 1'b1;
+        end
+      end
     end
   end
 
   // Multiplex between camera data and frame ending markers
-  assign fifo_hs_data = frame_end_marker_active ? 16'hFFFF : cmos_debayer_data_16;
+  assign fifo_hs_data = frame_end_marker_active ? 16'hA0A0 : cmos_debayer_data_16;
   assign fifo_hs_wr_en = frame_end_marker_active ? (1 & usb_online_o) : (cmos_write_en & ~fifo_hs_almost_full & usb_online_o);
   assign fifo_hs_rd_en = usb_txpop_o;
 

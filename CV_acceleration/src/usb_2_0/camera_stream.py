@@ -7,24 +7,24 @@ import ctypes
 # --- Config ---
 VID, PID, EP_IN = 0x33AA, 0x0000, 0x81
 W, H = 640, 480
-BULK_READ_SIZE = 16 * 1024 * 1024  # 16 MB per transfer (larger chunks)
-FRAME_SIZE = W * H * 2  # 2 bytes per pixel for BGR565
+BULK_READ_SIZE = 32 * 1024 * 1024  # 32 MB per transfer (larger chunks)
+FRAME_SIZE = W * H * 2  # 2 bytes per pixel for RGB565
 TIMEOUT_MS = 100
 NUM_READERS = 8  # Multiple reader threads
-MARKER_MIN_SIZE = 512  # Minimum consecutive 0xFF bytes to detect frame marker
+MARKER_MIN_SIZE = 255  # Minimum consecutive 0xA0 bytes to detect frame marker
 
 
-def decode_bgr565_fast(frame_bytes):
-    """Optimized BGR565 decoder using pre-allocated array and bitwise ops"""
+def decode_rgb565_fast(frame_bytes):
+    """Optimized RGB565 decoder (standard format - NO channel swap needed)"""
     pix16 = np.frombuffer(frame_bytes, dtype=np.uint16).reshape(H, W)
 
     # Pre-allocate output array
     rgb = np.empty((H, W, 3), dtype=np.uint8)
 
-    # Extract channels with optimized bit shifting
-    rgb[:, :, 0] = (pix16 & 0x1F) << 3  # R
-    rgb[:, :, 1] = ((pix16 >> 5) & 0x3F) << 2  # G
-    rgb[:, :, 2] = ((pix16 >> 11) & 0x1F) << 3  # B
+    # Extract channels - standard RGB565 layout
+    rgb[:, :, 0] = ((pix16 >> 11) & 0x1F) << 3  # R (bits 15-11)
+    rgb[:, :, 1] = ((pix16 >> 5) & 0x3F) << 2  # G (bits 10-5)
+    rgb[:, :, 2] = (pix16 & 0x1F) << 3  # B (bits 4-0)
 
     return rgb
 
@@ -37,15 +37,15 @@ def find_frame_marker_fast(buf_view, start, end, min_size=MARKER_MIN_SIZE):
     # Convert memoryview to numpy array (zero-copy)
     data = np.frombuffer(buf_view[start:end], dtype=np.uint8)
 
-    # Find all 0xFF positions
-    ff_mask = data == 0xFF
+    # Find all 0xA0 positions
+    a0_mask = data == 0xA0
 
-    # Find transitions (where 0xFF sequences start/end)
-    ff_diff = np.diff(np.concatenate(([0], ff_mask.astype(np.int8), [0])))
-    starts = np.where(ff_diff == 1)[0]
-    ends = np.where(ff_diff == -1)[0]
+    # Find transitions (where 0xA0 sequences start/end)
+    a0_diff = np.diff(np.concatenate(([0], a0_mask.astype(np.int8), [0])))
+    starts = np.where(a0_diff == 1)[0]
+    ends = np.where(a0_diff == -1)[0]
 
-    # Find runs of 0xFF >= min_size
+    # Find runs of 0xA0 >= min_size
     run_lengths = ends - starts
     valid_runs = np.where(run_lengths >= min_size)[0]
 
@@ -220,7 +220,7 @@ def marker_detector_process(raw_queue, frame_queue, stop):
 
 
 def display_process(frame_queue, stop):
-    """Separate process for BGR565 decoding and OpenCV display"""
+    """Separate process for RGB565 decoding and OpenCV display"""
     print("Display process started")
 
     cv2.namedWindow("OV5640", cv2.WINDOW_NORMAL)
@@ -234,8 +234,8 @@ def display_process(frame_queue, stop):
                 # Get frame data from marker detector
                 frame_data = frame_queue.get(timeout=0.5)
 
-                # Decode BGR565 to RGB
-                frame_rgb = decode_bgr565_fast(frame_data)
+                # Option 1: Standard RGB565
+                frame_rgb = decode_rgb565_fast(frame_data)
 
                 # Convert RGB to BGR for OpenCV display
                 cv2.imshow("OV5640", frame_rgb[:, :, ::-1])
