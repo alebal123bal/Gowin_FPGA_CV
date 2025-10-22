@@ -85,6 +85,80 @@ def find_consecutive_value(packet: np.ndarray, threshold: int) -> bool:
     return np.any(run_lengths >= threshold)
 
 
+def calculate_frame_marker_distances(marker_packets: list) -> np.ndarray:
+    """
+    Calculate the array of distances between frame marker boundaries.
+
+    Args:
+        marker_packets: List of packet indices that contain frame markers
+
+    Returns:
+        numpy array of distances between the last packet of one frame marker
+        sequence and the start of the next frame marker sequence
+    """
+    if len(marker_packets) < 2:
+        return np.array([], dtype=np.int32)
+
+    distances = []
+
+    # Identify frame marker groups (consecutive packets are part of the same marker sequence)
+    marker_groups = []
+    current_group = [marker_packets[0]]
+
+    for i in range(1, len(marker_packets)):
+        if marker_packets[i] == marker_packets[i - 1] + 1:
+            # Consecutive packet, part of same marker sequence
+            current_group.append(marker_packets[i])
+        else:
+            # Gap found, start new marker sequence
+            marker_groups.append(current_group)
+            current_group = [marker_packets[i]]
+
+    # Don't forget the last group
+    if current_group:
+        marker_groups.append(current_group)
+
+    print(f"\nFrame marker analysis:")
+    print(f"Total marker packets: {len(marker_packets)}")
+    print(f"Number of frame marker groups: {len(marker_groups)}")
+
+    # Calculate distances between frame marker boundaries
+    for i in range(len(marker_groups) - 1):
+        last_packet_current_frame = marker_groups[i][
+            -1
+        ]  # Last packet of current marker sequence
+        first_packet_next_frame = marker_groups[i + 1][
+            0
+        ]  # First packet of next marker sequence
+        distance = first_packet_next_frame - last_packet_current_frame
+        distances.append(distance)
+
+        print(
+            f"Frame {i+1}: markers {marker_groups[i][0]}-{marker_groups[i][-1]} "
+            f"({len(marker_groups[i])} packets), distance to next: {distance}"
+        )
+
+    # Show info about the last frame
+    if marker_groups:
+        last_frame_idx = len(marker_groups) - 1
+        print(
+            f"Frame {last_frame_idx+1}: markers {marker_groups[last_frame_idx][0]}-{marker_groups[last_frame_idx][-1]} "
+            f"({len(marker_groups[last_frame_idx])} packets)"
+        )
+
+    distances_array = np.array(distances, dtype=np.int32)
+
+    if len(distances_array) > 0:
+        print(f"\nFrame marker distance statistics:")
+        print(f"Mean distance: {distances_array.mean():.2f} packets")
+        print(f"Std deviation: {distances_array.std():.2f} packets")
+        print(f"Min distance: {distances_array.min()} packets")
+        print(f"Max distance: {distances_array.max()} packets")
+        print(f"All distances: {distances_array.tolist()}")
+
+    return distances_array
+
+
 def post_process(data: np.ndarray):
     """Do post‑processing and find packets with long consecutive 1s."""
     print("Starting post‑processing ...")
@@ -120,6 +194,11 @@ def post_process(data: np.ndarray):
         print(matches[:400])  # Show first 400 packet indices only
         if len(matches) > 400:
             print(f"... and {len(matches) - 400} more not shown")
+
+        # Calculate frame marker distances
+        frame_distances = calculate_frame_marker_distances(matches)
+        print(f"Frame marker distances: {frame_distances}")
+
     else:
         print("No packets found with that pattern.")
 
