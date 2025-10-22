@@ -7,7 +7,7 @@ PID = 0x0000
 EP_IN = 0x81
 PKT_SIZE = 512
 BULK_READ_SIZE = PKT_SIZE * 1024  # 512 KB per read
-READ_COUNT = 5
+READ_COUNT = 20
 TIMEOUT_MS = 20
 MAX_TIMEOUTS = 200  # Stop after these many consecutive timeouts
 FRAME_ONES_THRESHOLD = 511  # configurable threshold (consecutive occurrences)
@@ -117,9 +117,9 @@ def post_process(data: np.ndarray):
 
     if matches:
         print(f"\nFound {len(matches)} packets matching threshold:")
-        print(matches[:150])  # Show first 150 packet indices only
-        if len(matches) > 150:
-            print(f"... and {len(matches) - 150} more not shown")
+        print(matches[:400])  # Show first 400 packet indices only
+        if len(matches) > 400:
+            print(f"... and {len(matches) - 400} more not shown")
     else:
         print("No packets found with that pattern.")
 
