@@ -187,8 +187,29 @@ OV5640 Configuration Analysis
     - verible-verilog-lint --version
 
 - Microsoft Visual C++ Redistributable (both x64 and x86)
-  - Install the latest “Microsoft Visual C++ Redistributable” packages for x64 and x86 from Microsoft’s website.
+  - Install the latest "Microsoft Visual C++ Redistributable" packages for x64 and x86 from Microsoft's website.
   - These are required to run the prebuilt Verible executables.
+
+- **Zadig (USB Driver Installation)**
+  - Download Zadig from https://zadig.akeo.ie/
+  - **CRITICAL**: Used to install proper USB drivers for the FPGA device
+  - When the FPGA is connected and enumerated (VID=0x33AA, PID=0x0000):
+    1. Run Zadig as Administrator
+    2. Select the FPGA device from the dropdown
+    3. Choose **libusb-win32** or **WinUSB** driver
+    4. Click "Install Driver" or "Replace Driver"
+  - **Note**: Without proper drivers, Python scripts won't be able to communicate with the FPGA via USB
+  - Verify installation: The device should appear in Device Manager under "Universal Serial Bus devices" or "libusb-win32 devices"
+
+- **libusb Library (Python USB Backend)**
+  - Download libusb-1.0 from https://libusb.info/ or https://github.com/libusb/libusb/releases
+  - Extract the downloaded archive (e.g., `libusb-1.0.XX.7z`)
+  - Copy the appropriate DLL to your system:
+    - **For 64-bit Python**: Copy `MS64\dll\libusb-1.0.dll` to `C:\Windows\System32\`
+    - **For 32-bit Python**: Copy `MS32\dll\libusb-1.0.dll` to `C:\Windows\SysWOW64\`
+  - **Alternative**: Place `libusb-1.0.dll` in the same directory as your Python scripts
+  - **Required for pyusb**: This provides the low-level USB communication backend that pyusb uses
+  - Verify: Run `python -c "import usb.core; print('USB backend available')"` - should not error
 
 # Recommendations
 - Line endings: set LF
