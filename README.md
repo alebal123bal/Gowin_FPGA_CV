@@ -14,6 +14,12 @@ This project implements a high-performance camera streaming system using the Gow
 - **Frame Synchronization**: Precise timing control with vsync-based frame boundary detection
 - **DDR3 Buffer**: Triple frame buffering for smooth video processing
 
+## System Architecture
+
+![IP Hierarchy](images/hierarchy.png)
+
+*Complete system block diagram showing the interconnection of all IP cores: OV5640 camera interface, DDR3 memory controller, USB 2.0 device controller, HDMI transmitter, and supporting PLLs and timing modules*
+
 ## Demo Video
 
 ![FPGA Streaming Demo](images/StreamerDemo_lite.gif)
