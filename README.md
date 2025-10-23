@@ -16,14 +16,11 @@ This project implements a high-performance camera streaming system using the Gow
 
 ## Demo Video
 
-<video width="640" height="480" controls>
-  <source src="images/StreamerDemo_lite.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![FPGA Streaming Demo](images/StreamerDemo_lite.gif)
 
 *Demo showing the FPGA streaming video simultaneously to both PC (via USB) and Television (via HDMI)*
 
-**Note**: If the video doesn't play above, you can [download it here](images/StreamerDemo_lite.mp4) to view locally.
+**Note**: For higher quality video, you can [download the full MP4 version here](images/StreamerDemo_lite.mp4).
 
 ## System Screenshots
 
