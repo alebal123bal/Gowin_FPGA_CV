@@ -17,3 +17,4 @@ mdc_ignore
 
 __pycache__
 *.pyc
+*.mp4
