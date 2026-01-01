@@ -224,3 +224,8 @@ OV5640 Configuration Analysis
     - "files.eol": "\n",
     - "files.insertFinalNewline": true
   - Note: verible-verilog-format can force LF with --line_terminator=LF, but aligning the editor/repo prevents mixed line endings and avoids churn.
+
+## Recognition
+This project received positive feedback from Gowin Semiconductor’s CEO, Jason Zhu, regarding the design quality and execution.
+
+![Gowin CEO compliment](images/CEO_compliments_painting.png)
