@@ -228,4 +228,4 @@ OV5640 Configuration Analysis
 ## Recognition
 This project received positive feedback from Gowin Semiconductor’s CEO, Jason Zhu, regarding the design quality and execution.
 
-![Gowin CEO compliment](images/CEO_compliments_painting.png)
+<img src="images/CEO_compliments_painting.png" width="400">
